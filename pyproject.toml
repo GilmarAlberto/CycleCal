@@ -1,0 +1,10 @@
+[project]
+name = "cyclecal"
+version = "0.1.0"
+description = "Rule-based cyclic scheduling"
+requires-python = ">=3.10"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
