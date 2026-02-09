@@ -1,8 +1,8 @@
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 
-
 MAX_MONTHS_AHEAD = 12
+MAX_DAYS_AHEAD = 365
 
 
 def generate_cycle_dates(
@@ -14,20 +14,18 @@ def generate_cycle_dates(
     """
     Generate dates based on a cyclic rule.
 
-    Dates are generated up to a maximum of 12 months ahead.
-
-    Example:
-    - base_date: a known active date
-    - cycle_length: 3
-    - active_positions: [0]
-    Means: active on week 0, inactive on weeks 1 and 2
+    Dates are generated up to a maximum of 12 months / 365 days ahead.
     """
     if months > MAX_MONTHS_AHEAD:
         raise ValueError("CycleCal only allows scheduling up to 12 months ahead")
 
     results = []
     current_date = base_date
-    end_date = base_date + relativedelta(months=months)
+
+    month_limit = base_date + relativedelta(months=months)
+    hard_limit = base_date + timedelta(days=MAX_DAYS_AHEAD)
+
+    end_date = min(month_limit, hard_limit)
 
     position = 0
 
@@ -39,3 +37,4 @@ def generate_cycle_dates(
         current_date += timedelta(weeks=1)
 
     return results
+
