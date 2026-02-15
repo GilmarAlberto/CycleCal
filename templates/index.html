@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>CycleCal</title>
+
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#2FAF8A">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register("{{ url_for('static', filename='sw.js') }}")
+    .then(() => console.log("Service Worker registrado"));
+}
+</script>
+	
+<body>
+
+    <div class="container">
+
+        <header class="app-header">
+            <img src="{{ url_for('static', filename='img/cyclecal-logo-128.png') }}"
+                 alt="CycleCal Logo"
+                 class="logo">
+            <h1>
+                CycleCal
+                <span class="versao">v1.0</span>
+            </h1>
+        </header>
+
+        <div class="controls">
+            <button onclick="mesAnterior()">◀</button>
+            <span id="titulo"></span>
+            <button onclick="proximoMes()">▶</button>
+        </div>
+
+        <div id="calendario" class="calendar-grid"></div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
+

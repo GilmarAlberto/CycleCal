@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CycleCal</title>
+
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#2FAF8A">
+
+<!-- Versão 1.0.3 -->
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f7f6;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 500px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 26px;
+}
+
+.version {
+    font-size: 12px;
+    color: gray;
+    margin-left: 6px;
+}
+
+.line {
+    margin: 15px 0;
+    border-bottom: 2px solid #eee;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+button {
+    padding: 6px 12px;
+    font-size: 16px;
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.day, .header-day {
+    text-align: center;
+    padding: 12px 0;
+    border-radius: 8px;
+}
+
+.header-day {
+    font-weight: bold;
+    background: #f0f0f0;
+}
+
+.day {
+    background: #fafafa;
+    border: 1px solid #eee;
+    position: relative;
+}
+
+.day.folga {
+    background: #e6f7f1;
+    border: 2px solid #2FAF8A;
+}
+
+.day.folga::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: #2FAF8A;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+}
+
+.footer {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 12px;
+    color: gray;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="header">
+    <img src="/icon-256.png" class="logo">
+    <h1>CycleCal</h1>
+    <span class="version">v1.0.3</span>
+</div>
+
+<div class="line"></div>
+
+<div class="controls">
+    <button onclick="mesAnterior()">◀</button>
+    <strong id="titulo"></strong>
+    <button onclick="proximoMes()">▶</button>
+</div>
+
+<div class="calendar" id="calendario"></div>
+
+<div class="footer">
+Base de cálculo: 15/02/2026 (domingo de folga)
+</div>
+
+</div>
+
+<script>
+let hoje = new Date();
+let anoAtual = hoje.getFullYear();
+let mesAtual = hoje.getMonth();
+
+const baseFolgaDomingo = new Date(2026, 1, 15);
+
+function ehFolga(data) {
+
+    // Quinta-feira sempre folga
+    if (data.getDay() === 4) return true;
+
+    // Domingo regra 2 trabalha / 1 folga
+    if (data.getDay() === 0) {
+        const diff = Math.floor((data - baseFolgaDomingo) / (1000 * 60 * 60 * 24));
+        const semanas = Math.floor(diff / 7);
+        return semanas % 3 === 0;
+    }
+
+    return false;
+}
+
+function gerarCalendario(ano, mes) {
+    const calendario = document.getElementById("calendario");
+    calendario.innerHTML = "";
+
+    const titulo = document.getElementById("titulo");
+    titulo.innerText = (mes + 1) + "/" + ano;
+
+    const diasSemana = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+
+    diasSemana.forEach(d => {
+        const el = document.createElement("div");
+        el.className = "header-day";
+        el.innerText = d;
+        calendario.appendChild(el);
+    });
+
+    const primeiroDia = new Date(ano, mes, 1);
+    const inicio = primeiroDia.getDay();
+    const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+
+    for (let i = 0; i < inicio; i++) {
+        calendario.appendChild(document.createElement("div"));
+    }
+
+    for (let dia = 1; dia <= diasNoMes; dia++) {
+        const data = new Date(ano, mes, dia);
+        const el = document.createElement("div");
+        el.className = "day";
+        el.innerText = dia;
+
+        if (ehFolga(data)) {
+            el.classList.add("folga");
+        }
+
+        calendario.appendChild(el);
+    }
+}
+
+function proximoMes() {
+    mesAtual++;
+    if (mesAtual > 11) {
+        mesAtual = 0;
+        anoAtual++;
+    }
+    gerarCalendario(anoAtual, mesAtual);
+}
+
+function mesAnterior() {
+    mesAtual--;
+    if (mesAtual < 0) {
+        mesAtual = 11;
+        anoAtual--;
+    }
+    gerarCalendario(anoAtual, mesAtual);
+}
+
+gerarCalendario(anoAtual, mesAtual);
+
+// Registro simples do Service Worker
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js");
+}
+</script>
+
+</body>
+</html>
+

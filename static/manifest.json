@@ -1,0 +1,21 @@
+{
+  "name": "CycleCal",
+  "short_name": "CycleCal",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2FAF8A",
+  "icons": [
+    {
+      "src": "/static/img/cyclecal-logo-256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/cyclecal-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+
