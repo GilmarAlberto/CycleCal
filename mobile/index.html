@@ -9,7 +9,7 @@
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#2FAF8A">
 
-<!-- Versão 1.0.3 -->
+<!-- Versão 1.1.1 -->
 
 <style>
 body {
@@ -106,11 +106,32 @@ button {
     right: 6px;
 }
 
+.day.holiday {
+    background: #ffeaea;
+    border: 2px solid #c62828;
+}
+
+/* Destaque do dia atual */
+.day.today span {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    border-radius: 50%;
+    background: black;
+    color: white;
+    font-weight: bold;
+}
+
 .footer {
     margin-top: 20px;
-    text-align: center;
     font-size: 12px;
     color: gray;
+}
+
+.footer .holidays {
+    margin-top: 10px;
+    color: #444;
 }
 </style>
 </head>
@@ -121,7 +142,7 @@ button {
 <div class="header">
     <img src="/icon-256.png" class="logo">
     <h1>CycleCal</h1>
-    <span class="version">v1.0.3</span>
+    <span class="version">v1.1.1</span>
 </div>
 
 <div class="line"></div>
@@ -134,8 +155,9 @@ button {
 
 <div class="calendar" id="calendario"></div>
 
-<div class="footer">
+<div class="footer" id="footer">
 Base de cálculo: 15/02/2026 (domingo de folga)
+<div class="holidays" id="listaFeriados"></div>
 </div>
 
 </div>
@@ -147,12 +169,50 @@ let mesAtual = hoje.getMonth();
 
 const baseFolgaDomingo = new Date(2026, 1, 15);
 
-function ehFolga(data) {
+/* ===== FERIADOS ===== */
 
-    // Quinta-feira sempre folga
+const feriadosNacionais = [
+    { dia: 1, mes: 0, nome: "Confraternização Universal" },
+    { dia: 21, mes: 3, nome: "Tiradentes" },
+    { dia: 1, mes: 4, nome: "Dia do Trabalho" },
+    { dia: 7, mes: 8, nome: "Independência do Brasil" },
+    { dia: 12, mes: 9, nome: "Nossa Senhora Aparecida" },
+    { dia: 2, mes: 10, nome: "Finados" },
+    { dia: 15, mes: 10, nome: "Proclamação da República" },
+    { dia: 25, mes: 11, nome: "Natal" }
+];
+
+const feriadosCuritiba = [
+    { dia: 8, mes: 8, nome: "Nossa Senhora da Luz dos Pinhais" }
+];
+
+const feriadosFixos = [...feriadosNacionais, ...feriadosCuritiba];
+
+function ehFeriado(data) {
+    return feriadosFixos.find(f =>
+        f.dia === data.getDate() &&
+        f.mes === data.getMonth()
+    );
+}
+
+function listarFeriadosDoMes(ano, mes) {
+    const lista = document.getElementById("listaFeriados");
+    lista.innerHTML = "";
+
+    const feriadosDoMes = feriadosFixos.filter(f => f.mes === mes);
+
+    feriadosDoMes.forEach(f => {
+        const div = document.createElement("div");
+        div.innerText = `${String(f.dia).padStart(2,'0')}/${String(f.mes+1).padStart(2,'0')} – ${f.nome}`;
+        lista.appendChild(div);
+    });
+}
+
+/* ===== FOLGA ===== */
+
+function ehFolga(data) {
     if (data.getDay() === 4) return true;
 
-    // Domingo regra 2 trabalha / 1 folga
     if (data.getDay() === 0) {
         const diff = Math.floor((data - baseFolgaDomingo) / (1000 * 60 * 60 * 24));
         const semanas = Math.floor(diff / 7);
@@ -190,14 +250,26 @@ function gerarCalendario(ano, mes) {
         const data = new Date(ano, mes, dia);
         const el = document.createElement("div");
         el.className = "day";
-        el.innerText = dia;
 
-        if (ehFolga(data)) {
-            el.classList.add("folga");
+        const span = document.createElement("span");
+        span.innerText = dia;
+        el.appendChild(span);
+
+        if (ehFolga(data)) el.classList.add("folga");
+        if (ehFeriado(data)) el.classList.add("holiday");
+
+        if (
+            dia === hoje.getDate() &&
+            mes === hoje.getMonth() &&
+            ano === hoje.getFullYear()
+        ) {
+            el.classList.add("today");
         }
 
         calendario.appendChild(el);
     }
+
+    listarFeriadosDoMes(ano, mes);
 }
 
 function proximoMes() {
@@ -220,7 +292,6 @@ function mesAnterior() {
 
 gerarCalendario(anoAtual, mesAtual);
 
-// Registro simples do Service Worker
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/sw.js");
 }

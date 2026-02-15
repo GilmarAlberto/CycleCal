@@ -1,5 +1,5 @@
 // ======= VERSIONAMENTO =======
-const CACHE_NAME = "cyclecal-v1.0.3";
+const CACHE_NAME = "cyclecal-v1.1.1";
 
 // Arquivos que serão cacheados
 const URLS_TO_CACHE = [
