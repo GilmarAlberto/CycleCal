@@ -1,5 +1,5 @@
-// ======= VERSIONAMENTO =======
-const CACHE_NAME = "cyclecal-v1.1.1";
+/ ======= VERSIONAMENTO =======
+const CACHE_NAME = "cyclecal-v1.2.0-alpha";
 
 // Arquivos que serão cacheados
 const URLS_TO_CACHE = [

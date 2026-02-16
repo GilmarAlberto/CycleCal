@@ -9,7 +9,7 @@
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#2FAF8A">
 
-<!-- Versão 1.1.1 -->
+<!-- Versão 1.2.0-alpha-->
 
 <style>
 body {
@@ -111,7 +111,6 @@ button {
     border: 2px solid #c62828;
 }
 
-/* Destaque do dia atual */
 .day.today span {
     display: inline-block;
     width: 28px;
@@ -142,7 +141,7 @@ button {
 <div class="header">
     <img src="/icon-256.png" class="logo">
     <h1>CycleCal</h1>
-    <span class="version">v1.1.1</span>
+    <span class="version">v1.2.0-alpha</span>
 </div>
 
 <div class="line"></div>
@@ -155,7 +154,7 @@ button {
 
 <div class="calendar" id="calendario"></div>
 
-<div class="footer" id="footer">
+<div class="footer">
 Base de cálculo: 15/02/2026 (domingo de folga)
 <div class="holidays" id="listaFeriados"></div>
 </div>
@@ -169,7 +168,7 @@ let mesAtual = hoje.getMonth();
 
 const baseFolgaDomingo = new Date(2026, 1, 15);
 
-/* ===== FERIADOS ===== */
+/* ===== FERIADOS FIXOS ===== */
 
 const feriadosNacionais = [
     { dia: 1, mes: 0, nome: "Confraternização Universal" },
@@ -188,23 +187,59 @@ const feriadosCuritiba = [
 
 const feriadosFixos = [...feriadosNacionais, ...feriadosCuritiba];
 
-function ehFeriado(data) {
-    return feriadosFixos.find(f =>
+/* ===== FERIADOS MÓVEIS ===== */
+
+function calcularPascoa(ano) {
+    const a = ano % 19;
+    const b = Math.floor(ano / 100);
+    const c = ano % 100;
+    const d = Math.floor(b / 4);
+    const e = b % 4;
+    const f = Math.floor((b + 8) / 25);
+    const g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4);
+    const k = c % 4;
+    const l = (32 + 2 * e + 2 * i - h - k) % 7;
+    const m = Math.floor((a + 11 * h + 22 * l) / 451);
+
+    const mes = Math.floor((h + l - 7 * m + 114) / 31);
+    const dia = ((h + l - 7 * m + 114) % 31) + 1;
+
+    return new Date(ano, mes - 1, dia);
+}
+
+function gerarFeriadosMoveis(ano) {
+    const pascoa = calcularPascoa(ano);
+
+    const sextaSanta = new Date(pascoa);
+    sextaSanta.setDate(pascoa.getDate() - 2);
+
+    const corpusChristi = new Date(pascoa);
+    corpusChristi.setDate(pascoa.getDate() + 60);
+
+    return [
+        { dia: sextaSanta.getDate(), mes: sextaSanta.getMonth(), nome: "Sexta-feira Santa" },
+        { dia: pascoa.getDate(), mes: pascoa.getMonth(), nome: "Páscoa" },
+        { dia: corpusChristi.getDate(), mes: corpusChristi.getMonth(), nome: "Corpus Christi" }
+    ];
+}
+
+function ehFeriado(data, lista) {
+    return lista.find(f =>
         f.dia === data.getDate() &&
         f.mes === data.getMonth()
     );
 }
 
-function listarFeriadosDoMes(ano, mes) {
-    const lista = document.getElementById("listaFeriados");
-    lista.innerHTML = "";
+function listarFeriadosDoMes(ano, mes, lista) {
+    const listaDiv = document.getElementById("listaFeriados");
+    listaDiv.innerHTML = "";
 
-    const feriadosDoMes = feriadosFixos.filter(f => f.mes === mes);
-
-    feriadosDoMes.forEach(f => {
+    lista.filter(f => f.mes === mes).forEach(f => {
         const div = document.createElement("div");
         div.innerText = `${String(f.dia).padStart(2,'0')}/${String(f.mes+1).padStart(2,'0')} – ${f.nome}`;
-        lista.appendChild(div);
+        listaDiv.appendChild(div);
     });
 }
 
@@ -218,7 +253,6 @@ function ehFolga(data) {
         const semanas = Math.floor(diff / 7);
         return semanas % 3 === 0;
     }
-
     return false;
 }
 
@@ -226,11 +260,9 @@ function gerarCalendario(ano, mes) {
     const calendario = document.getElementById("calendario");
     calendario.innerHTML = "";
 
-    const titulo = document.getElementById("titulo");
-    titulo.innerText = (mes + 1) + "/" + ano;
+    document.getElementById("titulo").innerText = (mes + 1) + "/" + ano;
 
     const diasSemana = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
-
     diasSemana.forEach(d => {
         const el = document.createElement("div");
         el.className = "header-day";
@@ -241,6 +273,9 @@ function gerarCalendario(ano, mes) {
     const primeiroDia = new Date(ano, mes, 1);
     const inicio = primeiroDia.getDay();
     const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+
+    const feriadosMoveis = gerarFeriadosMoveis(ano);
+    const todosFeriados = [...feriadosFixos, ...feriadosMoveis];
 
     for (let i = 0; i < inicio; i++) {
         calendario.appendChild(document.createElement("div"));
@@ -256,7 +291,7 @@ function gerarCalendario(ano, mes) {
         el.appendChild(span);
 
         if (ehFolga(data)) el.classList.add("folga");
-        if (ehFeriado(data)) el.classList.add("holiday");
+        if (ehFeriado(data, todosFeriados)) el.classList.add("holiday");
 
         if (
             dia === hoje.getDate() &&
@@ -269,24 +304,18 @@ function gerarCalendario(ano, mes) {
         calendario.appendChild(el);
     }
 
-    listarFeriadosDoMes(ano, mes);
+    listarFeriadosDoMes(ano, mes, todosFeriados);
 }
 
 function proximoMes() {
     mesAtual++;
-    if (mesAtual > 11) {
-        mesAtual = 0;
-        anoAtual++;
-    }
+    if (mesAtual > 11) { mesAtual = 0; anoAtual++; }
     gerarCalendario(anoAtual, mesAtual);
 }
 
 function mesAnterior() {
     mesAtual--;
-    if (mesAtual < 0) {
-        mesAtual = 11;
-        anoAtual--;
-    }
+    if (mesAtual < 0) { mesAtual = 11; anoAtual--; }
     gerarCalendario(anoAtual, mesAtual);
 }
 
