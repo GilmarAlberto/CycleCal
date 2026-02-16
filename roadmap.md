@@ -37,12 +37,30 @@ Branch: feature/1.1.0
 - [x] Testar até 2027  
 - [x] Validar ano bissexto  
 
-### 3.2 Feriados Móveis
+---
 
-- [ ] Implementar cálculo da Páscoa  
-- [ ] Derivar Carnaval  
-- [ ] Derivar Corpus Christi  
-- [ ] Testar múltiplos anos  
+### 3.2 Feriados Móveis (dividido em ciclos de 30 min)
+
+#### 🕒 Ciclo 1 — Cálculo da Páscoa
+- [ ] Implementar função `calcularPascoa(ano)`
+- [ ] Testar anos conhecidos (2024, 2025, 2028, 2030)
+- [ ] Validar ano bissexto
+
+#### 🕒 Ciclo 2 — Integrar Páscoa ao sistema
+- [ ] Inserir Páscoa no array dinâmico de feriados
+- [ ] Aplicar classe `.holiday`
+- [ ] Garantir exibição no rodapé do mês
+
+#### 🕒 Ciclo 3 — Derivar datas móveis
+- [ ] Sexta-feira Santa (−2 dias)
+- [ ] Carnaval (−47 dias)
+- [ ] Corpus Christi (+60 dias)
+
+#### 🕒 Ciclo 4 — Testes robustos
+- [ ] Testar múltiplos anos (até 2035)
+- [ ] Validar navegação entre meses
+- [ ] Verificar coexistência com `.folga`
+- [ ] Testar funcionamento offline
 
 ---
 

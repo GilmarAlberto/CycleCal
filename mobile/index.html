@@ -1,331 +1,369 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CycleCal</title>
 
-<title>CycleCal</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2FAF8A">
 
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#2FAF8A">
+    <!-- Versão 1.2.0-alpha -->
 
-<!-- Versão 1.2.0-alpha-->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7f6;
+            margin: 0;
+            padding: 20px;
+        }
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f5f7f6;
-    margin: 0;
-    padding: 20px;
-}
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
 
-.container {
-    max-width: 500px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-}
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-.header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+        .logo {
+            width: 40px;
+            height: 40px;
+        }
 
-.logo {
-    width: 40px;
-    height: 40px;
-}
+        h1 {
+            margin: 0;
+            font-size: 26px;
+        }
 
-h1 {
-    margin: 0;
-    font-size: 26px;
-}
+        .version {
+            font-size: 12px;
+            color: gray;
+            margin-left: 6px;
+        }
 
-.version {
-    font-size: 12px;
-    color: gray;
-    margin-left: 6px;
-}
+        .line {
+            margin: 15px 0;
+            border-bottom: 2px solid #eee;
+        }
 
-.line {
-    margin: 15px 0;
-    border-bottom: 2px solid #eee;
-}
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
 
-.controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
+        button {
+            padding: 6px 12px;
+            font-size: 16px;
+        }
 
-button {
-    padding: 6px 12px;
-    font-size: 16px;
-}
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
 
-.calendar {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
-}
+        .day, .header-day {
+            text-align: center;
+            padding: 12px 0;
+            border-radius: 8px;
+        }
 
-.day, .header-day {
-    text-align: center;
-    padding: 12px 0;
-    border-radius: 8px;
-}
+        .header-day {
+            font-weight: bold;
+            background: #f0f0f0;
+        }
 
-.header-day {
-    font-weight: bold;
-    background: #f0f0f0;
-}
+        .day {
+            background: #fafafa;
+            border: 1px solid #eee;
+            position: relative;
+        }
 
-.day {
-    background: #fafafa;
-    border: 1px solid #eee;
-    position: relative;
-}
+        .day.folga {
+            background: #e6f7f1;
+            border: 2px solid #2FAF8A;
+        }
 
-.day.folga {
-    background: #e6f7f1;
-    border: 2px solid #2FAF8A;
-}
+        .day.folga::after {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background: #2FAF8A;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+        }
 
-.day.folga::after {
-    content: "";
-    width: 8px;
-    height: 8px;
-    background: #2FAF8A;
-    border-radius: 50%;
-    position: absolute;
-    bottom: 6px;
-    right: 6px;
-}
+        .day.holiday {
+            background: #ffeaea;
+            border: 2px solid #c62828;
+        }
 
-.day.holiday {
-    background: #ffeaea;
-    border: 2px solid #c62828;
-}
+        .day.today span {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            border-radius: 50%;
+            background: black;
+            color: white;
+            font-weight: bold;
+        }
 
-.day.today span {
-    display: inline-block;
-    width: 28px;
-    height: 28px;
-    line-height: 28px;
-    border-radius: 50%;
-    background: black;
-    color: white;
-    font-weight: bold;
-}
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: gray;
+        }
 
-.footer {
-    margin-top: 20px;
-    font-size: 12px;
-    color: gray;
-}
-
-.footer .holidays {
-    margin-top: 10px;
-    color: #444;
-}
-</style>
+        .footer .holidays {
+            margin-top: 10px;
+            color: #444;
+        }
+    </style>
 </head>
 
 <body>
-<div class="container">
+    <div class="container">
 
-<div class="header">
-    <img src="/icon-256.png" class="logo">
-    <h1>CycleCal</h1>
-    <span class="version">v1.2.0-alpha</span>
-</div>
+        <div class="header">
+            <img src="/icon-256.png" class="logo">
+            <h1>CycleCal</h1>
+            <span class="version">v1.2.0-alpha</span>
+        </div>
 
-<div class="line"></div>
+        <div class="line"></div>
 
-<div class="controls">
-    <button onclick="mesAnterior()">◀</button>
-    <strong id="titulo"></strong>
-    <button onclick="proximoMes()">▶</button>
-</div>
+        <div class="controls">
+            <button onclick="mesAnterior()">◀</button>
+            <strong id="titulo"></strong>
+            <button onclick="proximoMes()">▶</button>
+        </div>
 
-<div class="calendar" id="calendario"></div>
+        <div class="calendar" id="calendario"></div>
 
-<div class="footer">
-Base de cálculo: 15/02/2026 (domingo de folga)
-<div class="holidays" id="listaFeriados"></div>
-</div>
+        <div class="footer">
+            Base de cálculo: 15/02/2026 (domingo de folga)
+            <div class="holidays" id="listaFeriados"></div>
+        </div>
 
-</div>
+    </div>
 
-<script>
-let hoje = new Date();
-let anoAtual = hoje.getFullYear();
-let mesAtual = hoje.getMonth();
+    <script>
+        let hoje = new Date();
+        let anoAtual = hoje.getFullYear();
+        let mesAtual = hoje.getMonth();
 
-const baseFolgaDomingo = new Date(2026, 1, 15);
+        const baseFolgaDomingo = new Date(2026, 1, 15);
 
-/* ===== FERIADOS FIXOS ===== */
+        /* ===== FERIADOS FIXOS ===== */
 
-const feriadosNacionais = [
-    { dia: 1, mes: 0, nome: "Confraternização Universal" },
-    { dia: 21, mes: 3, nome: "Tiradentes" },
-    { dia: 1, mes: 4, nome: "Dia do Trabalho" },
-    { dia: 7, mes: 8, nome: "Independência do Brasil" },
-    { dia: 12, mes: 9, nome: "Nossa Senhora Aparecida" },
-    { dia: 2, mes: 10, nome: "Finados" },
-    { dia: 15, mes: 10, nome: "Proclamação da República" },
-    { dia: 25, mes: 11, nome: "Natal" }
-];
+        const feriadosNacionais = [
+            { dia: 1, mes: 0, nome: "Confraternização Universal" },
+            { dia: 21, mes: 3, nome: "Tiradentes" },
+            { dia: 1, mes: 4, nome: "Dia do Trabalho" },
+            { dia: 7, mes: 8, nome: "Independência do Brasil" },
+            { dia: 12, mes: 9, nome: "Nossa Senhora Aparecida" },
+            { dia: 2, mes: 10, nome: "Finados" },
+            { dia: 15, mes: 10, nome: "Proclamação da República" },
+            { dia: 25, mes: 11, nome: "Natal" }
+        ];
 
-const feriadosCuritiba = [
-    { dia: 8, mes: 8, nome: "Nossa Senhora da Luz dos Pinhais" }
-];
+        const feriadosCuritiba = [
+            { dia: 8, mes: 8, nome: "Nossa Senhora da Luz dos Pinhais" }
+        ];
 
-const feriadosFixos = [...feriadosNacionais, ...feriadosCuritiba];
+        const feriadosFixos = [...feriadosNacionais, ...feriadosCuritiba];
 
-/* ===== FERIADOS MÓVEIS ===== */
+        /* ===== FERIADOS MÓVEIS ===== */
 
-function calcularPascoa(ano) {
-    const a = ano % 19;
-    const b = Math.floor(ano / 100);
-    const c = ano % 100;
-    const d = Math.floor(b / 4);
-    const e = b % 4;
-    const f = Math.floor((b + 8) / 25);
-    const g = Math.floor((b - f + 1) / 3);
-    const h = (19 * a + b - d - g + 15) % 30;
-    const i = Math.floor(c / 4);
-    const k = c % 4;
-    const l = (32 + 2 * e + 2 * i - h - k) % 7;
-    const m = Math.floor((a + 11 * h + 22 * l) / 451);
+        function calcularPascoa(ano) {
+            const a = ano % 19;
+            const b = Math.floor(ano / 100);
+            const c = ano % 100;
+            const d = Math.floor(b / 4);
+            const e = b % 4;
+            const f = Math.floor((b + 8) / 25);
+            const g = Math.floor((b - f + 1) / 3);
+            const h = (19 * a + b - d - g + 15) % 30;
+            const i = Math.floor(c / 4);
+            const k = c % 4;
+            const l = (32 + 2 * e + 2 * i - h - k) % 7;
+            const m = Math.floor((a + 11 * h + 22 * l) / 451);
 
-    const mes = Math.floor((h + l - 7 * m + 114) / 31);
-    const dia = ((h + l - 7 * m + 114) % 31) + 1;
+            const mes = Math.floor((h + l - 7 * m + 114) / 31);
+            const dia = ((h + l - 7 * m + 114) % 31) + 1;
 
-    return new Date(ano, mes - 1, dia);
-}
-
-function gerarFeriadosMoveis(ano) {
-    const pascoa = calcularPascoa(ano);
-
-    const sextaSanta = new Date(pascoa);
-    sextaSanta.setDate(pascoa.getDate() - 2);
-
-    const corpusChristi = new Date(pascoa);
-    corpusChristi.setDate(pascoa.getDate() + 60);
-
-    return [
-        { dia: sextaSanta.getDate(), mes: sextaSanta.getMonth(), nome: "Sexta-feira Santa" },
-        { dia: pascoa.getDate(), mes: pascoa.getMonth(), nome: "Páscoa" },
-        { dia: corpusChristi.getDate(), mes: corpusChristi.getMonth(), nome: "Corpus Christi" }
-    ];
-}
-
-function ehFeriado(data, lista) {
-    return lista.find(f =>
-        f.dia === data.getDate() &&
-        f.mes === data.getMonth()
-    );
-}
-
-function listarFeriadosDoMes(ano, mes, lista) {
-    const listaDiv = document.getElementById("listaFeriados");
-    listaDiv.innerHTML = "";
-
-    lista.filter(f => f.mes === mes).forEach(f => {
-        const div = document.createElement("div");
-        div.innerText = `${String(f.dia).padStart(2,'0')}/${String(f.mes+1).padStart(2,'0')} – ${f.nome}`;
-        listaDiv.appendChild(div);
-    });
-}
-
-/* ===== FOLGA ===== */
-
-function ehFolga(data) {
-    if (data.getDay() === 4) return true;
-
-    if (data.getDay() === 0) {
-        const diff = Math.floor((data - baseFolgaDomingo) / (1000 * 60 * 60 * 24));
-        const semanas = Math.floor(diff / 7);
-        return semanas % 3 === 0;
-    }
-    return false;
-}
-
-function gerarCalendario(ano, mes) {
-    const calendario = document.getElementById("calendario");
-    calendario.innerHTML = "";
-
-    document.getElementById("titulo").innerText = (mes + 1) + "/" + ano;
-
-    const diasSemana = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
-    diasSemana.forEach(d => {
-        const el = document.createElement("div");
-        el.className = "header-day";
-        el.innerText = d;
-        calendario.appendChild(el);
-    });
-
-    const primeiroDia = new Date(ano, mes, 1);
-    const inicio = primeiroDia.getDay();
-    const diasNoMes = new Date(ano, mes + 1, 0).getDate();
-
-    const feriadosMoveis = gerarFeriadosMoveis(ano);
-    const todosFeriados = [...feriadosFixos, ...feriadosMoveis];
-
-    for (let i = 0; i < inicio; i++) {
-        calendario.appendChild(document.createElement("div"));
-    }
-
-    for (let dia = 1; dia <= diasNoMes; dia++) {
-        const data = new Date(ano, mes, dia);
-        const el = document.createElement("div");
-        el.className = "day";
-
-        const span = document.createElement("span");
-        span.innerText = dia;
-        el.appendChild(span);
-
-        if (ehFolga(data)) el.classList.add("folga");
-        if (ehFeriado(data, todosFeriados)) el.classList.add("holiday");
-
-        if (
-            dia === hoje.getDate() &&
-            mes === hoje.getMonth() &&
-            ano === hoje.getFullYear()
-        ) {
-            el.classList.add("today");
+            return new Date(ano, mes - 1, dia);
         }
 
-        calendario.appendChild(el);
-    }
+        function gerarFeriadosMoveis(ano) {
+            const pascoa = calcularPascoa(ano);
 
-    listarFeriadosDoMes(ano, mes, todosFeriados);
-}
+            const sextaSanta = new Date(pascoa);
+            sextaSanta.setDate(pascoa.getDate() - 2);
 
-function proximoMes() {
-    mesAtual++;
-    if (mesAtual > 11) { mesAtual = 0; anoAtual++; }
-    gerarCalendario(anoAtual, mesAtual);
-}
+            const corpusChristi = new Date(pascoa);
+            corpusChristi.setDate(pascoa.getDate() + 60);
 
-function mesAnterior() {
-    mesAtual--;
-    if (mesAtual < 0) { mesAtual = 11; anoAtual--; }
-    gerarCalendario(anoAtual, mesAtual);
-}
+            return [
+                { dia: sextaSanta.getDate(), mes: sextaSanta.getMonth(), nome: "Sexta-feira Santa" },
+                { dia: pascoa.getDate(), mes: pascoa.getMonth(), nome: "Páscoa" },
+                { dia: corpusChristi.getDate(), mes: corpusChristi.getMonth(), nome: "Corpus Christi" }
+            ];
+        }
 
-gerarCalendario(anoAtual, mesAtual);
+        function ehFeriado(data, lista) {
+            return lista.find(f =>
+                f.dia === data.getDate() &&
+                f.mes === data.getMonth()
+            );
+        }
 
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js");
-}
-</script>
+        function listarFeriadosDoMes(ano, mes, lista) {
+            const listaDiv = document.getElementById("listaFeriados");
+            listaDiv.innerHTML = "";
 
+            lista.filter(f => f.mes === mes).forEach(f => {
+                const div = document.createElement("div");
+                div.innerText =
+                    `${String(f.dia).padStart(2,'0')}/` +
+                    `${String(f.mes + 1).padStart(2,'0')} – ${f.nome}`;
+                listaDiv.appendChild(div);
+            });
+        }
+
+        function ehFolga(data) {
+            if (data.getDay() === 4) return true;
+
+            if (data.getDay() === 0) {
+                const diff = Math.floor(
+                    (data - baseFolgaDomingo) / (1000 * 60 * 60 * 24)
+                );
+                const semanas = Math.floor(diff / 7);
+                return semanas % 3 === 0;
+            }
+
+            return false;
+        }
+
+        function gerarCalendario(ano, mes) {
+            const calendario = document.getElementById("calendario");
+            calendario.innerHTML = "";
+
+            document.getElementById("titulo").innerText =
+                (mes + 1) + "/" + ano;
+
+            const diasSemana = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+
+            diasSemana.forEach(d => {
+                const el = document.createElement("div");
+                el.className = "header-day";
+                el.innerText = d;
+                calendario.appendChild(el);
+            });
+
+            const primeiroDia = new Date(ano, mes, 1);
+            const inicio = primeiroDia.getDay();
+            const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+
+            const feriadosMoveis = gerarFeriadosMoveis(ano);
+            const todosFeriados = [...feriadosFixos, ...feriadosMoveis];
+
+            for (let i = 0; i < inicio; i++) {
+                calendario.appendChild(document.createElement("div"));
+            }
+
+            for (let dia = 1; dia <= diasNoMes; dia++) {
+                const data = new Date(ano, mes, dia);
+                const el = document.createElement("div");
+                el.className = "day";
+
+                const span = document.createElement("span");
+                span.innerText = dia;
+                el.appendChild(span);
+
+                if (ehFolga(data)) el.classList.add("folga");
+                if (ehFeriado(data, todosFeriados)) el.classList.add("holiday");
+
+                if (
+                    dia === hoje.getDate() &&
+                    mes === hoje.getMonth() &&
+                    ano === hoje.getFullYear()
+                ) {
+                    el.classList.add("today");
+                }
+
+                calendario.appendChild(el);
+            }
+
+            listarFeriadosDoMes(ano, mes, todosFeriados);
+        }
+
+        function proximoMes() {
+            mesAtual++;
+            if (mesAtual > 11) {
+                mesAtual = 0;
+                anoAtual++;
+            }
+            gerarCalendario(anoAtual, mesAtual);
+        }
+
+        function mesAnterior() {
+            mesAtual--;
+            if (mesAtual < 0) {
+                mesAtual = 11;
+                anoAtual--;
+            }
+            gerarCalendario(anoAtual, mesAtual);
+        }
+
+        gerarCalendario(anoAtual, mesAtual);
+
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("/sw.js")
+                .then(reg => {
+
+                    if (reg.waiting) {
+                        reg.waiting.postMessage({ type: "SKIP_WAITING" });
+                    }
+
+                    reg.addEventListener("updatefound", () => {
+                        const newWorker = reg.installing;
+
+                        newWorker.addEventListener("statechange", () => {
+                            if (
+                                newWorker.state === "installed" &&
+                                navigator.serviceWorker.controller
+                            ) {
+                                newWorker.postMessage({ type: "SKIP_WAITING" });
+                            }
+                        });
+                    });
+
+                    navigator.serviceWorker.addEventListener(
+                        "controllerchange",
+                        () => window.location.reload()
+                    );
+
+                })
+                .catch(err => {
+                    console.error("Erro ao registrar Service Worker:", err);
+                });
+        }
+
+    </script>
 </body>
 </html>
 
