@@ -1,15 +1,12 @@
 # CycleCal
 
-Status: 🟢 v1.2.0-alpha publicada
+Status: 🟢 v1.2.0-alpha publicada  
 Base: v1.1.1  
-Branch: main
+Branch: main  
 
 ---
 
 # 🚀 v1.1.x – Concluída
-
-# 🚀 v1.2.0-alpha – Feriados Móveis (Concluída)
-
 
 ## 1️⃣ Preparação de Versão (DEV)
 
@@ -28,38 +25,42 @@ Branch: main
 
 ---
 
-## 3️⃣ Feature: Feriados (Offline)
+## 3️⃣ Feature: Feriados Fixos (Offline)
 
 ### 3.1 Feriados Fixos (Nacionais + Curitiba)
 
 - [x] Implementar lista de feriados nacionais  
 - [x] Incluir 01/05 – Dia do Trabalho  
 - [x] Incluir 08/09 – Curitiba  
+- [x] Incluir 20/11 – Dia da Consciência Negra  
 - [x] Aplicar classe `.holiday`  
 - [x] Listar feriados do mês no rodapé  
+- [x] Ordenar cronologicamente os feriados no rodapé  
 - [x] Testar até 2027  
 - [x] Validar ano bissexto  
 
 ---
 
-### 3.2 Feriados Móveis (dividido em ciclos de 30 min)
+# 🚀 v1.2.0-alpha – Feriados Móveis (Concluída)
 
-#### 🕒 Ciclo 1 — Cálculo da Páscoa
+## 3.2 Feriados Móveis
+
+### 🕒 Ciclo 1 — Cálculo da Páscoa
 - [x] Implementar função `calcularPascoa(ano)`
 - [x] Testar anos conhecidos (2024, 2025, 2028, 2030)
 - [x] Validar ano bissexto
 
-#### 🕒 Ciclo 2 — Integrar Páscoa ao sistema
+### 🕒 Ciclo 2 — Integrar Páscoa ao sistema
 - [x] Inserir Páscoa no array dinâmico de feriados
 - [x] Aplicar classe `.holiday`
 - [x] Garantir exibição no rodapé do mês
 
-#### 🕒 Ciclo 3 — Derivar datas móveis
+### 🕒 Ciclo 3 — Derivar datas móveis
 - [x] Sexta-feira Santa (−2 dias)
 - [ ] Carnaval (−47 dias) → Não implementado (não é feriado em Curitiba)
 - [x] Corpus Christi (+60 dias)
 
-#### 🕒 Ciclo 4 — Testes robustos
+### 🕒 Ciclo 4 — Testes robustos
 - [x] Testar múltiplos anos (até 2035)
 - [x] Validar navegação entre meses
 - [x] Verificar coexistência com `.folga`
@@ -67,18 +68,7 @@ Branch: main
 
 ---
 
-## 4️⃣ Feature: Base de Domingo Configurável
-
-- [ ] Criar variável `baseSunday`
-- [ ] Persistir em `localStorage`
-- [ ] Criar input `type="date"`
-- [ ] Validar se data escolhida é domingo
-- [ ] Recalcular ciclo após salvar
-- [ ] Testar reload da aplicação
-
----
-
-# 🧪 Validação de Release (antes do merge na main)
+## 🧪 Validação de Release (Executada)
 
 - [x] Deploy da branch no Netlify  
 - [x] Confirmar registro do Service Worker  
@@ -91,17 +81,6 @@ Branch: main
 
 ---
 
-# 📦 Release
-
-- [ ] Atualizar versão final (se necessário)  
-- [ ] Revisar lista de arquivos cacheados no SW  
-- [ ] Commit final consolidado  
-- [ ] Merge para main  
-- [ ] Criar tag oficial  
-- [ ] Publicar release no GitHub  
-
----
-
 # 🔮 v1.2.0+ (Backlog Futuro)
 
 ## 🧭 Navegação
@@ -109,6 +88,20 @@ Branch: main
 - [ ] Permitir seleção direta de mês/ano  
 - [ ] Permitir digitar ano manualmente  
 - [ ] Botão “Hoje” para retornar ao mês atual  
+- [ ] Permitir navegação entre meses por gesto de swipe (arrastar lateralmente)
+
+---
+
+## 🗓 Base de Domingo Configurável
+
+- [ ] Criar variável `baseSunday`
+- [ ] Persistir em `localStorage`
+- [ ] Criar input `type="date"`
+- [ ] Validar se data escolhida é domingo
+- [ ] Recalcular ciclo após salvar
+- [ ] Testar reload da aplicação
+
+---
 
 ## 🧱 Base Técnica
 
@@ -118,6 +111,8 @@ Branch: main
 - [ ] Melhorar estrutura de pastas  
 - [ ] Estratégia avançada de cache versionado  
 
+---
+
 ## 🎨 UX
 
 - [ ] Melhorar botões de navegação  
@@ -126,6 +121,8 @@ Branch: main
 - [ ] Melhorar acessibilidade visual  
 - [ ] Pequena animação na troca de mês  
 
+---
+
 ## ⚙ Funcionalidades Futuras
 
 - [ ] Alternar regra de domingo (2x1 / 3x1 etc.)  
@@ -133,6 +130,8 @@ Branch: main
 - [ ] Estatística mensal  
 - [ ] Histórico de alterações  
 - [ ] Exportar dados (JSON)  
+
+---
 
 ## 🏗 Infraestrutura
 
