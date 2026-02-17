@@ -1,12 +1,15 @@
 # CycleCal
 
-Status: 🟡 v1.1.1 em desenvolvimento  
-Base: v1.0.3  
-Branch: feature/1.1.0  
+Status: 🟢 v1.2.0-alpha publicada
+Base: v1.1.1  
+Branch: main
 
 ---
 
-# 🚀 v1.1.x – Desenvolvimento
+# 🚀 v1.1.x – Concluída
+
+# 🚀 v1.2.0-alpha – Feriados Móveis (Concluída)
+
 
 ## 1️⃣ Preparação de Versão (DEV)
 
@@ -42,25 +45,25 @@ Branch: feature/1.1.0
 ### 3.2 Feriados Móveis (dividido em ciclos de 30 min)
 
 #### 🕒 Ciclo 1 — Cálculo da Páscoa
-- [ ] Implementar função `calcularPascoa(ano)`
-- [ ] Testar anos conhecidos (2024, 2025, 2028, 2030)
-- [ ] Validar ano bissexto
+- [x] Implementar função `calcularPascoa(ano)`
+- [x] Testar anos conhecidos (2024, 2025, 2028, 2030)
+- [x] Validar ano bissexto
 
 #### 🕒 Ciclo 2 — Integrar Páscoa ao sistema
-- [ ] Inserir Páscoa no array dinâmico de feriados
-- [ ] Aplicar classe `.holiday`
-- [ ] Garantir exibição no rodapé do mês
+- [x] Inserir Páscoa no array dinâmico de feriados
+- [x] Aplicar classe `.holiday`
+- [x] Garantir exibição no rodapé do mês
 
 #### 🕒 Ciclo 3 — Derivar datas móveis
-- [ ] Sexta-feira Santa (−2 dias)
-- [ ] Carnaval (−47 dias)
-- [ ] Corpus Christi (+60 dias)
+- [x] Sexta-feira Santa (−2 dias)
+- [ ] Carnaval (−47 dias) → Não implementado (não é feriado em Curitiba)
+- [x] Corpus Christi (+60 dias)
 
 #### 🕒 Ciclo 4 — Testes robustos
-- [ ] Testar múltiplos anos (até 2035)
-- [ ] Validar navegação entre meses
-- [ ] Verificar coexistência com `.folga`
-- [ ] Testar funcionamento offline
+- [x] Testar múltiplos anos (até 2035)
+- [x] Validar navegação entre meses
+- [x] Verificar coexistência com `.folga`
+- [x] Testar funcionamento offline
 
 ---
 
@@ -77,14 +80,14 @@ Branch: feature/1.1.0
 
 # 🧪 Validação de Release (antes do merge na main)
 
-- [ ] Deploy da branch no Netlify  
-- [ ] Confirmar registro do Service Worker  
-- [ ] Confirmar CACHE_NAME ativo  
-- [ ] Limpar caches antigos automaticamente  
-- [ ] Testar funcionamento offline  
-- [ ] Testar atualização da PWA instalada  
-- [ ] Confirmar versão exibida correta  
-- [ ] Sanity check geral  
+- [x] Deploy da branch no Netlify  
+- [x] Confirmar registro do Service Worker  
+- [x] Confirmar CACHE_NAME ativo  
+- [x] Limpar caches antigos automaticamente  
+- [x] Testar funcionamento offline  
+- [x] Testar atualização da PWA instalada  
+- [x] Confirmar versão exibida correta  
+- [x] Sanity check geral  
 
 ---
 
