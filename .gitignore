@@ -10,3 +10,5 @@ cyclecal.egg-info/
 # Credenciais
 credentials/
 
+CYCLECAL_CALENDAR_ID.txt
+

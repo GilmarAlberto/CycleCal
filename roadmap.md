@@ -57,7 +57,7 @@ Branch: main
 
 ### 🕒 Ciclo 3 — Derivar datas móveis
 - [x] Sexta-feira Santa (−2 dias)
-- [ ] Carnaval (−47 dias) → Não implementado (não é feriado em Curitiba)
+- [ ] Carnaval (−47 dias) → Planejado para v1.3.0 como Evento Cultural (não será tratado como feriado)
 - [x] Corpus Christi (+60 dias)
 
 ### 🕒 Ciclo 4 — Testes robustos
@@ -81,14 +81,27 @@ Branch: main
 
 ---
 
-# 🔮 v1.2.0+ (Backlog Futuro)
+# 🔮 Roadmap Pós v1.2.0-alpha
 
 ## 🧭 Navegação
 
-- [ ] Permitir seleção direta de mês/ano  
-- [ ] Permitir digitar ano manualmente  
-- [ ] Botão “Hoje” para retornar ao mês atual  
-- [ ] Permitir navegação entre meses por gesto de swipe (arrastar lateralmente)
+- [ ] (v1.2.1) Botão “Hoje” para retornar ao mês atual  
+- [ ] (v1.2.1) Navegação entre meses (anterior/próximo)  
+
+- [ ] (v1.2.2) Permitir seleção direta de mês  
+- [ ] (v1.2.2) Permitir digitar ano manualmente  
+
+- [ ] (v1.2.3) Permitir navegação entre meses por gesto de swipe (arrastar lateralmente)
+
+---
+
+## 🎭 v1.3.0 – Eventos Culturais
+
+- [ ] Criar categoria `cultural`
+- [ ] Implementar cálculo do Carnaval (derivado da Páscoa −47 dias)
+- [ ] Marcar Segunda e Terça de Carnaval
+- [ ] Ajustar renderização para diferenciar de `.holiday`
+- [ ] Criar legenda explicativa abaixo do calendário
 
 ---
 
