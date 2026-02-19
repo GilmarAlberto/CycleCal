@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.2.0-alpha publicada  
-Base: v1.1.1  
+Status: 🟢 v1.2.1 publicada
+Base: v1.2.0-alpha
 Branch: main  
 
 ---
@@ -85,8 +85,8 @@ Branch: main
 
 ## 🧭 Navegação
 
-- [ ] (v1.2.1) Botão “Hoje” para retornar ao mês atual  
-- [ ] (v1.2.1) Navegação entre meses (anterior/próximo)  
+- [x] (v1.2.1) Botão “Hoje” para retornar ao mês atual  
+- [x] (v1.2.1) Navegação entre meses (anterior/próximo)  
 
 - [ ] (v1.2.2) Permitir seleção direta de mês  
 - [ ] (v1.2.2) Permitir digitar ano manualmente  
