@@ -1,4 +1,4 @@
-/ ======= VERSIONAMENTO =======
+// ======= VERSIONAMENTO =======
 const CACHE_NAME = "cyclecal-v1.2.0-alpha";
 
 // Arquivos que serão cacheados

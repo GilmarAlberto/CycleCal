@@ -8,7 +8,9 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#2FAF8A">
 
-    <!-- Versão 1.2.0-alpha -->
+    <link rel="icon" href="icon-256.png" type="image/png">
+
+    <!-- Versão 1.2.1 -->
 
     <style>
         body {
@@ -29,6 +31,12 @@
 
         .header {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
             align-items: center;
             gap: 10px;
         }
@@ -48,6 +56,26 @@
             color: gray;
             margin-left: 6px;
         }
+
+	.btn-hoje {
+	    width: 28px;
+	    height: 28px;
+	    border-radius: 50%;
+	    border: none;
+	    background: black;
+	    color: white;
+	    font-weight: bold;
+	    font-size: 14px;
+	    cursor: pointer;
+
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+
+	    padding: 0;
+	    line-height: 1;
+	}
+
 
         .line {
             margin: 15px 0;
@@ -138,9 +166,13 @@
 <div class="container">
 
     <div class="header">
-        <img src="/icon-256.png" class="logo">
-        <h1>CycleCal</h1>
-        <span class="version">v1.2.0-alpha</span>
+        <div class="header-left">
+            <img src="/icon-256.png" class="logo">
+            <h1>CycleCal</h1>
+            <span class="version">v1.2.1</span>
+        </div>
+
+        <button class="btn-hoje" id="btnHoje" onclick="irParaHoje()"></button>
     </div>
 
     <div class="line"></div>
@@ -164,6 +196,18 @@
 let hoje = new Date();
 let anoAtual = hoje.getFullYear();
 let mesAtual = hoje.getMonth();
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("btnHoje").innerText = hoje.getDate();
+});
+
+function irParaHoje() {
+    hoje = new Date();
+    anoAtual = hoje.getFullYear();
+    mesAtual = hoje.getMonth();
+    gerarCalendario(anoAtual, mesAtual);
+    document.getElementById("btnHoje").innerText = hoje.getDate();
+}
 
 const baseFolgaDomingo = new Date(2026, 1, 15);
 
@@ -231,8 +275,6 @@ function ehFeriado(data, lista) {
         f.mes === data.getMonth()
     );
 }
-
-/* ===== FUNÇÃO ATUALIZADA COM ORDENAÇÃO ===== */
 
 function listarFeriadosDoMes(ano, mes, lista) {
     const listaDiv = document.getElementById("listaFeriados");
