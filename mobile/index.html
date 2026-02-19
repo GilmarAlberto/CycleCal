@@ -465,9 +465,9 @@ calendarioEl.addEventListener("touchend", function(e) {
     if (Math.abs(deltaY) > Math.abs(deltaX)) return;
 
     if (deltaX > threshold) {
-        mesAnterior();
+	proximoMes();
     } else if (deltaX < -threshold) {
-        proximoMes();
+        mesAnterior();
     }
 
 }, { passive: true });
