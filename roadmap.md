@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.2.1 publicada
-Base: v1.2.0-alpha
+Status: 🟢 v1.2.2 (em desenvolvimento)
+Base: v1.2.1
 Branch: main  
 
 ---

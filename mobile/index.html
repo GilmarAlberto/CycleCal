@@ -10,7 +10,7 @@
 
     <link rel="icon" href="icon-256.png" type="image/png">
 
-    <!-- Versão 1.2.1 -->
+    <!-- Versão 1.2.2 -->
 
     <style>
         body {
@@ -169,7 +169,7 @@
         <div class="header-left">
             <img src="/icon-256.png" class="logo">
             <h1>CycleCal</h1>
-            <span class="version">v1.2.1</span>
+            <span class="version">v1.2.2</span>
         </div>
 
         <button class="btn-hoje" id="btnHoje" onclick="irParaHoje()"></button>
@@ -179,7 +179,8 @@
 
     <div class="controls">
         <button onclick="mesAnterior()">◀</button>
-        <strong id="titulo"></strong>
+        <select id="monthSelect"></select>
+        <input type="number" id="yearInput" min="1900" max="2100" style="width:80px;">
         <button onclick="proximoMes()">▶</button>
     </div>
 
@@ -197,8 +198,40 @@ let hoje = new Date();
 let anoAtual = hoje.getFullYear();
 let mesAtual = hoje.getMonth();
 
+const monthNames = [
+    "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+    "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+];
+
 document.addEventListener("DOMContentLoaded", function () {
+
     document.getElementById("btnHoje").innerText = hoje.getDate();
+
+    const monthSelect = document.getElementById("monthSelect");
+
+    monthNames.forEach((nome, index) => {
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = nome;
+        monthSelect.appendChild(option);
+    });
+
+    monthSelect.value = mesAtual;
+    document.getElementById("yearInput").value = anoAtual;
+
+    monthSelect.addEventListener("change", function() {
+        mesAtual = parseInt(this.value);
+        gerarCalendario(anoAtual, mesAtual);
+    });
+
+    document.getElementById("yearInput")
+        .addEventListener("change", function() {
+            const novoAno = parseInt(this.value);
+            if (!isNaN(novoAno) && novoAno >= 1900 && novoAno <= 2100) {
+                anoAtual = novoAno;
+                gerarCalendario(anoAtual, mesAtual);
+            }
+        });
 });
 
 function irParaHoje() {
@@ -212,6 +245,7 @@ function irParaHoje() {
 const baseFolgaDomingo = new Date(2026, 1, 15);
 
 /* ===== FERIADOS FIXOS ===== */
+/* (mantido exatamente igual ao original) */
 
 const feriadosNacionais = [
     { dia: 1, mes: 0, nome: "Confraternização Universal" },
@@ -231,7 +265,7 @@ const feriadosCuritiba = [
 
 const feriadosFixos = [...feriadosNacionais, ...feriadosCuritiba];
 
-/* ===== FERIADOS MÓVEIS ===== */
+/* ===== restante do código (inalterado) ===== */
 
 function calcularPascoa(ano) {
     const a = ano % 19;
@@ -309,7 +343,8 @@ function gerarCalendario(ano, mes) {
     const calendario = document.getElementById("calendario");
     calendario.innerHTML = "";
 
-    document.getElementById("titulo").innerText = (mes + 1) + "/" + ano;
+    document.getElementById("monthSelect").value = mes;
+    document.getElementById("yearInput").value = ano;
 
     const diasSemana = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
 
