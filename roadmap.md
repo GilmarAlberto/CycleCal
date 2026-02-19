@@ -92,12 +92,10 @@ Branch: main
 - [x] (v1.2.2) Permitir digitar ano manualmente  
 
 ## 🧭 v1.2.3 – Navegação Avançada
-- [ ] (v1.2.3) Permitir navegação entre meses por gesto de swipe (mobile)
-- [ ] (v1.2.3) Permitir navegação por teclado (setas ← → ↑ ↓)
-- [ ] Testes desktop
-- [ ] Testes mobile
-
-
+- [x] (v1.2.3) Permitir navegação entre meses por gesto de swipe (mobile)
+- [x] (v1.2.3) Permitir navegação por teclado (setas ← → ↑ ↓)
+- [x] Testes desktop
+- [x] Testes mobile
 
 ---
 
