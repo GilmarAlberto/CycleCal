@@ -138,6 +138,11 @@
             border: 2px solid #c62828;
         }
 
+        .day.cultural {
+    	    background: #f3e8ff;
+            border: 2px solid #8e44ad;
+        }
+
         .day.today span {
             display: inline-block;
             width: 28px;
@@ -303,6 +308,35 @@ function gerarFeriadosMoveis(ano) {
     ];
 }
 
+function gerarCarnaval(ano) {
+
+    const pascoa = calcularPascoa(ano);
+
+    const eventos = [];
+
+    const offsets = [
+        { offset: -51, nome: "Sexta-feira de Carnaval" },
+        { offset: -50, nome: "Sábado de Carnaval" },
+        { offset: -49, nome: "Domingo de Carnaval" },
+        { offset: -48, nome: "Segunda-feira de Carnaval" },
+        { offset: -47, nome: "Terça-feira de Carnaval" },
+        { offset: -46, nome: "Quarta-feira de Cinzas (até 14h)" }
+    ];
+
+    offsets.forEach(item => {
+        const data = new Date(pascoa);
+        data.setDate(pascoa.getDate() + item.offset);
+
+        eventos.push({
+            dia: data.getDate(),
+            mes: data.getMonth(),
+            nome: item.nome
+        });
+    });
+
+    return eventos;
+}
+
 function ehFeriado(data, lista) {
     return lista.find(f =>
         f.dia === data.getDate() &&
@@ -360,6 +394,8 @@ function gerarCalendario(ano, mes) {
     const diasNoMes = new Date(ano, mes + 1, 0).getDate();
 
     const feriadosMoveis = gerarFeriadosMoveis(ano);
+    const carnaval = gerarCarnaval(ano);
+
     const todosFeriados = [...feriadosFixos, ...feriadosMoveis];
 
     for (let i = 0; i < inicio; i++) {
@@ -377,6 +413,7 @@ function gerarCalendario(ano, mes) {
 
         if (ehFolga(data)) el.classList.add("folga");
         if (ehFeriado(data, todosFeriados)) el.classList.add("holiday");
+	if (ehFeriado(data, carnaval)) el.classList.add("cultural");
 
         if (
             dia === hoje.getDate() &&
@@ -389,8 +426,8 @@ function gerarCalendario(ano, mes) {
         calendario.appendChild(el);
     }
 
-    listarFeriadosDoMes(ano, mes, todosFeriados);
-}
+    listarFeriadosDoMes(ano, mes, [...todosFeriados, ...carnaval]);
+		}
 
 function proximoMes() {
     mesAtual++;
