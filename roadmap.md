@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.2.3 (em desenvolvimento)
-Base: v1.2.2
+Status: 🟢 v1.2.4 (em desenvolvimento)
+Base: v1.2.3
 Branch: main  
 
 ---
@@ -99,13 +99,25 @@ Branch: main
 
 ---
 
-## 🎭 v1.3.0 – Eventos Culturais
+## 🎭 v1.2.4 – Eventos Culturais
 
 - [ ] Criar categoria `cultural`
 - [ ] Implementar cálculo do Carnaval (derivado da Páscoa −47 dias)
 - [ ] Marcar Segunda e Terça de Carnaval
 - [ ] Ajustar renderização para diferenciar de `.holiday`
 - [ ] Criar legenda explicativa abaixo do calendário
+
+---
+
+## 🔧 v1.2.5 – Micromelhorias e Refinamentos
+
+- [ ] Ajustar sensibilidade do swipe (refinar `threshold`)
+- [ ] Migrar `screenX`/`screenY` para `clientX`/`clientY`
+- [ ] Implementar bloqueio contra múltiplos swipes rápidos
+- [ ] Adicionar suporte a `PageUp` / `PageDown`
+- [ ] Atalho `Home` para retornar ao mês atual
+- [ ] Pequeno refinamento visual na troca de mês (sem animação pesada)
+- [ ] Revisão geral de navegação via teclado
 
 ---
 
