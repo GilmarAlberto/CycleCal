@@ -152,6 +152,24 @@ Branch: main
 
 ---
 
+# 🚀 v2.0 – Sistema Configurável
+
+## 🧱 Base Estrutural
+- [ ] Criar objeto central `config`
+- [ ] Persistência estruturada
+- [ ] Separar motor de regras
+- [ ] Sistema de camadas (layers)
+
+## 🏖 Eventos do Usuário
+- [ ] CRUD de eventos
+- [ ] Intervalos de datas
+- [ ] Categorias personalizadas
+
+## ⚙ Regras Configuráveis
+- [ ] Alterar regra do ciclo (2x1, 3x1, etc.)
+- [ ] Alterar base Sunday
+- [ ] Ativar/desativar camadas
+
 ## ⚙ Funcionalidades Futuras
 
 - [ ] Alternar regra de domingo (2x1 / 3x1 etc.)  
