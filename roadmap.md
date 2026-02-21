@@ -101,11 +101,11 @@ Branch: main
 
 ## 🎭 v1.2.4 – Eventos Culturais
 
-- [ ] Criar categoria `cultural`
-- [ ] Implementar cálculo do Carnaval (derivado da Páscoa −47 dias)
-- [ ] Marcar Segunda e Terça de Carnaval
-- [ ] Ajustar renderização para diferenciar de `.holiday`
-- [ ] Criar legenda explicativa abaixo do calendário
+- [x] Criar categoria `cultural`
+- [x] Implementar cálculo do Carnaval (derivado da Páscoa −47 dias)
+- [x] Marcar Segunda e Terça de Carnaval
+- [x] Ajustar renderização para diferenciar de `.holiday`
+- [x] Criar legenda explicativa abaixo do calendário
 
 ---
 
