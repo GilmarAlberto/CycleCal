@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.2.4 (em desenvolvimento)
-Base: v1.2.3
+Status: 🟢 v1.3.0 (em desenvolvimento)
+Base: v1.2.4
 Branch: main  
 
 ---
@@ -57,7 +57,7 @@ Branch: main
 
 ### 🕒 Ciclo 3 — Derivar datas móveis
 - [x] Sexta-feira Santa (−2 dias)
-- [ ] Carnaval (−47 dias) → Planejado para v1.3.0 como Evento Cultural (não será tratado como feriado)
+- [x] Carnaval (−47 dias) → Planejado para v1.3.0 como Evento Cultural (não será tratado como feriado)
 - [x] Corpus Christi (+60 dias)
 
 ### 🕒 Ciclo 4 — Testes robustos
@@ -109,15 +109,15 @@ Branch: main
 
 ---
 
-## 🔧 v1.2.5 – Micromelhorias e Refinamentos
+## 🔧 v1.3.0 – Micromelhorias e Refinamentos
 
-- [ ] Ajustar sensibilidade do swipe (refinar `threshold`)
-- [ ] Migrar `screenX`/`screenY` para `clientX`/`clientY`
-- [ ] Implementar bloqueio contra múltiplos swipes rápidos
-- [ ] Adicionar suporte a `PageUp` / `PageDown`
-- [ ] Atalho `Home` para retornar ao mês atual
-- [ ] Pequeno refinamento visual na troca de mês (sem animação pesada)
-- [ ] Revisão geral de navegação via teclado
+- [x] v 1.3.1 - Ajustar sensibilidade do swipe (refinar `threshold`)
+- [x] v 1.3.1 - Migrar `screenX`/`screenY` para `clientX`/`clientY`
+- [x] v 1.3.1 - Implementar bloqueio contra múltiplos swipes rápidos
+- [ ] v 1.3.2 - Adicionar suporte a `PageUp` / `PageDown`
+- [ ] v 1.3.2 - Atalho `Home` para retornar ao mês atual
+- [ ] v 1.3.3 - Pequeno refinamento visual na troca de mês (sem animação pesada)
+- [ ] v 1.3.3 - Revisão geral de navegação via teclado
 
 ---
 

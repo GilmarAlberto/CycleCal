@@ -10,7 +10,7 @@
 
     <link rel="icon" href="icon-256.png" type="image/png">
 
-    <!-- Versão 1.2.4 -->
+    <!-- Versão 1.3.1 -->
 
     <style>
         body {
@@ -174,7 +174,7 @@
         <div class="header-left">
             <img src="icon-256.png" class="logo">
             <h1>CycleCal</h1>
-            <span class="version">v1.2.4</span>
+            <span class="version">v1.3.1</span>
         </div>
 
         <button class="btn-hoje" id="btnHoje" onclick="irParaHoje()"></button>
@@ -481,22 +481,26 @@ document.addEventListener("keydown", function(e) {
 
 let touchStartX = 0;
 let touchStartY = 0;
+let swipeLocked = false;
 
-const calendarioEl = document.getElementById("calendario");
+		const calendarioEl = document.getElementById("calendario");
 
 calendarioEl.addEventListener("touchstart", function(e) {
     const touch = e.changedTouches[0];
-    touchStartX = touch.screenX;
-    touchStartY = touch.screenY;
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
 }, { passive: true });
 
 calendarioEl.addEventListener("touchend", function(e) {
+
+    if (swipeLocked) return;
+
     const touch = e.changedTouches[0];
 
-    const deltaX = touch.screenX - touchStartX;
-    const deltaY = touch.screenY - touchStartY;
+    const deltaX = touch.clientX - touchStartX;
+    const deltaY = touch.clientY - touchStartY;
 
-    const threshold = 50;
+    const threshold = calendarioEl.clientWidth * 0.18;
 
     // Ignorar se movimento for mais vertical que horizontal
     if (Math.abs(deltaY) > Math.abs(deltaX)) return;
