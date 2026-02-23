@@ -1,10 +1,10 @@
 // ===================================
 // CycleCal Service Worker
-// Versão 1.3.1
+// Versão 1.3.2
 // Escopo: /mobile/
 // ===================================
 
-const CACHE_NAME = "cyclecal-v1.3.1";
+const CACHE_NAME = "cyclecal-v1.3.2";
 
 // Arquivos relativos à pasta mobile
 const URLS_TO_CACHE = [
@@ -52,10 +52,28 @@ self.addEventListener("activate", event => {
 // FETCH – Cache First
 // ===============================
 self.addEventListener("fetch", event => {
+
+  // HTML → Network First
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          return caches.open(CACHE_NAME).then(cache => {
+            cache.put("./index.html", response.clone());
+            return response;
+          });
+        })
+        .catch(() => caches.match("./index.html"))
+    );
+    return;
+  }
+
+  // Outros arquivos → Cache First
   event.respondWith(
     caches.match(event.request)
       .then(response => response || fetch(event.request))
   );
+
 });
 
 // ===============================
