@@ -16,3 +16,6 @@ CYCLECAL_CALENDAR_ID.txt
 
 CycleCal/
 
+# Node / Prettier
+node_modules/
+package-lock.json

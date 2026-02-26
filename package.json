@@ -1,0 +1,27 @@
+{
+  "name": "cyclecal",
+  "version": "1.0.0",
+  "description": "CycleCal é um projeto pessoal em Python para **gerar e manter agendas baseadas em ciclos**,   sincronizando automaticamente os eventos com o **Google Calendar**.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GilmarAlberto/CycleCal.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GilmarAlberto/CycleCal/issues"
+  },
+  "homepage": "https://github.com/GilmarAlberto/CycleCal#readme",
+  "devDependencies": {
+    "prettier": "^3.8.1"
+  }
+}
