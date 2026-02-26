@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.3.3
-Base: v1.3.1
+Status: 🟢 v1.3.4
+Base: v1.3.3
 Branch: main  
 
 ---
@@ -115,22 +115,23 @@ Branch: main
 - [x] v 1.3.1 - Migrar `screenX`/`screenY` para `clientX`/`clientY`
 - [x] v 1.3.1 - Implementar bloqueio contra múltiplos swipes rápidos
 
-## 🔧 v1.3.3 – Estratégia de Atualização da PWA
+## 🔧 v1.3.4 – Estratégia de Atualização da PWA
 
+- [ ] ** Incluir "Controle de Folgas" abaixo do CycleCal.
 - [ ] Implementar skipWaiting()
 - [ ] Implementar clients.claim()
 - [ ] Limpeza automática de caches antigos
 - [ ] Reload automático ao detectar nova versão
 
-## 🔧 v1.3.4 – Micromelhorias e Refinamentos (parte 2)
+## 🔧 v1.3.5 – Micromelhorias e Refinamentos (parte 2)
 
-- [ ] v 1.3.4 - Adicionar suporte a `PageUp` / `PageDown`
-- [ ] v 1.3.4 - Atalho `Home` para retornar ao mês atual
+- [ ] v 1.3.5 - Adicionar suporte a `PageUp` / `PageDown`
+- [ ] v 1.3.5 - Atalho `Home` para retornar ao mês atual
 
-## 🔧 v1.3.5 – Micromelhorias e Refinamentos (parte 3)
+## 🔧 v1.3.6 – Micromelhorias e Refinamentos (parte 3)
 
-- [ ] v 1.3.5 - Pequeno refinamento visual na troca de mês (sem animação pesada)
-- [ ] v 1.3.5 - Revisão geral de navegação via teclado
+- [ ] v 1.3.6 - Pequeno refinamento visual na troca de mês (sem animação pesada)
+- [ ] v 1.3.6 - Revisão geral de navegação via teclado
 
 ---
 
