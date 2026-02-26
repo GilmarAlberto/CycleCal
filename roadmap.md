@@ -117,11 +117,10 @@ Branch: main
 
 ## 🔧 v1.3.4 – Estratégia de Atualização da PWA
 
-- [ ] ** Incluir "Controle de Folgas" abaixo do CycleCal.
-- [ ] Implementar skipWaiting()
-- [ ] Implementar clients.claim()
-- [ ] Limpeza automática de caches antigos
-- [ ] Reload automático ao detectar nova versão
+- [x] ** Incluir "Controle de Folgas" abaixo do CycleCal.
+- [x] Implementar skipWaiting()
+- [x] Implementar clients.claim()
+- [x] Limpeza automática de caches antigos
 
 ## 🔧 v1.3.5 – Micromelhorias e Refinamentos (parte 2)
 
