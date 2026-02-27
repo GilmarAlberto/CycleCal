@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.3.4
-Base: v1.3.3
+Status: 🟢 v1.3.5
+Base: v1.3.4
 Branch: main  
 
 ---
@@ -124,8 +124,8 @@ Branch: main
 
 ## 🔧 v1.3.5 – Micromelhorias e Refinamentos (parte 2)
 
-- [ ] v 1.3.5 - Adicionar suporte a `PageUp` / `PageDown`
-- [ ] v 1.3.5 - Atalho `Home` para retornar ao mês atual
+- [x] v 1.3.5 - Adicionar suporte a `PageUp` / `PageDown`
+- [x] v 1.3.5 - Atalho `Home` para retornar ao mês atual
 
 ## 🔧 v1.3.6 – Micromelhorias e Refinamentos (parte 3)
 

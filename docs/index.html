@@ -10,7 +10,7 @@
 
         <link rel="icon" href="icon-256.png" type="image/png" />
 
-        <!-- Versão 1.3.4 -->
+        <!-- Versão 1.3.5 -->
 
         <style>
             body {
@@ -193,7 +193,7 @@
                     <div class="title-group">
                         <div class="title-line">
                             <h1>CycleCal</h1>
-                            <span class="version">v1.3.4</span>
+                            <span class="version">v1.3.5</span>
                         </div>
                         <div id="controle-folgas">Controle de Folgas</div>
                     </div>
@@ -214,15 +214,20 @@
             <div class="calendar" id="calendario"></div>
 
             <div class="footer">
-                Base de cálculo: 15/02/2026 (domingo de folga)
+                Data Base: 15/02/2026 (folga de domingo)
                 <div class="holidays" id="listaFeriados"></div>
             </div>
         </div>
 
         <script>
-            let hoje = new Date();
-            let anoAtual = hoje.getFullYear();
-            let mesAtual = hoje.getMonth();
+            let anoAtual;
+            let mesAtual;
+
+            function inicializarDataAtual() {
+                const agora = new Date();
+                anoAtual = agora.getFullYear();
+                mesAtual = agora.getMonth();
+            }
 
             const monthNames = [
                 "Janeiro",
@@ -240,8 +245,7 @@
             ];
 
             document.addEventListener("DOMContentLoaded", function () {
-                document.getElementById("btnHoje").innerText = hoje.getDate();
-
+                document.getElementById("btnHoje").innerText = new Date().getDate();
                 const monthSelect = document.getElementById("monthSelect");
 
                 monthNames.forEach((nome, index) => {
@@ -269,11 +273,11 @@
             });
 
             function irParaHoje() {
-                hoje = new Date();
-                anoAtual = hoje.getFullYear();
-                mesAtual = hoje.getMonth();
-                gerarCalendario(anoAtual, mesAtual);
-                document.getElementById("btnHoje").innerText = hoje.getDate();
+                const agora = new Date();
+                anoAtual = agora.getFullYear();
+                mesAtual = agora.getMonth();
+                document.getElementById("btnHoje").innerText = agora.getDate();
+		gerarCalendario(anoAtual, mesAtual);
             }
 
             const baseFolgaDomingo = new Date(2026, 1, 15);
@@ -422,6 +426,7 @@
 
                 const primeiroDia = new Date(ano, mes, 1);
                 const inicio = primeiroDia.getDay();
+		const agora = new Date();
                 const diasNoMes = new Date(ano, mes + 1, 0).getDate();
 
                 const feriadosMoveis = gerarFeriadosMoveis(ano);
@@ -447,9 +452,9 @@
                     if (ehFeriado(data, carnaval)) el.classList.add("cultural");
 
                     if (
-                        dia === hoje.getDate() &&
-                        mes === hoje.getMonth() &&
-                        ano === hoje.getFullYear()
+                        dia === agora.getDate() &&
+                        mes === agora.getMonth() &&
+                        ano === agora.getFullYear()
                     ) {
                         el.classList.add("today");
                     }
@@ -478,9 +483,10 @@
                 gerarCalendario(anoAtual, mesAtual);
             }
 
+            inicializarDataAtual();
             gerarCalendario(anoAtual, mesAtual);
 
-            /* ===== KEYBOARD NAVIGATION v1.2.3 ===== */
+            /* ===== KEYBOARD NAVIGATION v1.3.5 ===== */
 
             document.addEventListener("keydown", function (e) {
                 if (e.target.tagName === "INPUT") return;
@@ -502,6 +508,21 @@
                     case "ArrowDown":
                         anoAtual++;
                         gerarCalendario(anoAtual, mesAtual);
+                        break;
+
+                    case "PageUp":
+                        e.preventDefault();
+                        mesAnterior();
+                        break;
+
+                    case "PageDown":
+                        e.preventDefault();
+                        proximoMes();
+                        break;
+
+                    case "Home":
+                        e.preventDefault();
+                        irParaHoje();
                         break;
                 }
             });
