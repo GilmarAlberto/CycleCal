@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.3.6
-Base: v1.3.5
+Status: 🟢 v1.4.0
+Base: v1.3.6
 Branch: main  
 
 ---
@@ -129,12 +129,107 @@ Branch: main
 
 ## 🔧 v1.3.6 – Micromelhorias e Refinamentos (parte 3)
 
-- [ ] v 1.3.6 - Pequeno refinamento visual na troca de mês (sem animação pesada)
-- [ ] v 1.3.6 - Revisão geral de navegação via teclado
+- [x] v 1.3.6 - Pequeno refinamento visual na troca de mês (sem animação pesada)
+- [x] v 1.3.6 - Revisão geral de navegação via teclado
 
 ---
 
-## 🎂 v1.4.0 – Datas Especiais
+---
+
+---
+
+## 📱 v1.4.x – Seletor Mobile de Mês e Ano
+
+### 🎯 Objetivo Geral
+
+Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mobile estilo Google Calendar (bottom sheet), com foco total em toque e fluidez.
+
+---
+
+## 📱 v1.4.1 – Remoções e Novo Cabeçalho
+
+### 🧹 Remoções
+
+- [ ] Remover `<select id="monthSelect">`
+- [ ] Remover `<input type="number" id="yearInput">`
+- [ ] Remover event listeners associados
+- [ ] Garantir que `gerarCalendario()` continue como único ponto de render
+
+### 🧱 Cabeçalho Interativo
+
+- [ ] Criar container `.periodo` clicável
+- [ ] Exibir mês abreviado + ano (ex: `FEV 2026`)
+- [ ] Indicar visualmente que é interativo
+- [ ] Garantir área mínima de toque (≥ 44px)
+- [ ] Garantir que navegação atual continue funcionando
+
+---
+
+## 📱 v1.4.2 – Estrutura do Bottom Sheet
+
+### 📲 Estrutura Base
+
+- [ ] Criar `#pickerOverlay`
+- [ ] Criar `.picker-sheet`
+- [ ] Implementar overlay escurecido
+- [ ] Abrir ao tocar no período
+- [ ] Fechar ao tocar fora
+
+### 🎞 Animação
+
+- [ ] Slide suave de baixo para cima
+- [ ] Duração ≤ 200ms
+- [ ] Não interferir na microtransição do calendário
+
+---
+
+## 📱 v1.4.3 – Seletor de Mês Funcional
+
+### 🗓 Modo Seleção de Mês
+
+- [ ] Grid 3x4 (12 meses)
+- [ ] Destacar mês atual
+- [ ] Seleção altera mês mantendo ano
+- [ ] Atualizar calendário ao selecionar
+- [ ] Fechar automaticamente após seleção
+- [ ] Testar mobile (PWA instalada)
+
+---
+
+## 📱 v1.4.4 – Seletor de Ano Funcional
+
+### 📆 Modo Seleção de Ano
+
+- [ ] Alternar modo ao tocar no ano
+- [ ] Grid 3x4 (12 anos por bloco)
+- [ ] Navegação por blocos (← →)
+- [ ] Destacar ano atual
+- [ ] Seleção altera ano mantendo mês
+- [ ] Retornar automaticamente ao modo mês
+- [ ] Testar navegação rápida entre blocos
+
+---
+
+## 📱 v1.4.5 – Refinamento e Validação Final
+
+### 🎨 Ajustes Visuais
+
+- [ ] Ajustar espaçamentos para mobile
+- [ ] Ajustar contraste e destaque
+- [ ] Garantir conforto para polegar
+
+### ⚡ Performance e Compatibilidade
+
+- [ ] Garantir que swipe continue funcionando
+- [ ] Garantir que botões ◀ ▶ continuem funcionando
+- [ ] Testar funcionamento offline
+- [ ] Testar PWA standalone
+- [ ] Atualizar `CACHE_NAME` para v1.4.5
+- [ ] Validar comportamento após reload
+
+---
+
+## 🎂 v1.5.0 – Datas Especiais
 
 - [ ] (v1.4.0) Destacar aniversário fixo (10/07)
 - [ ] Aplicar classe `.birthday`
@@ -148,7 +243,7 @@ Branch: main
 
 ---
 
-# 🔁 v1.5.0 – Controle de Folgas em Feriados
+# 🔁 v1.6.0 – Controle de Folgas em Feriados
 
 ## 🎯 Regra de Conflito
 
