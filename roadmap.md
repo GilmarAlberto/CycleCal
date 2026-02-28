@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.3.5
-Base: v1.3.4
+Status: 🟢 v1.3.6
+Base: v1.3.5
 Branch: main  
 
 ---
@@ -133,6 +133,56 @@ Branch: main
 - [ ] v 1.3.6 - Revisão geral de navegação via teclado
 
 ---
+
+## 🎂 v1.4.0 – Datas Especiais
+
+- [ ] (v1.4.0) Destacar aniversário fixo (10/07)
+- [ ] Aplicar classe `.birthday`
+- [ ] Definir variável `--birthday-color` (#d4af37)
+- [ ] Inserir emoji 🎂 via pseudo-elemento
+- [ ] Garantir coexistência com `.holiday`, `.folga` e `.today`
+- [ ] Testar navegação entre meses
+- [ ] Testar mobile (PWA instalada)
+
+---
+
+---
+
+# 🔁 v1.5.0 – Controle de Folgas em Feriados
+
+## 🎯 Regra de Conflito
+
+- [ ] Detectar conflito entre `.folga` e `.holiday`
+- [ ] Criar função isolada `resolverConflitoFolga(date)`
+- [ ] Definir estratégia inicial (sem compensação ou compensação automática)
+
+## ⚙ Lógica de Compensação (Fase 1)
+
+- [ ] Implementar regra padrão (ex: postergar para próximo dia útil)
+- [ ] Garantir que não gere efeito cascata
+- [ ] Evitar duplicação de folgas no mesmo ciclo
+- [ ] Validar múltiplos conflitos no mesmo mês
+
+## 🎨 Camada Visual
+
+- [ ] Criar classe `.folga-holiday`
+- [ ] Ajustar prioridade visual entre `.today`, `.holiday` e `.folga`
+- [ ] Inserir indicação visual discreta (ex: borda diferenciada)
+- [ ] Garantir compatibilidade mobile
+
+## 🧪 Testes
+
+- [ ] Testar anos até 2035
+- [ ] Testar ano bissexto
+- [ ] Testar funcionamento offline
+- [ ] Testar PWA instalada
+- [ ] Validar comportamento após reload
+
+## 🔮 Evolução futura (pré-v2.0)
+
+- [ ] Permitir configuração da estratégia (antecipar / postergar / manter)
+- [ ] Persistir escolha em `localStorage`
+
 
 ## 🗓 Base de Domingo Configurável
 

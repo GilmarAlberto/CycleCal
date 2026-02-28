@@ -10,7 +10,7 @@
 
         <link rel="icon" href="icon-256.png" type="image/png" />
 
-        <!-- Versão 1.3.5 -->
+        <!-- Versão 1.3.6 -->
 
         <style>
             body {
@@ -181,6 +181,19 @@
                 color: gray;
                 margin-top: 2px;
             }
+
+            .calendar-transition {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            .calendar-transition-active {
+                transition:
+                    opacity 140ms ease-out,
+                    transform 140ms ease-out;
+                opacity: 1;
+                transform: translateY(0);
+            }
         </style>
     </head>
 
@@ -193,7 +206,7 @@
                     <div class="title-group">
                         <div class="title-line">
                             <h1>CycleCal</h1>
-                            <span class="version">v1.3.5</span>
+                            <span class="version">v1.3.6</span>
                         </div>
                         <div id="controle-folgas">Controle de Folgas</div>
                     </div>
@@ -277,7 +290,7 @@
                 anoAtual = agora.getFullYear();
                 mesAtual = agora.getMonth();
                 document.getElementById("btnHoje").innerText = agora.getDate();
-		gerarCalendario(anoAtual, mesAtual);
+                gerarCalendario(anoAtual, mesAtual);
             }
 
             const baseFolgaDomingo = new Date(2026, 1, 15);
@@ -410,6 +423,9 @@
 
             function gerarCalendario(ano, mes) {
                 const calendario = document.getElementById("calendario");
+		    // Início da microtransição
+                calendario.classList.remove("calendar-transition-active");
+                calendario.classList.add("calendar-transition");
                 calendario.innerHTML = "";
 
                 document.getElementById("monthSelect").value = mes;
@@ -426,7 +442,7 @@
 
                 const primeiroDia = new Date(ano, mes, 1);
                 const inicio = primeiroDia.getDay();
-		const agora = new Date();
+                const agora = new Date();
                 const diasNoMes = new Date(ano, mes + 1, 0).getDate();
 
                 const feriadosMoveis = gerarFeriadosMoveis(ano);
@@ -463,6 +479,10 @@
                 }
 
                 listarFeriadosDoMes(ano, mes, [...todosFeriados, ...carnaval]);
+		// Ativar microtransição
+		void calendario.offsetWidth;
+		calendario.classList.add("calendar-transition-active");
+		calendario.classList.remove("calendar-transition");
             }
 
             function proximoMes() {
