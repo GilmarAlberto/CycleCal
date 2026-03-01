@@ -1,6 +1,6 @@
 # CycleCal
 
-Status: 🟢 v1.4.0
+Status: 🟢 v1.4.1
 Base: v1.3.6
 Branch: main  
 
@@ -134,10 +134,6 @@ Branch: main
 
 ---
 
----
-
----
-
 ## 📱 v1.4.x – Seletor Mobile de Mês e Ano
 
 ### 🎯 Objetivo Geral
@@ -150,10 +146,10 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 
 ### 🧹 Remoções
 
-- [ ] Remover `<select id="monthSelect">`
-- [ ] Remover `<input type="number" id="yearInput">`
-- [ ] Remover event listeners associados
-- [ ] Garantir que `gerarCalendario()` continue como único ponto de render
+- [x] Remover `<select id="monthSelect">`
+- [x] Remover `<input type="number" id="yearInput">`
+- [x] Remover event listeners associados
+- [x] Garantir que `gerarCalendario()` continue como único ponto de render
 
 ### 🧱 Cabeçalho Interativo
 

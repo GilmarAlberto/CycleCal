@@ -4,7 +4,7 @@
 // Escopo: /docs/
 // ===================================
 
-const CACHE_NAME = "cyclecal-v1.3.6";
+const CACHE_NAME = "cyclecal-v1.4.1";
 
 // Arquivos relativos à pasta mobile
 const URLS_TO_CACHE = [
