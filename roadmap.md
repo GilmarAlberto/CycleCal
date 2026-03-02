@@ -153,11 +153,11 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 
 ### 🧱 Cabeçalho Interativo
 
-- [ ] Criar container `.periodo` clicável
-- [ ] Exibir mês abreviado + ano (ex: `FEV 2026`)
-- [ ] Indicar visualmente que é interativo
-- [ ] Garantir área mínima de toque (≥ 44px)
-- [ ] Garantir que navegação atual continue funcionando
+- [x] Criar container `.periodo` clicável
+- [x] Exibir mês abreviado + ano (ex: `FEV 2026`)
+- [x] Indicar visualmente que é interativo
+- [x] Garantir área mínima de toque (≥ 44px)
+- [x] Garantir que navegação atual continue funcionando
 
 ---
 
