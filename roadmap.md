@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.4.1
-Base: v1.3.6
+Status: 🟢 v1.4.2
+Base: v1.4.1
 Branch: main  
 
 ---
@@ -165,17 +165,17 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 
 ### 📲 Estrutura Base
 
-- [ ] Criar `#pickerOverlay`
-- [ ] Criar `.picker-sheet`
-- [ ] Implementar overlay escurecido
-- [ ] Abrir ao tocar no período
-- [ ] Fechar ao tocar fora
+- [x] Criar `#pickerOverlay`
+- [x] Criar `.picker-sheet`
+- [x] Implementar overlay escurecido
+- [x] Abrir ao tocar no período
+- [x] Fechar ao tocar fora
 
 ### 🎞 Animação
 
-- [ ] Slide suave de baixo para cima
-- [ ] Duração ≤ 200ms
-- [ ] Não interferir na microtransição do calendário
+- [x] Slide suave de baixo para cima
+- [x] Duração ≤ 200ms
+- [x] Não interferir na microtransição do calendário
 
 ---
 

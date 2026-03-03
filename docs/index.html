@@ -10,7 +10,7 @@
 
         <link rel="icon" href="icon-256.png" type="image/png" />
 
-        <!-- Versão 1.4.1 -->
+        <!-- Versão 1.4.2 -->
 
         <style>
             body {
@@ -220,6 +220,39 @@
                     background: rgba(0, 0, 0, 0.05);
                 }
             }
+
+            /* Bottom Sheet Overlay (base) */
+            #pickerOverlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.35);
+                display: flex;
+                justify-content: center;
+                align-items: flex-end;
+                z-index: 999;
+            }
+
+            #pickerOverlay[hidden] {
+                display: none !important;
+            }
+
+            /* Bottom Sheet (visual + animação) */
+            .picker-sheet {
+                width: 100%;
+                max-width: 500px;
+                background: #ffffff;
+                border-radius: 16px 16px 0 0;
+                padding: 20px;
+
+                /* Estado inicial (fechado) */
+                transform: translateY(100%);
+                transition: transform 180ms ease;
+            }
+
+            /* Quando estiver ativo */
+            #pickerOverlay.active .picker-sheet {
+                transform: translateY(0);
+            }
         </style>
     </head>
 
@@ -232,7 +265,7 @@
                     <div class="title-group">
                         <div class="title-line">
                             <h1>CycleCal</h1>
-                            <span class="version">v1.4.1</span>
+                            <span class="version">v1.4.2</span>
                         </div>
                         <div id="controle-folgas">Controle de Folgas</div>
                     </div>
@@ -246,7 +279,7 @@
             <div class="controls">
                 <button onclick="mesAnterior()">◀</button>
 
-                <div class="periodo" onclick="irParaHoje()">
+                <div class="periodo">
                     <span id="periodoTexto"></span>
                 </div>
 
@@ -608,6 +641,46 @@
                     });
                 });
             }
+
+            /* ===== Bottom Sheet v1.4.2 ===== */
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const overlay = document.getElementById("pickerOverlay");
+                const periodoEl = document.querySelector(".periodo");
+
+                function openPicker() {
+                    overlay.hidden = false;
+
+                    requestAnimationFrame(() => {
+                        overlay.classList.add("active");
+                    });
+                }
+
+                function closePicker() {
+                    overlay.classList.remove("active");
+
+                    overlay.addEventListener(
+                        "transitionend",
+                        () => {
+                            overlay.hidden = true;
+                        },
+                        { once: true },
+                    );
+                }
+
+                periodoEl.addEventListener("click", openPicker);
+
+                overlay.addEventListener("click", function (e) {
+                    if (e.target === overlay) {
+                        closePicker();
+                    }
+                });
+            });
         </script>
+
+        <!-- Bottom Sheet Overlay -->
+        <div id="pickerOverlay" hidden>
+            <div class="picker-sheet" id="pickerSheet"></div>
+        </div>
     </body>
 </html>
