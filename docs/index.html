@@ -10,7 +10,7 @@
 
         <link rel="icon" href="icon-256.png" type="image/png" />
 
-        <!-- Versão 1.4.2 -->
+        <!-- Versão 1.4.3 -->
 
         <style>
             body {
@@ -249,6 +249,26 @@
                 transition: transform 180ms ease;
             }
 
+            .month-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                margin-top: 10px;
+            }
+
+            .month-item {
+                padding: 12px;
+                text-align: center;
+                border-radius: 8px;
+                background: #f5f5f5;
+                font-weight: 600;
+            }
+
+            .month-item.active {
+                background: #2faf8a;
+                color: white;
+            }
+
             /* Quando estiver ativo */
             #pickerOverlay.active .picker-sheet {
                 transform: translateY(0);
@@ -265,7 +285,7 @@
                     <div class="title-group">
                         <div class="title-line">
                             <h1>CycleCal</h1>
-                            <span class="version">v1.4.2</span>
+                            <span class="version">v1.4.3</span>
                         </div>
                         <div id="controle-folgas">Controle de Folgas</div>
                     </div>
@@ -541,6 +561,35 @@
                 gerarCalendario(anoAtual, mesAtual);
             }
 
+            function renderMonthPicker() {
+                const sheet = document.getElementById("pickerSheet");
+
+                sheet.innerHTML = "";
+
+                const grid = document.createElement("div");
+                grid.className = "month-grid";
+
+                mesesAbreviados.forEach((mes, index) => {
+                    const item = document.createElement("div");
+                    item.className = "month-item";
+                    item.innerText = mes;
+
+                    if (index === mesAtual) {
+                        item.classList.add("active");
+                    }
+
+                    item.addEventListener("click", () => {
+                        mesAtual = index;
+                        gerarCalendario(anoAtual, mesAtual);
+                        closePicker();
+                    });
+
+                    grid.appendChild(item);
+                });
+
+                sheet.appendChild(grid);
+            }
+
             /* ===== KEYBOARD NAVIGATION v1.3.5 ===== */
 
             document.addEventListener("keydown", function (e) {
@@ -642,30 +691,34 @@
                 });
             }
 
-            /* ===== Bottom Sheet v1.4.2 ===== */
+            /* ===== Bottom Sheet v1.4.3 ===== */
+
+            let overlay;
+
+            function closePicker() {
+                overlay.classList.remove("active");
+
+                overlay.addEventListener(
+                    "transitionend",
+                    () => {
+                        overlay.hidden = true;
+                    },
+                    { once: true },
+                );
+            }
 
             document.addEventListener("DOMContentLoaded", function () {
-                const overlay = document.getElementById("pickerOverlay");
+		overlay = document.getElementById("pickerOverlay");
+
                 const periodoEl = document.querySelector(".periodo");
 
                 function openPicker() {
+                    renderMonthPicker();
                     overlay.hidden = false;
 
                     requestAnimationFrame(() => {
                         overlay.classList.add("active");
                     });
-                }
-
-                function closePicker() {
-                    overlay.classList.remove("active");
-
-                    overlay.addEventListener(
-                        "transitionend",
-                        () => {
-                            overlay.hidden = true;
-                        },
-                        { once: true },
-                    );
                 }
 
                 periodoEl.addEventListener("click", openPicker);

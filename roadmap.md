@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.4.2
-Base: v1.4.1
+Status: 🟢 v1.4.3
+Base: v1.4.2
 Branch: main  
 
 ---
@@ -183,12 +183,12 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 
 ### 🗓 Modo Seleção de Mês
 
-- [ ] Grid 3x4 (12 meses)
-- [ ] Destacar mês atual
-- [ ] Seleção altera mês mantendo ano
-- [ ] Atualizar calendário ao selecionar
-- [ ] Fechar automaticamente após seleção
-- [ ] Testar mobile (PWA instalada)
+- [x] Grid 3x4 (12 meses)
+- [x] Destacar mês atual
+- [x] Seleção altera mês mantendo ano
+- [x] Atualizar calendário ao selecionar
+- [x] Fechar automaticamente após seleção
+- [x] Testar mobile (PWA instalada)
 
 ---
 
