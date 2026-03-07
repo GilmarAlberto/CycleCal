@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.4.3
-Base: v1.4.2
+Status: 🟢 v1.4.4
+Base: v1.4.3
 Branch: main  
 
 ---
@@ -196,13 +196,13 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 
 ### 📆 Modo Seleção de Ano
 
-- [ ] Alternar modo ao tocar no ano
-- [ ] Grid 3x4 (12 anos por bloco)
-- [ ] Navegação por blocos (← →)
-- [ ] Destacar ano atual
-- [ ] Seleção altera ano mantendo mês
-- [ ] Retornar automaticamente ao modo mês
-- [ ] Testar navegação rápida entre blocos
+- [x] Alternar modo ao tocar no ano
+- [x] Grid 3x4 (12 anos por bloco)
+- [x] Navegação por blocos (← →)
+- [x] Destacar ano atual
+- [x] Seleção altera ano mantendo mês
+- [x] Retornar automaticamente ao modo mês
+- [x] Testar navegação rápida entre blocos
 
 ---
 

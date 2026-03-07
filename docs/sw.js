@@ -1,10 +1,10 @@
 // ===================================
 // CycleCal Service Worker
-// Versão 1.4.3
+// Versão 1.4.4
 // Escopo: /docs/
 // ===================================
 
-const CACHE_NAME = "cyclecal-v1.4.3";
+const CACHE_NAME = "cyclecal-v1.4.4";
 
 // Arquivos relativos à pasta mobile
 const URLS_TO_CACHE = [

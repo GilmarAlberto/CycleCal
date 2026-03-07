@@ -10,7 +10,7 @@
 
         <link rel="icon" href="icon-256.png" type="image/png" />
 
-        <!-- Versão 1.4.3 -->
+        <!-- Versão 1.4.4 -->
 
         <style>
             body {
@@ -273,6 +273,19 @@
             #pickerOverlay.active .picker-sheet {
                 transform: translateY(0);
             }
+
+            #anoTexto {
+                margin-left: 6px;
+            }
+
+            #mesTexto,
+            #anoTexto {
+                cursor: pointer;
+            }
+
+            .periodo span {
+                padding: 4px 2px;
+            }
         </style>
     </head>
 
@@ -285,7 +298,7 @@
                     <div class="title-group">
                         <div class="title-line">
                             <h1>CycleCal</h1>
-                            <span class="version">v1.4.3</span>
+                            <span class="version">v1.4.4</span>
                         </div>
                         <div id="controle-folgas">Controle de Folgas</div>
                     </div>
@@ -300,7 +313,8 @@
                 <button onclick="mesAnterior()">◀</button>
 
                 <div class="periodo">
-                    <span id="periodoTexto"></span>
+                    <span id="mesTexto"></span>
+                    <span id="anoTexto"></span>
                 </div>
 
                 <button onclick="proximoMes()">▶</button>
@@ -317,6 +331,7 @@
         <script>
             let anoAtual;
             let mesAtual;
+            let yearBlockStart;
 
             const mesesAbreviados = [
                 "JAN",
@@ -481,8 +496,12 @@
             }
 
             function gerarCalendario(ano, mes) {
-                const periodoEl = document.getElementById("periodoTexto");
-                periodoEl.textContent = `${mesesAbreviados[mes]} ${ano}`;
+                const mesEl = document.getElementById("mesTexto");
+                const anoEl = document.getElementById("anoTexto");
+
+                mesEl.textContent = mesesAbreviados[mes];
+                anoEl.textContent = ano;
+
                 const calendario = document.getElementById("calendario");
                 // Início da microtransição
                 calendario.classList.remove("calendar-transition-active");
@@ -579,15 +598,119 @@
                     }
 
                     item.addEventListener("click", () => {
-                        mesAtual = index;
-                        gerarCalendario(anoAtual, mesAtual);
-                        closePicker();
+                        sheet.querySelectorAll(".month-item.active").forEach((el) => {
+                            el.classList.remove("active");
+                        });
+                        item.classList.add("active");
+
+                        setTimeout(() => {
+                            mesAtual = index;
+                            gerarCalendario(anoAtual, mesAtual);
+                            closePicker();
+                        }, 120);
                     });
 
                     grid.appendChild(item);
                 });
 
                 sheet.appendChild(grid);
+            }
+
+            function renderYearPicker() {
+                const sheet = document.getElementById("pickerSheet");
+
+                sheet.innerHTML = "";
+                if (yearBlockStart === undefined) {
+                    yearBlockStart = Math.floor(anoAtual / 12) * 12;
+                }
+
+                const startYear = yearBlockStart;
+
+                const header = document.createElement("div");
+                header.style.display = "flex";
+                header.style.justifyContent = "space-between";
+                header.style.alignItems = "center";
+                header.style.marginBottom = "10px";
+
+                const prev = document.createElement("div");
+                prev.innerText = "◀";
+                prev.style.cursor = "pointer";
+                prev.style.padding = "6px";
+
+                const title = document.createElement("div");
+                title.innerText = `${startYear} - ${startYear + 11}`;
+                title.style.fontWeight = "600";
+
+                const next = document.createElement("div");
+                next.innerText = "▶";
+                next.style.cursor = "pointer";
+                next.style.padding = "6px";
+
+                header.appendChild(prev);
+                header.appendChild(title);
+                header.appendChild(next);
+
+                sheet.appendChild(header);
+
+                prev.addEventListener("click", () => {
+                    yearBlockStart -= 12;
+                    renderYearPicker();
+                });
+
+                next.addEventListener("click", () => {
+                    yearBlockStart += 12;
+                    renderYearPicker();
+                });
+
+                const grid = document.createElement("div");
+                grid.className = "month-grid";
+
+                for (let i = 0; i < 12; i++) {
+                    const year = startYear + i;
+
+                    const item = document.createElement("div");
+                    item.className = "month-item";
+                    item.innerText = year;
+
+                    if (year === anoAtual) {
+                        item.classList.add("active");
+                    }
+
+                    item.addEventListener("click", () => {
+                        item.classList.add("active");
+
+                        setTimeout(() => {
+                            anoAtual = year;
+                            yearBlockStart = undefined;
+                            gerarCalendario(anoAtual, mesAtual);
+                            closePicker();
+                        }, 120);
+                    });
+
+                    grid.appendChild(item);
+                }
+
+                sheet.appendChild(grid);
+
+                let startX = 0;
+
+                sheet.ontouchstart = (e) => {
+                    startX = e.changedTouches[0].clientX;
+                };
+
+                sheet.ontouchend = (e) => {
+                    const deltaX = e.changedTouches[0].clientX - startX;
+
+                    const threshold = sheet.clientWidth * 0.18;
+
+                    if (deltaX > threshold) {
+                        yearBlockStart -= 12;
+                        renderYearPicker();
+                    } else if (deltaX < -threshold) {
+                        yearBlockStart += 12;
+                        renderYearPicker();
+                    }
+                };
             }
 
             /* ===== KEYBOARD NAVIGATION v1.3.5 ===== */
@@ -708,9 +831,10 @@
             }
 
             document.addEventListener("DOMContentLoaded", function () {
-		overlay = document.getElementById("pickerOverlay");
+                overlay = document.getElementById("pickerOverlay");
 
-                const periodoEl = document.querySelector(".periodo");
+                const mesEl = document.getElementById("mesTexto");
+                const anoEl = document.getElementById("anoTexto");
 
                 function openPicker() {
                     renderMonthPicker();
@@ -721,7 +845,20 @@
                     });
                 }
 
-                periodoEl.addEventListener("click", openPicker);
+                // clicar no mês → abre seletor de mês
+                mesEl.addEventListener("click", openPicker);
+
+                // clicar no ano → evento separado
+                anoEl.addEventListener("click", function (e) {
+                    e.stopPropagation();
+
+                    renderYearPicker();
+                    overlay.hidden = false;
+
+                    requestAnimationFrame(() => {
+                        overlay.classList.add("active");
+                    });
+                });
 
                 overlay.addEventListener("click", function (e) {
                     if (e.target === overlay) {
