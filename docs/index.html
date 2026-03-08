@@ -13,6 +13,10 @@
         <!-- Versão 1.4.5 -->
 
         <style>
+            :root {
+                --birthday-color: #d4af37;
+            }
+
             body {
                 font-family: Arial, sans-serif;
                 background: #f5f7f6;
@@ -106,7 +110,7 @@
 
             .controls button {
                 min-height: 44px;
-		width: 44px;
+                width: 44px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -136,20 +140,21 @@
                 position: relative;
             }
 
+            .day.birthday {
+                border: 2px solid var(--birthday-color);
+            }
+
+            .day.birthday::after {
+                content: "🎂";
+                position: absolute;
+                bottom: 4px;
+                right: 4px;
+                font-size: 12px;
+            }
+
             .day.folga {
                 background: #e6f7f1;
                 border: 2px solid #2faf8a;
-            }
-
-            .day.folga::after {
-                content: "";
-                width: 8px;
-                height: 8px;
-                background: #2faf8a;
-                border-radius: 50%;
-                position: absolute;
-                bottom: 6px;
-                right: 6px;
             }
 
             .day.holiday {
@@ -177,6 +182,12 @@
                 margin-top: 20px;
                 font-size: 12px;
                 color: gray;
+            }
+
+            .legend {
+                margin-top: 8px;
+                color: #444;
+                display: none;
             }
 
             .footer .holidays {
@@ -342,6 +353,9 @@
 
             <div class="footer">
                 Data Base: 15/02/2026 (folga de domingo)
+
+                <div class="legend" id="birthdayLegend">🎂 Aniversário</div>
+
                 <div class="holidays" id="listaFeriados"></div>
             </div>
         </div>
@@ -520,6 +534,14 @@
                 mesEl.textContent = mesesAbreviados[mes];
                 anoEl.textContent = ano;
 
+                const legend = document.getElementById("birthdayLegend");
+
+                if (mes === 6) {
+                    legend.style.display = "block";
+                } else {
+                    legend.style.display = "none";
+                }
+
                 const calendario = document.getElementById("calendario");
                 // Início da microtransição
                 calendario.classList.remove("calendar-transition-active");
@@ -561,6 +583,8 @@
                     if (ehFolga(data)) el.classList.add("folga");
                     if (ehFeriado(data, todosFeriados)) el.classList.add("holiday");
                     if (ehFeriado(data, carnaval)) el.classList.add("cultural");
+
+                    if (dia === 10 && mes === 6) el.classList.add("birthday");
 
                     if (
                         dia === agora.getDate() &&

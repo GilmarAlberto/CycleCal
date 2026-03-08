@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.4.5
-Base: v1.4.4
+Status: 🟢 v1.5.0
+Base: v1.4.5
 Branch: main  
 
 ---
@@ -216,9 +216,9 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 
 ### ⚙️ Funcionalidade
 
-- [ ] Garantir que swipe continue funcionando
-- [ ] Garantir que botões ◀ ▶ continuem funcionando
-- [ ] Validar navegação de mês após reload
+- [x] Garantir que swipe continue funcionando
+- [x] Garantir que botões ◀ ▶ continuem funcionando
+- [x] Validar navegação de mês após reload
 
 ### 📦 PWA / Infraestrutura
 
@@ -238,13 +238,15 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 
 ## 🎂 v1.5.0 – Datas Especiais
 
-- [ ] (v1.4.0) Destacar aniversário fixo (10/07)
-- [ ] Aplicar classe `.birthday`
-- [ ] Definir variável `--birthday-color` (#d4af37)
-- [ ] Inserir emoji 🎂 via pseudo-elemento
-- [ ] Garantir coexistência com `.holiday`, `.folga` e `.today`
-- [ ] Testar navegação entre meses
-- [ ] Testar mobile (PWA instalada)
+- [x] (v1.4.0) Destacar aniversário fixo (10/07)
+- [x] Aplicar classe `.birthday`
+- [x] Definir variável `--birthday-color` (#d4af37)
+- [x] Inserir legenda
+- [x] Mostrar legenda apenas no mês correto
+- [x] Inserir emoji 🎂 via pseudo-elemento
+- [x] Garantir coexistência com `.holiday`, `.folga` e `.today`
+- [x] Testar navegação entre meses
+- [x] Testar mobile (PWA instalada)
 
 ---
 
