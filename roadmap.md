@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.4.4
-Base: v1.4.3
+Status: 🟢 v1.4.5
+Base: v1.4.4
 Branch: main  
 
 ---
@@ -208,20 +208,32 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 
 ## 📱 v1.4.5 – Refinamento e Validação Final
 
-### 🎨 Ajustes Visuais
+### 🎨 Interface (UI / UX)
 
-- [ ] Ajustar espaçamentos para mobile
-- [ ] Ajustar contraste e destaque
-- [ ] Garantir conforto para polegar
+- [x] Ajustar espaçamentos para mobile
+- [x] Ajustar contraste e destaque dos elementos
+- [x] Garantir conforto para interação com polegar (thumb zone)
 
-### ⚡ Performance e Compatibilidade
+### ⚙️ Funcionalidade
 
 - [ ] Garantir que swipe continue funcionando
 - [ ] Garantir que botões ◀ ▶ continuem funcionando
+- [ ] Validar navegação de mês após reload
+
+### 📦 PWA / Infraestrutura
+
+- [x] Atualizar `CACHE_NAME` para v1.4.5
 - [ ] Testar funcionamento offline
-- [ ] Testar PWA standalone
-- [ ] Atualizar `CACHE_NAME` para v1.4.5
-- [ ] Validar comportamento após reload
+- [ ] Testar modo PWA standalone
+- [ ] Verificar atualização do Service Worker
+
+### 🧪 Critério de Encerramento da Versão
+
+- [ ] Teste completo em mobile
+- [ ] Teste completo em desktop
+- [ ] Verificar funcionamento offline
+- [ ] Confirmar atualização da PWA instalada
+- [ ] Commit final da versão
 
 ---
 
@@ -234,8 +246,6 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 - [ ] Garantir coexistência com `.holiday`, `.folga` e `.today`
 - [ ] Testar navegação entre meses
 - [ ] Testar mobile (PWA instalada)
-
----
 
 ---
 
