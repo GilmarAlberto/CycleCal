@@ -223,17 +223,16 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 ### 📦 PWA / Infraestrutura
 
 - [x] Atualizar `CACHE_NAME` para v1.4.5
-- [ ] Testar funcionamento offline
-- [ ] Testar modo PWA standalone
-- [ ] Verificar atualização do Service Worker
+- [x] Testar funcionamento offline
+- [x] Testar modo PWA standalone
+- [x] Verificar atualização do Service Worker
 
 ### 🧪 Critério de Encerramento da Versão
 
-- [ ] Teste completo em mobile
-- [ ] Teste completo em desktop
-- [ ] Verificar funcionamento offline
-- [ ] Confirmar atualização da PWA instalada
-- [ ] Commit final da versão
+- [x] Teste completo em mobile
+- [x] Teste completo em desktop
+- [x] Confirmar atualização da PWA instalada
+- [x] Commit final da versão
 
 ---
 
