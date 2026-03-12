@@ -18,28 +18,40 @@ v4.x — Saúde
 
 ---
 
-# 🧱 Arquitetura do Sistema
+# 🧱 Arquitetura do Sistema (v1.9.0 – v1.9.3)
 
 Objetivo:
 Garantir que o CycleCal tenha uma base técnica escalável.
 
 ## Estrutura
 
-- [ ] Criar objeto central `config`
-- [ ] Separar motor de regras do calendário
-- [ ] Implementar sistema de camadas (layers)
-- [ ] Estruturar módulos do sistema
+- [ ] v1.9.0 — Separar motor de regras do calendário
+- [ ] v1.9.1 — Criar objeto central `config`
+- [ ] v1.9.2 — Implementar sistema de camadas (layers)
+- [ ] v1.9.3 — Definir modelo de dados baseado em parâmetros
 
 ---
 
-# 💾 Persistência de Dados
+# 🔄 Motor de Regras Configuráveis (v1.9.5 – v1.9.6)
+
+Objetivo:
+Permitir múltiplos tipos de escala no sistema.
+
+- [ ] v1.9.5 — Implementar estrutura de parâmetros da escala
+- [ ] v1.9.6 — Gerar calendário dinamicamente a partir dos parâmetros
+
+---
+
+# 💾 Persistência de Dados (v1.9.4 – v1.9.8)
 
 Objetivo:
 Permitir que o usuário mantenha suas escalas e configurações.
 
-- [ ] Salvar escala atual
-- [ ] Salvar data base
-- [ ] Salvar configurações do usuário
+## Estrutura de Persistência
+
+- [ ] v1.9.4 — Criar camada de persistência abstrata (`storage`)
+- [ ] v1.9.7 — Implementar adapter LocalStorage
+- [ ] v1.9.8 — Implementar adapter IndexedDB
 
 Tecnologias possíveis:
 
@@ -75,21 +87,10 @@ Exemplo:
 
 ---
 
-# 🔄 Motor de Regras Configuráveis
+# ☁ Infraestrutura Online (v1.9.12)
 
 Objetivo:
-Permitir múltiplos tipos de escala no sistema.
-
-- [ ] Alterar regra do ciclo (2x1, 3x1 etc.)
-- [ ] Alterar data base
-- [ ] Ativar / desativar camadas
-
----
-
-# ☁ Infraestrutura Online
-
-Objetivo:
-Permitir sincronização e backup.
+Permitir sincronização e backend online.
 
 Possíveis serviços:
 
@@ -98,13 +99,13 @@ Possíveis serviços:
 - Render
 - Railway
 
-- [ ] Hospedar backend
+- [ ] v1.9.12 — Implementar backend SaaS
 - [ ] Armazenar dados dos usuários
 - [ ] Permitir sincronização entre dispositivos
 
 ---
 
-# ☁ Backup Automático
+# ☁ Backup Automático (v1.9.13 – v1.9.14)
 
 Fluxo esperado:
 
@@ -114,9 +115,22 @@ Usuário cria conta
 → login  
 → dados restaurados
 
-- [ ] Implementar autenticação básica
+- [ ] v1.9.13 — Implementar autenticação de usuários
+- [ ] v1.9.14 — Implementar backup automático
 - [ ] Sincronizar dados do calendário
 - [ ] Restaurar dados automaticamente
+
+---
+
+# 🔄 Estratégia Offline-First (v1.9.9 – v1.9.11)
+
+Objetivo:
+Permitir que o CycleCal funcione offline como PWA,
+mas sincronize automaticamente quando houver conexão.
+
+- [ ] v1.9.9 — Implementar adapter API remoto
+- [ ] v1.9.10 — Implementar sincronização automática
+- [ ] v1.9.11 — Resolver conflitos de sincronização
 
 ---
 
@@ -182,7 +196,7 @@ Princípios:
 
 ---
 
-# 📊 Métricas da Plataforma
+# 📊 Métricas da Plataforma (v1.9.15 – v1.9.16)
 
 Objetivo:
 Permitir acompanhar crescimento e uso do CycleCal.
@@ -191,8 +205,8 @@ Permitir acompanhar crescimento e uso do CycleCal.
 
 - [ ] Registrar quantidade total de usuários
 - [ ] Registrar usuários ativos (últimos 30 dias)
-- [ ] Registrar usuários ativos diários (DAU)
-- [ ] Registrar usuários ativos mensais (MAU)
+- [ ] v1.9.15 — Registrar usuários ativos diários (DAU)
+- [ ] v1.9.15 — Registrar usuários ativos mensais (MAU)
 
 ## Métricas de Uso
 
@@ -210,30 +224,13 @@ Permitir acompanhar crescimento e uso do CycleCal.
 
 ## Dashboard
 
-- [ ] Criar painel interno de métricas
+- [ ] v1.9.16 — Criar painel interno de métricas
 - [ ] Visualizar crescimento de usuários
 - [ ] Visualizar retenção de usuários
 
-# 🔄 Estratégia Offline-First
+---
 
-Objetivo:
-Permitir que o CycleCal funcione offline como PWA,
-mas sincronize automaticamente quando houver conexão.
-
-- [ ] Criar camada de persistência abstrata (`storage`)
-- [ ] Implementar adaptador local (localStorage / IndexedDB)
-- [ ] Implementar adaptador remoto (API)
-- [ ] Sincronizar dados automaticamente quando online
-- [ ] Resolver conflitos de dados entre dispositivos
-
-# 💾 Sincronização de Dados
-
-- [ ] Criar estrutura de dados sincronizável
-- [ ] Implementar timestamp de atualização
-- [ ] Detectar conflitos de edição
-- [ ] Priorizar versão mais recente
-
-# 🔐 Segurança e Controle de Acesso
+# 🔐 Segurança e Controle de Acesso (v1.9.17 – v1.9.18)
 
 Objetivo:
 Garantir proteção dos dados dos usuários e acesso seguro ao sistema.
@@ -246,6 +243,7 @@ Garantir proteção dos dados dos usuários e acesso seguro ao sistema.
 
 ## Controle de Acesso
 
+- [ ] v1.9.17 — Implementar controle de acesso à API
 - [ ] Garantir que cada usuário acesse apenas seus próprios dados
 - [ ] Validar permissões no backend
 - [ ] Proteger endpoints da API
@@ -258,49 +256,19 @@ Garantir proteção dos dados dos usuários e acesso seguro ao sistema.
 
 ## Proteção contra abuso
 
-- [ ] Implementar rate limiting na API
+- [ ] v1.9.18 — Implementar rate limiting na API
 - [ ] Detectar uso excessivo ou comportamento suspeito
 
-# 🧠 Modelo de Dados Baseado em Parâmetros
+---
+
+# 🧪 Estabilização da Infraestrutura (v1.9.19)
 
 Objetivo:
-Reduzir a complexidade de armazenamento e sincronização de dados no CycleCal.
+Garantir que toda a infraestrutura esteja estável
+antes da liberação da versão v2.0.
 
-Princípio fundamental da arquitetura:
-
-O CycleCal **não armazena o calendário completo**.
-
-O calendário é **gerado dinamicamente a partir de parâmetros** definidos pelo usuário.
-
-Isso permite:
-
-- menor volume de dados
-- sincronização mais simples
-- menos conflitos entre dispositivos
-- backend mais leve
-- suporte natural à arquitetura offline-first
-
-## Parâmetros armazenados
-
-- [ ] Armazenar tipo de escala (`scale_type`)
-- [ ] Armazenar data base da escala (`base_date`)
-- [ ] Armazenar períodos de férias (`vacations`)
-- [ ] Armazenar plantões extras (`extra_shifts`)
-- [ ] Armazenar área de atuação do usuário (`area`)
-
-## Geração do Calendário
-
-Fluxo de funcionamento do sistema:
-
-carregar parâmetros  
-→ calcular ciclo da escala  
-→ aplicar exceções (férias / plantões extras)  
-→ renderizar calendário
-
-## Benefícios Arquiteturais
-
-- [ ] Reduzir volume de dados armazenados
-- [ ] Simplificar sincronização entre dispositivos
-- [ ] Minimizar conflitos de dados
-- [ ] Permitir backend simples
-- [ ] Manter arquitetura offline-first
+- [ ] Revisão geral da arquitetura
+- [ ] Testes de sincronização
+- [ ] Testes de segurança
+- [ ] Validação da estratégia offline-first
+- [ ] Preparação para release v2.0
