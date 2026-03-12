@@ -259,32 +259,38 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 
 ---
 
-# 🔁 v1.6.0 – Controle de Folgas em Feriados
+# v1.6.0 — Controle de Folgas em Feriados
 
 ## 🎯 Regra de Conflito
 
-- [ ] Detectar conflito entre `.folga` e `.holiday`
-- [ ] Criar função isolada `resolverConflitoFolga(date)`
-- [ ] Definir estratégia inicial (sem compensação ou compensação automática)
+- [x] Detectar conflito entre `.folga` e `.holiday`
+- [obsoleta] Criar função isolada `resolverConflitoFolga(date)`
+- [x] Definir estratégia inicial (folga tem prioridade sobre feriado)
 
-## ⚙ Lógica de Compensação (Fase 1)
+## 🧠 Infraestrutura do Calendário
 
-- [ ] Implementar regra padrão (ex: postergar para próximo dia útil)
-- [ ] Garantir que não gere efeito cascata
-- [ ] Evitar duplicação de folgas no mesmo ciclo
-- [ ] Validar múltiplos conflitos no mesmo mês
+- [x] Criar estrutura de eventos do dia
+- [x] Centralizar cálculo de eventos
+- [x] Definir prioridade de eventos
+- [x] Preparar suporte para férias
+
+## ⚙️ Lógica de Compensação (Fase 1)
+
+- [obsoleta] Implementar regra padrão (ex: postergar para próximo dia útil)
+- [x] Garantir que não gere efeito cascata
+- [x] Evitar duplicação de folgas no mesmo ciclo
+- [x] Validar múltiplos conflitos no mesmo mês
 
 ## 🎨 Camada Visual
 
-- [ ] Criar classe `.folga-holiday`
-- [ ] Ajustar prioridade visual entre `.today`, `.holiday` e `.folga`
-- [ ] Inserir indicação visual discreta (ex: borda diferenciada)
-- [ ] Garantir compatibilidade mobile
+- [x] Ajustar prioridade visual entre `.today`, `.holiday` e `.folga`
+- [x] Inserir indicação visual discreta (ex: 🎂 aniversário)
+- [x] Garantir compatibilidade mobile
 
 ## 🧪 Testes
 
 - [ ] Testar anos até 2035
-- [ ] Testar ano bissexto
+- [x] Testar ano bissexto
 - [ ] Testar funcionamento offline
 - [ ] Testar PWA instalada
 - [ ] Validar comportamento após reload
