@@ -260,3 +260,47 @@ Garantir proteção dos dados dos usuários e acesso seguro ao sistema.
 
 - [ ] Implementar rate limiting na API
 - [ ] Detectar uso excessivo ou comportamento suspeito
+
+# 🧠 Modelo de Dados Baseado em Parâmetros
+
+Objetivo:
+Reduzir a complexidade de armazenamento e sincronização de dados no CycleCal.
+
+Princípio fundamental da arquitetura:
+
+O CycleCal **não armazena o calendário completo**.
+
+O calendário é **gerado dinamicamente a partir de parâmetros** definidos pelo usuário.
+
+Isso permite:
+
+- menor volume de dados
+- sincronização mais simples
+- menos conflitos entre dispositivos
+- backend mais leve
+- suporte natural à arquitetura offline-first
+
+## Parâmetros armazenados
+
+- [ ] Armazenar tipo de escala (`scale_type`)
+- [ ] Armazenar data base da escala (`base_date`)
+- [ ] Armazenar períodos de férias (`vacations`)
+- [ ] Armazenar plantões extras (`extra_shifts`)
+- [ ] Armazenar área de atuação do usuário (`area`)
+
+## Geração do Calendário
+
+Fluxo de funcionamento do sistema:
+
+carregar parâmetros  
+→ calcular ciclo da escala  
+→ aplicar exceções (férias / plantões extras)  
+→ renderizar calendário
+
+## Benefícios Arquiteturais
+
+- [ ] Reduzir volume de dados armazenados
+- [ ] Simplificar sincronização entre dispositivos
+- [ ] Minimizar conflitos de dados
+- [ ] Permitir backend simples
+- [ ] Manter arquitetura offline-first
