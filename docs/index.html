@@ -315,6 +315,15 @@
             .periodo span {
                 padding: 4px 2px;
             }
+
+            .day span {
+                position: relative;
+                z-index: 1;
+            }
+
+            .day.birthday::after {
+                z-index: 2;
+            }
         </style>
     </head>
 
@@ -609,6 +618,10 @@
 
                     if (principal) {
                         el.classList.add(principal);
+                    }
+
+                    if (eventos.includes("birthday")) {
+                        el.classList.add("birthday");
                     }
 
                     if (

@@ -1,0 +1,56 @@
+[33mf65303f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m v1.6.0 - Controle de folgas em feriados e motor de eventos do calendário
+[33m5479919[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m infra: alinhar roadmap-infra com versões v1.9.x do cronograma
+[33m6a8246e[m modelo de dados baseado em parâmetros
+[33m6afe541[m[33m ([m[1;33mtag: [m[1;33mplanejamento-v1[m[33m)[m docs: finaliza planejamento arquitetural do CycleCal (core + infra + módulos)
+[33mb65ae36[m[33m ([m[1;33mtag: [m[1;33mv1.5.0[m[33m)[m 1.5.0 - correção da versão
+[33m3bae03a[m v1.5.0 – destaque de aniversário (10/07), emoji 🎂 e legenda condicional
+[33m31329a6[m Finalize v1.4.5 roadmap
+[33mb27e85d[m v1.4.5 UI refinements + SW cache update
+[33md8d7f03[m v1.4.4 – seletor de ano com navegação por blocos, swipe e feedback visual
+[33m1c0547c[m v1.4.3 - Seletor de mês funcional (bottom sheet)
+[33mbc0bbfa[m feat(v1.4.2): complete bottom sheet structure with overlay, animation and interaction
+[33m8f9fc26[m Complementação do roadmap.md v1.4.1
+[33ma76b212[m v1.4.1: novo header interativo, remoção de select/yearInput e simplificação do render
+[33mcfec989[m Reorganização da linha 1.4.x (mobile picker incremental)
+[33mdf55657[m v1.3.6 - Micro visual refinement on month change (mobile focus)
+[33m3f7d179[m v1.3.5 - Correção de estado PWA, ajuste botão Hoje e update cache
+[33mb1af901[m chore: remove estrutura legada /mobile e atualiza roadmap v1.3.4
+[33m7124641[m fix(sw): atualiza para v1.3.4 e corrige fallback para GitHub Pages (/docs)
+[33m7c06501[m fix(pwa): corrige start_url, scope e paths de ícones para subpath /CycleCal no GitHub Pages
+[33m13cae24[m update: adjust roadmap and backup script
+[33m9f7c25e[m chore: add prettier configuration
+[33meeb37f7[m chore: apply prettier formatting
+[33m1cdd068[m v1.3.3 - Forçar no-store no HTML para eliminar cache HTTP do GitHub Pages
+[33m7f70c09[m v1.3.2 - Infraestrutura PWA definitiva (Network First + auto update) + ajuste swipe
+[33m20feac6[m feat(v1.3.1): refine swipe engine (threshold, clientX, lock)
+[33md50f28b[m Docs: atualização estratégica do roadmap (v1.x e visão v2.0)
+[33m057beba[m[33m ([m[1;33mtag: [m[1;33mv1.2.4[m[33m)[m Fix: remove leading slash for GitHub Pages paths
+[33meb50f09[m Infra: prepara GitHub Pages via /docs
+[33mccea4d9[m[33m ([m[1;31morigin/feature/v1.2.4-carnaval[m[33m, [m[1;32mfeature/v1.2.4-carnaval[m[33m)[m v1.2.4 - Carnaval (evento cultural em lilás)
+[33mf78da4f[m chore: open v1.2.4 - cultural events development cycle
+[33m8317066[m chore: open v1.2.4 and restructure roadmap for cultural events and refinements
+[33md563c59[m fix: correct swipe direction logic
+[33m5388097[m chore: ignore local Obsidian vault directory
+[33m7565c9c[m[33m ([m[1;33mtag: [m[1;33mv1.2.3[m[33m, [m[1;32mfeature/swipe-v1.2.3[m[33m)[m release: v1.2.3 - keyboard and swipe navigation
+[33m4245e8c[m chore: prepare roadmap for v1.2.3 navigation enhancements
+[33m6c1c8a9[m[33m ([m[1;33mtag: [m[1;33mv1.2.2[m[33m)[m feat: v1.2.2 seleção direta de mês e ano
+[33maa3e2d6[m docs: atualiza roadmap v1.2.1 publicada + ignora vault local
+[33m568f3ec[m[33m ([m[1;33mtag: [m[1;33mv1.2.1[m[33m)[m feat: botão circular do dia atual + favicon + correção SW (v1.2.1)
+[33mcff17ef[m chore: atualiza gitignore e roadmap antes da v1.2.1
+[33md50b5cc[m docs: consolida roadmap final v1.2.0-alpha
+[33mb1cb453[m feat: adiciona 20/11 Consciência Negra e atualiza roadmap
+[33m1439099[m chore: organiza index, atualiza roadmap e adiciona movableFeasts
+[33m39be96e[m[33m ([m[1;33mtag: [m[1;33mv1.2.0-alpha[m[33m, [m[1;32mfeature/pascoa[m[33m)[m feat: adiciona feriados móveis (Páscoa, Sexta-feira Santa e Corpus Christi)
+[33m7596c9a[m[33m ([m[1;31morigin/feature/1.1.0[m[33m, [m[1;32mfeature/1.1.0[m[33m)[m feat: add fixed holidays (national + Curitiba), dynamic footer list, include May 1st, bump to v1.1.1
+[33mdb7c1f2[m docs: initialize roadmap for v1.1.0
+[33mbad869e[m[33m ([m[1;33mtag: [m[1;33mv1.0.3[m[33m)[m chore: finalize CycleCal v1.0.3
+[33m6648a97[m Finalize definitive scheduling rule and documentation
+[33m2bb81cd[m Enforce hard 1-year scheduling limit (definitive rule)
+[33m10c7b85[m Add pyproject.toml and ignore egg-info
+[33m93ed4a7[m Add CLI entry point to generate cyclic schedules
+[33me8c5947[m Reorganize project structure into cyclecal package
+[33m0cd5861[m Add tests for cycle generation and 12 month limit
+[33m3fd8b97[m Limit cycle generation to 12 months ahead
+[33m12aaed8[m Add patterns module
+[33ma0b09db[m Create base package structure
+[33m31e3c5d[m Add README for CycleCal project¾

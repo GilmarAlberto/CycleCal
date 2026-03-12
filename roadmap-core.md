@@ -264,7 +264,6 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 ## 🎯 Regra de Conflito
 
 - [x] Detectar conflito entre `.folga` e `.holiday`
-- [obsoleta] Criar função isolada `resolverConflitoFolga(date)`
 - [x] Definir estratégia inicial (folga tem prioridade sobre feriado)
 
 ## 🧠 Infraestrutura do Calendário
@@ -276,7 +275,6 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 
 ## ⚙️ Lógica de Compensação (Fase 1)
 
-- [obsoleta] Implementar regra padrão (ex: postergar para próximo dia útil)
 - [x] Garantir que não gere efeito cascata
 - [x] Evitar duplicação de folgas no mesmo ciclo
 - [x] Validar múltiplos conflitos no mesmo mês
@@ -289,11 +287,11 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 
 ## 🧪 Testes
 
-- [ ] Testar anos até 2035
+- [x] Testar anos até 2035
 - [x] Testar ano bissexto
-- [ ] Testar funcionamento offline
-- [ ] Testar PWA instalada
-- [ ] Validar comportamento após reload
+- [x] Testar funcionamento offline
+- [x] Testar PWA instalada
+- [x] Validar comportamento após reload
 
 ---
 
