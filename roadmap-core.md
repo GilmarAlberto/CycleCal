@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.6.0 (em desenvolvimento)
-Base: v1.5.0
+Status: 🟢 v1.7.0
+Base: v1.6.0
 Branch: main
 
 ---
@@ -300,35 +300,96 @@ Substituir `<select>` de mês e `<input type="number">` de ano por um seletor mo
 ## 🎯 Objetivo
 
 Permitir que o usuário registre períodos de férias
-e visualize claramente no calendário.
+e visualize claramente esses períodos no calendário.
 
 ---
 
 ## ⚙️ Funcionalidade
 
-- [ ] Permitir registrar data de início das férias
-- [ ] Permitir registrar data de término das férias
-- [ ] Destacar dias de férias no calendário
-- [ ] Garantir compatibilidade com ciclos de escala
+- [x] Permitir registrar data de início das férias
+- [x] Permitir registrar data de término das férias
+- [ ] Permitir edição de um período de férias
+- [ ] Permitir remoção de um período de férias
+- [x] Destacar dias de férias no calendário
+- [x] Garantir compatibilidade com ciclos de escala
+
+---
+
+## 💾 Persistência de Dados
+
+- [x] Definir estrutura de armazenamento das férias
+- [x] Salvar períodos de férias no armazenamento local
+- [x] Restaurar férias automaticamente ao abrir o aplicativo
 
 ---
 
 ## 🎨 Camada Visual
 
-- [ ] Criar classe `.vacation`
-- [ ] Definir cor específica para férias
-- [ ] Garantir contraste adequado com `.holiday` e `.folga`
-- [ ] Inserir legenda explicativa abaixo do calendário
+- [x] Criar classe `.vacation`
+- [x] Definir estilo visual específico (hachurado cinza)
+- [x] Garantir contraste adequado com `.holiday`, `.folga` e `.today`
+- [x] Inserir legenda explicativa abaixo do calendário
+- [x] Exibir legenda apenas quando houver férias no mês
+
+---
+
+## 🖊 Cadastro de Férias
+
+- [x] Criar interface para registrar férias
+- [x] Permitir selecionar data inicial
+- [x] Permitir selecionar data final
+- [x] Validar intervalo de datas
+- [x] Confirmar registro de férias
 
 ---
 
 ## 🧪 Testes
 
-- [ ] Testar períodos longos (ex: 30 dias)
-- [ ] Testar férias atravessando meses
-- [ ] Testar coexistência com `.holiday`, `.folga` e `.today`
+- [x] Testar períodos longos (ex: 30 dias)
+- [x] Testar férias atravessando meses
+- [x] Testar coexistência com `.holiday`, `.folga` e `.today`
 - [ ] Testar funcionamento offline
 - [ ] Testar PWA instalada
+
+---
+
+## 🚀 Critério de Conclusão
+
+A versão será considerada concluída quando:
+
+- O usuário conseguir registrar um período de férias
+- O calendário destacar corretamente todos os dias do período
+- Os dados permanecerem salvos após fechar e reabrir o aplicativo
+- O funcionamento estiver estável tanto online quanto offline
+
+---
+
+## 📝 Nota de Versão
+
+Refinamentos visuais da funcionalidade de férias
+não fazem parte da v1.7.0.
+
+Qualquer melhoria estética, ajustes de layout ou
+melhorias de interface serão tratados na versão **v1.7.1**.
+
+---
+# ⚙ v1.7.5 – Configurações do Usuário
+
+## Objetivo
+
+Criar estrutura básica de configurações do usuário
+antes da introdução do sistema completo de perfil.
+
+## Funcionalidade
+
+- registrar data base da escala
+- registrar tipo de escala
+- armazenar preferências do usuário
+- persistir configurações no LocalStorage
+
+## Benefício
+
+preparar estrutura para o sistema de perfil (v1.8.0)
 
 ---
 

@@ -18,6 +18,58 @@ v4.x — Saúde
 
 ---
 
+# 🧩 Modularização do Frontend (v1.8.x)
+
+Objetivo:  
+Reduzir complexidade do `index.html` e preparar o CycleCal
+para crescimento modular e manutenção mais fácil.
+
+## Estrutura de Código
+
+- [ ] Separar CSS do HTML
+- [ ] Criar pasta `/css`
+- [ ] Criar arquivo `styles.css`
+
+- [ ] Criar pasta `/js`
+- [ ] Separar lógica do calendário
+- [ ] Separar regras de eventos
+- [ ] Separar lógica de feriados
+- [ ] Separar lógica de férias
+
+## Organização de Arquivos
+
+Estrutura alvo:
+
+docs/
+│
+├── index.html
+│
+├── css/
+│   └── styles.css
+│
+├── js/
+│   ├── app.js
+│   ├── calendario.js
+│   ├── eventos.js
+│   ├── feriados.js
+│   ├── ferias.js
+│   └── navigation.js
+│
+├── manifest.json
+├── sw.js
+│
+└── icons/
+    ├── icon-256.png
+    └── icon-512.png
+
+## Critério de Conclusão
+
+- `index.html` com menos de ~300 linhas
+- Cada módulo com responsabilidade única
+- Nenhuma mudança funcional no comportamento do sistema
+
+---
+
 # 🧱 Arquitetura do Sistema (v1.9.0 – v1.9.3)
 
 Objetivo:
@@ -29,34 +81,6 @@ Garantir que o CycleCal tenha uma base técnica escalável.
 - [ ] v1.9.1 — Criar objeto central `config`
 - [ ] v1.9.2 — Implementar sistema de camadas (layers)
 - [ ] v1.9.3 — Definir modelo de dados baseado em parâmetros
-
----
-
-# 🔄 Motor de Regras Configuráveis (v1.9.5 – v1.9.6)
-
-Objetivo:
-Permitir múltiplos tipos de escala no sistema.
-
-- [ ] v1.9.5 — Implementar estrutura de parâmetros da escala
-- [ ] v1.9.6 — Gerar calendário dinamicamente a partir dos parâmetros
-
----
-
-# 💾 Persistência de Dados (v1.9.4 – v1.9.8)
-
-Objetivo:
-Permitir que o usuário mantenha suas escalas e configurações.
-
-## Estrutura de Persistência
-
-- [ ] v1.9.4 — Criar camada de persistência abstrata (`storage`)
-- [ ] v1.9.7 — Implementar adapter LocalStorage
-- [ ] v1.9.8 — Implementar adapter IndexedDB
-
-Tecnologias possíveis:
-
-- localStorage
-- IndexedDB
 
 ---
 
@@ -84,6 +108,46 @@ Exemplo:
 
 - [ ] Registrar histórico diário
 - [ ] Permitir consulta mensal
+
+---
+
+# 💾 Persistência de Dados (v1.9.4 – v1.9.8)
+
+Objetivo:
+Permitir que o usuário mantenha suas escalas e configurações.
+
+## Estrutura de Persistência
+
+- [ ] v1.9.4 — Criar camada de persistência abstrata (`storage`)
+- [ ] v1.9.7 — Implementar adapter LocalStorage
+- [ ] v1.9.8 — Implementar adapter IndexedDB
+
+Tecnologias possíveis:
+
+- localStorage
+- IndexedDB
+
+---
+
+# 🔄 Motor de Regras Configuráveis (v1.9.5 – v1.9.6)
+
+Objetivo:
+Permitir múltiplos tipos de escala no sistema.
+
+- [ ] v1.9.5 — Implementar estrutura de parâmetros da escala
+- [ ] v1.9.6 — Gerar calendário dinamicamente a partir dos parâmetros
+
+---
+
+# 🔄 Estratégia Offline-First (v1.9.9 – v1.9.11)
+
+Objetivo:
+Permitir que o CycleCal funcione offline como PWA,
+mas sincronize automaticamente quando houver conexão.
+
+- [ ] v1.9.9 — Implementar adapter API remoto
+- [ ] v1.9.10 — Implementar sincronização automática
+- [ ] v1.9.11 — Resolver conflitos de sincronização
 
 ---
 
@@ -119,18 +183,6 @@ Usuário cria conta
 - [ ] v1.9.14 — Implementar backup automático
 - [ ] Sincronizar dados do calendário
 - [ ] Restaurar dados automaticamente
-
----
-
-# 🔄 Estratégia Offline-First (v1.9.9 – v1.9.11)
-
-Objetivo:
-Permitir que o CycleCal funcione offline como PWA,
-mas sincronize automaticamente quando houver conexão.
-
-- [ ] v1.9.9 — Implementar adapter API remoto
-- [ ] v1.9.10 — Implementar sincronização automática
-- [ ] v1.9.11 — Resolver conflitos de sincronização
 
 ---
 
@@ -261,7 +313,67 @@ Garantir proteção dos dados dos usuários e acesso seguro ao sistema.
 
 ---
 
-# 🧪 Estabilização da Infraestrutura (v1.9.19)
+# 🧩 Sistema de Eventos de Calendário
+
+
+## 🎯 Objetivo
+
+Criar uma estrutura genérica para representar eventos associados a dias do calendário.
+
+Essa estrutura permitirá que diferentes tipos de eventos sejam tratados de forma uniforme
+pelo motor do calendário.
+
+---
+
+## Tipos de eventos previstos
+
+- folga
+- feriado
+- férias
+- eventos futuros
+
+---
+
+## Estrutura conceitual
+
+Cada evento deverá possuir:
+
+- id
+- tipo
+- data inicial
+- data final
+- metadados opcionais
+
+Exemplo conceitual:
+
+```json
+{
+  id: "evt_001",
+  type: "vacation",
+  start: "2026-07-01",
+  end: "2026-07-30",
+  meta: {}
+}
+```
+
+---
+
+## Benefícios
+
+- evitar múltiplas estruturas paralelas no código
+- simplificar renderização do calendário
+- permitir novas funcionalidades sem refatoração
+- facilitar sincronização futura
+
+---
+
+## Status
+
+Planejado
+
+---
+
+# 🧪 Estabilização da Infraestrutura (v1.9.20)
 
 Objetivo:
 Garantir que toda a infraestrutura esteja estável
