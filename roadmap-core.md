@@ -308,8 +308,8 @@ e visualize claramente esses períodos no calendário.
 
 - [x] Permitir registrar data de início das férias
 - [x] Permitir registrar data de término das férias
-- [ ] Permitir edição de um período de férias
-- [ ] Permitir remoção de um período de férias
+- [x] Permitir edição de um período de férias
+- [x] Permitir remoção de um período de férias
 - [x] Destacar dias de férias no calendário
 - [x] Garantir compatibilidade com ciclos de escala
 
@@ -348,8 +348,8 @@ e visualize claramente esses períodos no calendário.
 - [x] Testar períodos longos (ex: 30 dias)
 - [x] Testar férias atravessando meses
 - [x] Testar coexistência com `.holiday`, `.folga` e `.today`
-- [ ] Testar funcionamento offline
-- [ ] Testar PWA instalada
+- [x] Testar funcionamento offline
+- [x] Testar PWA instalada
 
 ---
 
@@ -371,6 +371,17 @@ não fazem parte da v1.7.0.
 
 Qualquer melhoria estética, ajustes de layout ou
 melhorias de interface serão tratados na versão **v1.7.1**.
+
+## 🎨 v1.7.1 — Refinamento Visual
+
+### Interface
+- [ ] Substituir alert() por mensagem visual
+- [ ] Melhorar layout do formulário de férias
+- [ ] Melhorar visual da lista de férias
+
+### UX
+- [ ] Padronizar formato de datas exibidas
+- [ ] Melhorar espaçamento e alinhamento
 
 ---
 # ⚙ v1.7.5 – Configurações do Usuário
