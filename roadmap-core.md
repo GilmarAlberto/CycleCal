@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.7.0
-Base: v1.6.0
+Status: 🟢 v1.7.5
+Base: v1.7.0
 Branch: main
 
 ---
@@ -370,37 +370,66 @@ Refinamentos visuais da funcionalidade de férias
 não fazem parte da v1.7.0.
 
 Qualquer melhoria estética, ajustes de layout ou
-melhorias de interface serão tratados na versão **v1.7.1**.
-
-## 🎨 v1.7.1 — Refinamento Visual
-
-### Interface
-- [ ] Substituir alert() por mensagem visual
-- [ ] Melhorar layout do formulário de férias
-- [ ] Melhorar visual da lista de férias
-
-### UX
-- [ ] Padronizar formato de datas exibidas
-- [ ] Melhorar espaçamento e alinhamento
+melhorias de interface serão tratados na versão **v1.8.5**.
 
 ---
+
 # ⚙ v1.7.5 – Configurações do Usuário
 
-## Objetivo
+## 🎯 Objetivo
 
-Criar estrutura básica de configurações do usuário
-antes da introdução do sistema completo de perfil.
+Criar a estrutura inicial de configurações do usuário,
+preparando a base para o futuro sistema de perfil.
 
-## Funcionalidade
+## ⚙️ Funcionalidades
 
-- registrar data base da escala
-- registrar tipo de escala
-- armazenar preferências do usuário
-- persistir configurações no LocalStorage
+- [x] Criar estrutura `cyclecal_user` no LocalStorage
+- [x] Registrar data base da escala
+- [x] Registrar tipo de escala
+- [x] Registrar padrão da escala
+- [x] Armazenar preferências do usuário
+- [x] Persistir configurações em `cyclecal_user.settings`
 
-## Benefício
+## 📦 Benefício
 
-preparar estrutura para o sistema de perfil (v1.8.0)
+Estabelecer a base de configuração do usuário,
+permitindo evoluir posteriormente para o sistema de perfil completo (v1.8.0).
+
+## 🗂 Estrutura de Dados do Usuário
+
+O CycleCal utilizará uma única chave principal no LocalStorage:
+
+cyclecal_user
+
+Estrutura:
+
+```json
+{
+  "version": 1,
+  "updated_at": "",
+  "profile": {
+    "user_id": "uuid",
+    "name": "",
+    "area": "",
+    "created_at": ""
+  },
+  "settings": {
+    "base_date": "",
+    "scale_type": "",
+    "scale_pattern": ""
+  },
+  "preferences": {
+    "theme": "auto"
+  },
+  "vacations": [
+    {
+      "start": "",
+      "end": ""
+    }
+  ]
+}
+
+```
 
 ---
 
@@ -415,11 +444,12 @@ definindo informações básicas e sua área de atuação para personalização 
 
 ## ⚙️ Funcionalidade
 
-- [ ] Detectar primeiro acesso (ausência de perfil no LocalStorage)
+- [ ] Detectar primeiro acesso (perfil ainda não configurado)
 - [ ] Exibir tela de cadastro inicial do usuário
 - [ ] Permitir registrar nome do usuário
 - [ ] Permitir registrar data base da escala
 - [ ] Permitir registrar tipo de escala
+- [ ] Permitir registrar padrão da escala
 - [ ] Permitir selecionar área de atuação
 - [ ] Gerar identificador único do usuário (`user_id`)
 
@@ -436,9 +466,9 @@ definindo informações básicas e sua área de atuação para personalização 
 
 ## 💾 Persistência
 
-- [ ] Criar estrutura `cyclecal_user_profile` no LocalStorage
-- [ ] Salvar dados de perfil do usuário
-- [ ] Carregar perfil automaticamente ao iniciar o app
+- [ ] Criar estrutura `profile` dentro de `cyclecal_user`
+- [ ] Salvar dados do usuário em `cyclecal_user.profile`
+- [ ] Carregar dados de `cyclecal_user` ao iniciar o app
 - [ ] Evitar exibir cadastro novamente após configuração
 
 ---
@@ -459,3 +489,27 @@ definindo informações básicas e sua área de atuação para personalização 
 - [ ] Testar persistência após recarregar a página
 - [ ] Testar funcionamento offline
 - [ ] Testar comportamento com PWA instalada
+
+---
+
+# 🎨 v1.8.5 — Refinamento Visual
+
+## 🎯 Objetivo
+
+Melhorar a experiência visual e a usabilidade
+das funcionalidades de férias implementadas na v1.7.0.
+
+## Interface
+
+- [ ] Substituir `alert()` por mensagem visual no sistema
+- [ ] Melhorar layout do formulário de registro de férias
+- [ ] Melhorar visual da lista de períodos de férias
+
+## UX
+
+- [ ] Padronizar formato de datas exibidas
+- [ ] Melhorar espaçamento e alinhamento da interface
+
+---
+
+

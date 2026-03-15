@@ -97,6 +97,7 @@ Jan → 24x72
 Fev → 24x96
 
 - [ ] Registrar mudanças de escala
+- [ ] Permitir alteração da base da escala sem alterar o histórico passado
 - [ ] Permitir consulta histórica
 
 ## Histórico de Plantões

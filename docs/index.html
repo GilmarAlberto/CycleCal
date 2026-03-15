@@ -10,7 +10,7 @@
 
         <link rel="icon" href="icon-256.png" type="image/png" />
 
-        <!-- Versão 1.7.0 -->
+        <!-- Versão 1.7.5 -->
 
         <style>
             :root {
@@ -355,6 +355,27 @@
             .day.birthday::after {
                 z-index: 2;
             }
+
+            .setup-modal {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.35);
+
+                justify-content: center;
+                align-items: center;
+
+                z-index: 1000;
+            }
+
+            .setup-box {
+                background: white;
+                padding: 20px;
+                border-radius: 12px;
+                width: 280px;
+
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            }
         </style>
     </head>
 
@@ -367,9 +388,9 @@
                     <div class="title-group">
                         <div class="title-line">
                             <h1>CycleCal</h1>
-                            <span class="version">v1.7.0</span>
+                            <span class="version">v1.7.5</span>
                         </div>
-                        <div id="controle-folgas">Controle de Folgas</div>
+                        <div id="controle-folgas">Controle de Escalas e Folgas</div>
                     </div>
                 </div>
 
@@ -393,6 +414,7 @@
 
             <div style="margin-top: 15px; text-align: center">
                 <button id="btnFerias">Registrar Férias</button>
+                <button id="btnSetup">Setup ⚙</button>
 
                 <div id="formFerias" style="display: none; margin-top: 10px">
                     <label>Início:</label>
@@ -441,6 +463,122 @@
                 "DEZ",
             ];
 
+            function initUser() {
+                const stored = localStorage.getItem("cyclecal_user");
+
+                if (!stored) {
+                    const user = {
+                        version: 1,
+                        updated_at: "",
+                        profile: {
+                            user_id: crypto.randomUUID(),
+                            name: "",
+                            area: "",
+                            created_at: new Date().toISOString(),
+                        },
+                        settings: {
+                            base_date: "",
+                            scale_type: "",
+                            scale_pattern: "",
+                        },
+                        preferences: {
+                            theme: "auto",
+                        },
+                        vacations: [],
+                    };
+
+                    localStorage.setItem("cyclecal_user", JSON.stringify(user));
+                }
+            }
+
+            function getUser() {
+                return JSON.parse(localStorage.getItem("cyclecal_user"));
+            }
+
+            function saveUser(user) {
+                user.updated_at = new Date().toISOString();
+                localStorage.setItem("cyclecal_user", JSON.stringify(user));
+            }
+
+            function getBaseDate() {
+                const user = getUser();
+
+                if (user.settings.base_date) {
+                    return new Date(user.settings.base_date);
+                }
+
+                // fallback padrão atual
+                return new Date(2026, 1, 15);
+            }
+
+            function setBaseDate(dateStr) {
+                const user = getUser();
+
+                user.settings.base_date = dateStr;
+
+                saveUser(user);
+
+                baseFolgaDomingo = new Date(dateStr);
+
+                gerarCalendario(anoAtual, mesAtual);
+            }
+
+            function alterarBaseDate() {
+                const novaData = prompt("Informe a nova data base (AAAA-MM-DD):");
+
+                if (!novaData) return;
+
+                setBaseDate(novaData);
+            }
+
+            function setScaleType(type) {
+                const user = getUser();
+
+                user.settings.scale_type = type;
+
+                saveUser(user);
+            }
+
+            function alterarTipoEscala() {
+                const tipo = prompt("Tipo de escala (ex: semanal, plantao)");
+
+                if (!tipo) return;
+
+                setScaleType(tipo);
+            }
+
+            function setScalePattern(pattern) {
+                const user = getUser();
+
+                user.settings.scale_pattern = pattern;
+
+                saveUser(user);
+            }
+
+            function alterarPadraoEscala() {
+                const pattern = prompt("Padrão da escala (ex: 7, 5x1, 12x36)");
+
+                if (!pattern) return;
+
+                setScalePattern(pattern);
+            }
+
+            function setTheme(theme) {
+                const user = getUser();
+
+                user.preferences.theme = theme;
+
+                saveUser(user);
+            }
+
+            function alterarTema() {
+                const tema = prompt("Tema (auto, dark, light)");
+
+                if (!tema) return;
+
+                setTheme(tema);
+            }
+
             function salvarFerias() {
                 localStorage.setItem("cyclecal_vacations", JSON.stringify(vacations));
             }
@@ -454,18 +592,57 @@
             }
 
             document.addEventListener("DOMContentLoaded", function () {
-                carregarFerias();
+                initUser();
+                baseFolgaDomingo = getBaseDate();
 
                 const hoje = new Date();
-
                 anoAtual = hoje.getFullYear();
                 mesAtual = hoje.getMonth();
 
-                document.getElementById("btnHoje").innerText = hoje.getDate();
-
                 gerarCalendario(anoAtual, mesAtual);
+                document.getElementById("btnHoje").innerText = hoje.getDate();
+                const setupModal = document.getElementById("setupModal");
 
-                renderListaFerias();
+                document.getElementById("btnSetup").onclick = function () {
+                    const user = getUser();
+
+                    document.getElementById("setupBaseDate").value = user.settings.base_date || "";
+
+                    document.getElementById("setupScaleType").value =
+                        user.settings.scale_type || "";
+
+                    document.getElementById("setupScalePattern").value =
+                        user.settings.scale_pattern || "";
+
+                    document.getElementById("setupTheme").value = user.preferences.theme || "auto";
+
+                    setupModal.style.display = "flex";
+                };
+
+                document.getElementById("setupFechar").onclick = function () {
+                    setupModal.style.display = "none";
+                };
+
+                document.getElementById("setupSalvar").onclick = function () {
+                    const user = getUser();
+
+                    user.settings.base_date = document.getElementById("setupBaseDate").value;
+
+                    user.settings.scale_type = document.getElementById("setupScaleType").value;
+
+                    user.settings.scale_pattern =
+                        document.getElementById("setupScalePattern").value;
+
+                    user.preferences.theme = document.getElementById("setupTheme").value;
+
+                    saveUser(user);
+
+                    baseFolgaDomingo = getBaseDate();
+
+                    gerarCalendario(anoAtual, mesAtual);
+
+                    setupModal.style.display = "none";
+                };
             });
 
             function irParaHoje() {
@@ -476,7 +653,7 @@
                 gerarCalendario(anoAtual, mesAtual);
             }
 
-            const baseFolgaDomingo = new Date(2026, 1, 15);
+            let baseFolgaDomingo;
 
             /* ===== FERIADOS FIXOS ===== */
             /* (mantido exatamente igual ao original) */
@@ -1149,6 +1326,33 @@
         <!-- Bottom Sheet Overlay -->
         <div id="pickerOverlay" hidden>
             <div class="picker-sheet" id="pickerSheet"></div>
+        </div>
+
+        <div id="setupModal" class="setup-modal">
+            <div class="setup-box">
+                <h3>Configurações</h3>
+
+                <label>Data base da escala</label>
+                <input type="date" id="setupBaseDate" />
+
+                <label>Tipo de escala</label>
+                <input type="text" id="setupScaleType" />
+
+                <label>Padrão da escala</label>
+                <input type="text" id="setupScalePattern" />
+
+                <label>Tema</label>
+                <select id="setupTheme">
+                    <option value="auto">Auto</option>
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                </select>
+
+                <br /><br />
+
+                <button id="setupSalvar">Salvar</button>
+                <button id="setupFechar">Fechar</button>
+            </div>
         </div>
     </body>
 </html>
