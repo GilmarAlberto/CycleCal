@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.7.5
-Base: v1.7.0
+Status: 🟢 v1.8.0
+Base: v1.7.5
 Branch: main
 
 ---
@@ -432,26 +432,51 @@ Estrutura:
 ```
 
 ---
-
 # 👤 v1.8.0 – Perfil do Usuário
 
 ## 🎯 Objetivo
 
 Permitir que o usuário configure seu perfil na primeira utilização do CycleCal,
-definindo informações básicas e sua área de atuação para personalização do aplicativo.
+definindo informações básicas, escala de trabalho e área de atuação para
+personalização do aplicativo.
 
 ---
 
 ## ⚙️ Funcionalidade
 
-- [ ] Detectar primeiro acesso (perfil ainda não configurado)
-- [ ] Exibir tela de cadastro inicial do usuário
-- [ ] Permitir registrar nome do usuário
-- [ ] Permitir registrar data base da escala
-- [ ] Permitir registrar tipo de escala
-- [ ] Permitir registrar padrão da escala
+### Cadastro inicial
+
+- [x] Detectar primeiro acesso (perfil ainda não configurado)
+- [x] Exibir tela de cadastro inicial do usuário
+- [x] Permitir registrar nome do usuário
+- [x] Gerar identificador único do usuário (`user_id`)
+
+### Configuração da escala
+
+- [x] Permitir registrar data base da escala
+- [x] Permitir registrar tipo de escala
+- [x] Permitir registrar padrão da escala
+
+### Descanso Semanal Remunerado (DSR)
+
+- [x] Incluir configuração de **DSR** na tela de setup do usuário
+- [x] Permitir selecionar o dia da semana do descanso
+- [x] Utilizar o DSR configurado no cálculo do calendário
+
+### Área de atuação
+
 - [ ] Permitir selecionar área de atuação
-- [ ] Gerar identificador único do usuário (`user_id`)
+
+### Configuração de localização
+
+- [ ] Detectar timezone automaticamente
+- [ ] Salvar timezone no perfil do usuário
+- [ ] Utilizar timezone para cálculos de data
+
+### Persistência e configurações
+
+- [x] Salvar configuração no perfil do usuário
+- [ ] Permitir futura alteração nas configurações do usuário
 
 ---
 
@@ -489,7 +514,6 @@ definindo informações básicas e sua área de atuação para personalização 
 - [ ] Testar persistência após recarregar a página
 - [ ] Testar funcionamento offline
 - [ ] Testar comportamento com PWA instalada
-
 ---
 
 # 🎨 v1.8.5 — Refinamento Visual

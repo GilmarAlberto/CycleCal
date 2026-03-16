@@ -1,0 +1,8 @@
+3c3
+< // Versão 1.7.5
+---
+> // Versão 1.7.0
+7c7
+< const CACHE_NAME = "cyclecal-v1.7.5";
+---
+> const CACHE_NAME = "cyclecal-v1.7.0";

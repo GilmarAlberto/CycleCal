@@ -133,10 +133,45 @@ Tecnologias possíveis:
 # 🔄 Motor de Regras Configuráveis (v1.9.5 – v1.9.6)
 
 Objetivo:
-Permitir múltiplos tipos de escala no sistema.
+Permitir múltiplos tipos de escala no sistema e garantir alinhamento correto
+dos ciclos de trabalho no calendário.
 
-- [ ] v1.9.5 — Implementar estrutura de parâmetros da escala
-- [ ] v1.9.6 — Gerar calendário dinamicamente a partir dos parâmetros
+---
+
+## v1.9.5 — Estrutura de Parâmetros da Escala
+
+- [ ] Definir modelo de dados da escala
+- [ ] Representar ciclos de trabalho como sequência de estados
+- [ ] Permitir padrões como `24x72`, `12x36`, `6x1`, `5x2`
+- [ ] Implementar parâmetro **offset** para alinhamento do ciclo
+- [ ] Garantir compatibilidade com `base_date`
+- [ ] Validar cálculo correto do ciclo ao navegar entre meses
+
+---
+
+## v1.9.6 — Geração Dinâmica do Calendário
+
+- [ ] Gerar calendário a partir dos parâmetros da escala
+- [ ] Aplicar `offset` para determinar posição inicial do ciclo
+- [ ] Garantir consistência ao mudar mês ou ano
+- [ ] Permitir recalcular calendário após alteração da escala
+
+---
+
+## 📐 Estrutura de Parâmetros da Escala
+
+Modelo conceitual esperado:
+
+```json
+{
+  "scale": {
+    "type": "cycle",
+    "pattern": [1,0,0,0],
+    "base_date": "2026-01-01",
+    "offset": 2
+  }
+}
+```
 
 ---
 
