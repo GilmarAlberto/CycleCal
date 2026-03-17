@@ -478,6 +478,7 @@
                             user_id: crypto.randomUUID(),
                             name: "",
                             area: "",
+                            birthday: "",
                             created_at: new Date().toISOString(),
                         },
                         settings: {
@@ -615,6 +616,8 @@
                 document.getElementById("btnSetup").onclick = function () {
                     const user = getUser();
 
+                    document.getElementById("setupBirthday").value = user.profile.birthday || "";
+
                     document.getElementById("setupBaseDate").value = user.settings.base_date || "";
 
                     document.getElementById("setupScaleType").value =
@@ -623,7 +626,7 @@
                     document.getElementById("setupScalePattern").value =
                         user.settings.scale_pattern || "";
 
-                    document.getElementById("setupDSR").value = user.settings.dsr || "0";
+                    document.getElementById("setupDSR").value = String(user.settings.dsr ?? 0);
 
                     document.getElementById("setupTheme").value = user.preferences.theme || "auto";
 
@@ -637,6 +640,7 @@
                 document.getElementById("setupSalvar").onclick = function () {
                     const baseDate = document.getElementById("setupBaseDate").value;
                     const userName = document.getElementById("setupUserName").value;
+                    const birthday = document.getElementById("setupBirthday").value;
 
                     if (!userName) {
                         alert("Como deseja ser chamado?");
@@ -650,7 +654,7 @@
 
                     const user = getUser();
                     user.profile.name = userName;
-
+                    user.profile.birthday = birthday;
                     user.settings.base_date = baseDate;
 
                     user.settings.scale_type = document.getElementById("setupScaleType").value;
@@ -658,7 +662,7 @@
                     user.settings.scale_pattern =
                         document.getElementById("setupScalePattern").value;
 
-                    user.settings.dsr = document.getElementById("setupDSR").value;
+                    user.settings.dsr = Number(document.getElementById("setupDSR").value);
 
                     user.preferences.theme = document.getElementById("setupTheme").value;
 
@@ -905,7 +909,14 @@
                     calendario.appendChild(document.createElement("div"));
                 }
 
-                const aniversario = ajustarAniversario(10, 6, ano);
+                const user = getUser();
+
+                let aniversario = null;
+
+                if (user.profile.birthday) {
+                    const [y, m, d] = user.profile.birthday.split("-");
+                    aniversario = ajustarAniversario(Number(d), Number(m) - 1, ano);
+                }
 
                 for (let dia = 1; dia <= diasNoMes; dia++) {
                     const data = new Date(ano, mes, dia);
@@ -1284,7 +1295,11 @@
 
                 if (ehFeriado(data, carnaval)) eventos.push("cultural");
 
-                if (data.getDate() === aniversario.dia && data.getMonth() === aniversario.mes) {
+                if (
+                    aniversario &&
+                    data.getDate() === aniversario.dia &&
+                    data.getMonth() === aniversario.mes
+                ) {
                     eventos.push("birthday");
                 }
 
@@ -1359,47 +1374,69 @@
             function verificarPerfil() {
                 const user = getUser();
 
-                if (!user.settings.base_date) {
+                if (!user.profile.name || !user.settings.base_date) {
                     mostrarSetup();
                 }
             }
 
             function atualizarSaudacao() {
                 const user = getUser();
-
                 const el = document.getElementById("userGreeting");
 
-                if (user.profile.name) {
-                    el.innerText = "Olá " + user.profile.name;
+                if (!user.profile.name) return;
+
+                const hoje = new Date();
+
+                let isAniversario = false;
+
+                if (user.profile.birthday) {
+                    const [y, m, d] = user.profile.birthday.split("-");
+
+                    if (hoje.getDate() === Number(d) && hoje.getMonth() === Number(m) - 1) {
+                        isAniversario = true;
+                    }
+                }
+
+                if (isAniversario) {
+                    el.innerText = `Feliz Aniversário, ${user.profile.name}! 🎂`;
+                } else {
+                    el.innerText = `Olá ${user.profile.name}`;
                 }
             }
 
             function atualizarFooterBase() {
+                const el = document.getElementById("footerBase");
                 const user = getUser();
 
-                const baseDate = user.settings.base_date;
+                const partes = [];
 
-                if (!baseDate) return;
+                // 📅 BASE
+                if (user.settings.base_date) {
+                    const [y, m, d] = user.settings.base_date.split("-");
+                    partes.push(`Folga Domingo: ${d}/${m}/${y}`);
+                }
 
-                const dsr = Number(user.settings.dsr || 0);
-
-                const dias = [
+                // 📆 DSR
+                const diasSemana = [
                     "Domingo",
-                    "Segunda-feira",
-                    "Terça-feira",
-                    "Quarta-feira",
-                    "Quinta-feira",
-                    "Sexta-feira",
+                    "Segunda",
+                    "Terça",
+                    "Quarta",
+                    "Quinta",
+                    "Sexta",
                     "Sábado",
                 ];
 
-                const partes = baseDate.split("-");
+                const dsr = Number(user.settings.dsr ?? 0);
+                partes.push(`DSR: ${diasSemana[dsr]}`);
 
-                const dataFormatada = partes[2] + "/" + partes[1];
+                // 🎂 ANIVERSÁRIO
+                if (user.profile.birthday) {
+                    const [y, m, d] = user.profile.birthday.split("-");
+                    partes.push(`🎂 ${d}/${m}`);
+                }
 
-                const texto = "Folga Domingo: Data Base " + dataFormatada + "<br>DSR: " + dias[dsr];
-
-                document.getElementById("footerBase").innerHTML = texto;
+                el.innerText = partes.join(" | ");
             }
 
             function mostrarSetup() {
@@ -1419,6 +1456,9 @@
 
                 <label>Nome</label>
                 <input type="text" id="setupUserName" placeholder="Seu nome" />
+
+                <label>Aniversário</label>
+                <input type="date" id="setupBirthday" />
 
                 <label>Data base da escala</label>
                 <input type="date" id="setupBaseDate" />

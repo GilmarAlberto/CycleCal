@@ -476,7 +476,41 @@ personalização do aplicativo.
 ### Persistência e configurações
 
 - [x] Salvar configuração no perfil do usuário
-- [ ] Permitir futura alteração nas configurações do usuário
+- [x] Permitir alteração das configurações do usuário via setup
+
+### Dados adicionais do perfil
+
+#### 🎂 Aniversário do usuário
+
+- [x] Permitir registrar data de aniversário do usuário
+- [x] Substituir aniversário fixo por data dinâmica do usuário
+- [x] Destacar aniversário no calendário
+- [x] Exibir aniversário na saudação (header dinâmico)
+- [x] Exibir aniversário no footer
+
+### 🧠 Personalização da Saudação
+
+- [x] Exibir nome do usuário no header
+- [x] Detectar automaticamente dia do aniversário
+- [x] Alterar saudação para "Feliz Aniversário" no dia correto
+- [x] Garantir fallback para saudação padrão
+
+### 📌 Footer Dinâmico
+
+- [x] Exibir data base da escala
+- [x] Exibir DSR (dia da semana)
+- [x] Exibir aniversário do usuário
+- [x] Atualizar automaticamente após salvar configurações
+
+Opções iniciais:
+
+- [ ] Supermercado / Comércio
+- [ ] Segurança Pública
+- [ ] Hospital / Saúde
+- [ ] Outros
+
+- [ ] Salvar setor no perfil do usuário
+- [ ] Preparar base para regras específicas de escala por setor
 
 ---
 
