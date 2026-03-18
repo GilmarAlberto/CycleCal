@@ -447,10 +447,13 @@
         </div>
 
         <script>
-            let anoAtual;
-            let mesAtual;
-            let yearBlockStart;
-            let vacations = [];
+            const AREAS = [
+                { value: "supermercado", label: "Supermercado / Varejo" },
+                { value: "seguranca", label: "Segurança Pública" },
+                { value: "hospital", label: "Hospital / Saúde" },
+                { value: "industria", label: "Indústria" },
+                { value: "outros", label: "Outros" },
+            ];
 
             const mesesAbreviados = [
                 "JAN",
@@ -466,6 +469,11 @@
                 "NOV",
                 "DEZ",
             ];
+
+            let anoAtual;
+            let mesAtual;
+            let yearBlockStart;
+            let vacations = [];
 
             function initUser() {
                 const stored = localStorage.getItem("cyclecal_user");
@@ -504,6 +512,24 @@
             function saveUser(user) {
                 user.updated_at = new Date().toISOString();
                 localStorage.setItem("cyclecal_user", JSON.stringify(user));
+            }
+
+            function renderAreaSelect() {
+                const select = document.getElementById("areaSelect");
+
+                if (!select) return;
+
+                select.innerHTML = "";
+
+                AREAS.forEach((area) => {
+                    const option = document.createElement("option");
+                    option.value = area.value;
+                    option.textContent = area.label;
+                    select.appendChild(option);
+                });
+
+                const user = getUser();
+                select.value = user.profile.area || "outros";
             }
 
             function getBaseDate() {
@@ -599,9 +625,34 @@
 
             document.addEventListener("DOMContentLoaded", function () {
                 initUser();
+
+                const user = getUser();
+
+                if (!user.profile.area) {
+                    user.profile.area = "outros";
+                    saveUser(user);
+                }
+
+                renderAreaSelect();
                 verificarPerfil();
                 atualizarSaudacao();
                 atualizarFooterBase();
+
+                const birthdayInput = document.getElementById("setupBirthday");
+
+                if (birthdayInput) {
+                    birthdayInput.addEventListener("input", function (e) {
+                        let v = e.target.value.replace(/\D/g, "");
+
+                        if (v.length > 4) v = v.slice(0, 4);
+
+                        if (v.length >= 3) {
+                            v = v.slice(0, 2) + "/" + v.slice(2);
+                        }
+
+                        e.target.value = v;
+                    });
+                }
 
                 baseFolgaDomingo = getBaseDate();
 
@@ -614,22 +665,7 @@
                 const setupModal = document.getElementById("setupModal");
 
                 document.getElementById("btnSetup").onclick = function () {
-                    const user = getUser();
-
-                    document.getElementById("setupBirthday").value = user.profile.birthday || "";
-
-                    document.getElementById("setupBaseDate").value = user.settings.base_date || "";
-
-                    document.getElementById("setupScaleType").value =
-                        user.settings.scale_type || "";
-
-                    document.getElementById("setupScalePattern").value =
-                        user.settings.scale_pattern || "";
-
-                    document.getElementById("setupDSR").value = String(user.settings.dsr ?? 0);
-
-                    document.getElementById("setupTheme").value = user.preferences.theme || "auto";
-
+                    preencherSetup();
                     setupModal.style.display = "flex";
                 };
 
@@ -640,7 +676,18 @@
                 document.getElementById("setupSalvar").onclick = function () {
                     const baseDate = document.getElementById("setupBaseDate").value;
                     const userName = document.getElementById("setupUserName").value;
-                    const birthday = document.getElementById("setupBirthday").value;
+
+                    const birthdayInput = document.getElementById("setupBirthday").value;
+
+                    let birthday = "";
+
+                    if (birthdayInput && birthdayInput.includes("/")) {
+                        const [d, m] = birthdayInput.split("/");
+
+                        if (d && m) {
+                            birthday = `2000-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+                        }
+                    }
 
                     if (!userName) {
                         alert("Como deseja ser chamado?");
@@ -655,6 +702,9 @@
                     const user = getUser();
                     user.profile.name = userName;
                     user.profile.birthday = birthday;
+
+                    user.profile.area = document.getElementById("areaSelect").value || "outros";
+
                     user.settings.base_date = baseDate;
 
                     user.settings.scale_type = document.getElementById("setupScaleType").value;
@@ -1352,10 +1402,13 @@
                 vacations.forEach((v, index) => {
                     const item = document.createElement("div");
 
-                    item.innerHTML = `
-                    ${formatarData(v.start)} → ${formatarData(v.end)}
-                    <button onclick="removerFerias(${index})">Remover</button>
-                    `;
+                    item.innerHTML =
+                        formatarData(v.start) +
+                        " → " +
+                        formatarData(v.end) +
+                        ' <button onclick="removerFerias(' +
+                        index +
+                        ')">Remover</button>';
 
                     container.appendChild(item);
                 });
@@ -1439,7 +1492,38 @@
                 el.innerText = partes.join(" | ");
             }
 
+            function preencherSetup() {
+                const user = getUser();
+
+                document.getElementById("setupUserName").value = user.profile.name || "";
+
+                const birthday = user.profile.birthday;
+
+                if (birthday && birthday.includes("-")) {
+                    const parts = birthday.split("-");
+
+                    if (parts.length === 3) {
+                        const d = parts[2];
+                        const m = parts[1];
+                        document.getElementById("setupBirthday").value = `${d}/${m}`;
+                    } else {
+                        document.getElementById("setupBirthday").value = "";
+                    }
+                } else {
+                    document.getElementById("setupBirthday").value = "";
+                }
+
+                document.getElementById("setupBaseDate").value = user.settings.base_date || "";
+                document.getElementById("areaSelect").value = user.profile.area || "outros";
+                document.getElementById("setupScaleType").value = user.settings.scale_type || "";
+                document.getElementById("setupScalePattern").value =
+                    user.settings.scale_pattern || "";
+                document.getElementById("setupDSR").value = String(user.settings.dsr ?? 0);
+                document.getElementById("setupTheme").value = user.preferences.theme || "auto";
+            }
+
             function mostrarSetup() {
+                preencherSetup();
                 const setupModal = document.getElementById("setupModal");
                 setupModal.style.display = "flex";
             }
@@ -1458,10 +1542,13 @@
                 <input type="text" id="setupUserName" placeholder="Seu nome" />
 
                 <label>Aniversário</label>
-                <input type="date" id="setupBirthday" />
+                <input type="text" id="setupBirthday" placeholder="dd/mm" maxlength="5" />
 
                 <label>Data base da escala</label>
                 <input type="date" id="setupBaseDate" />
+
+                <label for="areaSelect">Área de atuação</label>
+                <select id="areaSelect"></select>
 
                 <label>Tipo de escala</label>
                 <input type="text" id="setupScaleType" />

@@ -420,3 +420,9 @@ antes da liberação da versão v2.0.
 - [ ] Testes de segurança
 - [ ] Validação da estratégia offline-first
 - [ ] Preparação para release v2.0
+
+## 🌍 Timezone e Localização (Infra v1.9.30)
+
+- [ ] Detectar timezone automaticamente
+- [ ] Salvar timezone no perfil do usuário
+- [ ] Utilizar timezone para cálculos de data

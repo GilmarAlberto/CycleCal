@@ -463,22 +463,29 @@ personalização do aplicativo.
 - [x] Permitir selecionar o dia da semana do descanso
 - [x] Utilizar o DSR configurado no cálculo do calendário
 
-### Área de atuação
+### 🧑‍💼 Área de Atuação
 
-- [ ] Permitir selecionar área de atuação
+Permitir que o usuário informe sua área de trabalho para personalização futura da aplicação.
 
-### Configuração de localização
 
-- [ ] Detectar timezone automaticamente
-- [ ] Salvar timezone no perfil do usuário
-- [ ] Utilizar timezone para cálculos de data
+- [x] Permitir selecionar área de atuação:
+  - Supermercado / Varejo
+  - Segurança Pública
+  - Hospital / Saúde
+  - Indústria
+  - Outros
+
+- [x] Salvar setor no perfil do usuário
+- [x] Preparar base para regras específicas de escala por setor
+
+- [x] Definir valor padrão como "Outros"
+
+- [x] Permitir edição posterior na tela de configurações
 
 ### Persistência e configurações
 
 - [x] Salvar configuração no perfil do usuário
 - [x] Permitir alteração das configurações do usuário via setup
-
-### Dados adicionais do perfil
 
 #### 🎂 Aniversário do usuário
 
@@ -502,60 +509,130 @@ personalização do aplicativo.
 - [x] Exibir aniversário do usuário
 - [x] Atualizar automaticamente após salvar configurações
 
-Opções iniciais:
-
-- [ ] Supermercado / Comércio
-- [ ] Segurança Pública
-- [ ] Hospital / Saúde
-- [ ] Outros
-
-- [ ] Salvar setor no perfil do usuário
-- [ ] Preparar base para regras específicas de escala por setor
-
----
-
-## 🧭 Áreas de Atuação
-
-- [ ] Comércio
-- [ ] Segurança Pública
-- [ ] Saúde
-- [ ] Geral
-
----
-
-## 💾 Persistência
-
-- [ ] Criar estrutura `profile` dentro de `cyclecal_user`
-- [ ] Salvar dados do usuário em `cyclecal_user.profile`
-- [ ] Carregar dados de `cyclecal_user` ao iniciar o app
-- [ ] Evitar exibir cadastro novamente após configuração
-
----
-
-## 🔗 Integração com Módulos
-
-- [ ] Integrar seleção de área com `roadmap-comercio`
-- [ ] Integrar seleção de área com `roadmap-seguranca`
-- [ ] Integrar seleção de área com `roadmap-saude`
-- [ ] Manter funcionamento padrão quando área = `geral`
-
 ---
 
 ## 🧪 Testes
 
-- [ ] Testar primeiro acesso sem perfil salvo
-- [ ] Testar carregamento correto do perfil salvo
-- [ ] Testar persistência após recarregar a página
-- [ ] Testar funcionamento offline
-- [ ] Testar comportamento com PWA instalada
+- [x] Testar primeiro acesso sem perfil salvo
+- [x] Testar carregamento correto do perfil salvo
+- [x] Testar persistência após recarregar a página
+- [x] Testar funcionamento offline
+- [x] Testar comportamento com PWA instalada
 ---
 
-# 🎨 v1.8.5 — Refinamento Visual
+# 🧠 v1.8.2 — Inteligência por Área
 
 ## 🎯 Objetivo
 
-Melhorar a experiência visual e a usabilidade
-das funcionalidades de férias implementadas na v1.7.0.
+Tornar o CycleCal capaz de sugerir automaticamente configurações iniciais com base na área de atuação do usuário, reduzindo esforço manual e aumentando a usabilidade.
+
+---
+
+## ⚙️ Sugestões automáticas por área
+
+- [ ] Definir regras padrão por área:
+  - Segurança Pública:
+    - Tipo: plantão
+    - Padrão: 24x72
+  - Hospital / Saúde:
+    - Tipo: plantão
+    - Padrão: 12x36
+  - Supermercado / Varejo:
+    - Tipo: semanal
+    - Padrão: 6x1
+  - Indústria:
+    - Tipo: turno
+    - Padrão: 5x1
+  - Outros:
+    - Nenhuma sugestão automática
+
+---
+
+## 🔄 Aplicação automática
+
+- [ ] Aplicar sugestões ao selecionar área no setup
+- [ ] Aplicar sugestões apenas se campos estiverem vazios
+- [ ] Não sobrescrever configurações já definidas pelo usuário
+
+---
+
+## 🧠 Integração com setup
+
+- [ ] Atualizar automaticamente:
+  - setupScaleType
+  - setupScalePattern
+- [ ] Refletir mudanças imediatamente na interface (sem reload)
+
+---
+
+## 💬 Feedback ao usuário
+
+- [ ] Exibir sugestão de forma sutil (ex: placeholder ou preenchimento automático)
+- [ ] Evitar mensagens intrusivas
+
+---
+
+## 🧪 Regras de segurança
+
+- [ ] Garantir que usuário possa alterar manualmente após sugestão
+- [ ] Evitar loops de atualização ao trocar área
+
+---
+
+## 🚀 Impacto esperado
+
+- Redução do tempo de configuração inicial
+- Melhor experiência para novos usuários
+- Base para futuras personalizações inteligentes
+
+---
+
+## 🔮 Expansões futuras
+
+- [ ] Ajustar DSR automaticamente por área
+- [ ] Personalizar mensagens por profissão
+- [ ] Adaptar nomenclaturas (plantão, turno, folga)
+
+# 🧠 v1.8.2 — Inteligência por Área
+
+## 🎯 Objetivo
+
+Utilizar a área de atuação do usuário para personalizar o comportamento do CycleCal, tornando a experiência mais inteligente e adaptada ao perfil profissional.
+
+---
+
+## 💬 Personalização de textos
+
+- [ ] Adaptar mensagens com base na área:
+  - Segurança Pública → "Bom plantão 👮‍♂️"
+  - Hospital / Saúde → "Força no plantão 🏥"
+  - Supermercado / Varejo → mensagem padrão
+  - Outros → mensagem padrão
+
+- [ ] Integrar com a saudação existente (header)
+
+---
+
+## 🏷 Ajustes de nomenclatura
+
+- [ ] Adaptar termos conforme a área:
+  - "Folga" → pode virar "Descanso", "Off", etc
+  - "Escala" → pode virar "Plantão" ou "Turno"
+
+- [ ] Aplicar mudanças de forma sutil (sem quebrar layout)
+
+---
+
+## ⚙️ Regras específicas por área
+
+- [ ] Preparar estrutura para regras futuras:
+  - Segurança → lógica de plantão (24x72, 24x96)
+  - Hospital → lógica de plantão (12x36)
+  - Outros → comportamento padrão
+
+- [ ] Criar base para decisões condicionais no código:
+  ```js
+  if (user.profile.area === "seguranca") { ... }
 
 ## Interface
 
@@ -567,6 +644,60 @@ das funcionalidades de férias implementadas na v1.7.0.
 
 - [ ] Padronizar formato de datas exibidas
 - [ ] Melhorar espaçamento e alinhamento da interface
+
+### 🎨 Refinamento de UX — Setup (Aniversário e Perfil)
+
+Melhorar a experiência de entrada de dados e personalização do usuário no setup.
+
+#### 🎂 Aniversário (dd/mm)
+
+- [x] Alterar input de data para texto (formato dd/mm)
+- [x] Implementar máscara automática (1007 → 10/07)
+- [x] Converter para formato interno (YYYY-MM-DD) ao salvar
+- [x] Ajustar carregamento para exibir dd/mm
+
+- [ ] Validar datas inválidas (ex: 31/02)
+- [ ] Melhorar digitação (auto zero: 1 → 01/)
+- [ ] Tratar casos incompletos (ex: 1/, 12/)
+
+---
+
+#### 🧑‍💼 Área de atuação
+
+- [x] Criar select dinâmico com AREAS
+- [x] Persistir em user.profile.area
+- [x] Restaurar valor no setup
+
+- [ ] Sugerir configurações iniciais com base na área
+- [ ] Ajustar nomenclaturas dinamicamente (plantão, turno, folga)
+
+---
+
+#### 🧠 Personalização inteligente
+
+- [ ] Mensagens personalizadas por área
+  - Segurança → "Bom plantão 👮‍♂️"
+  - Hospital → "Força no plantão 🏥"
+  - Outros → padrão
+
+- [ ] Destacar eventos relevantes por perfil
+
+---
+
+#### 🧪 Consistência e UX
+
+- [ ] Padronizar inputs (mesmo estilo visual)
+- [ ] Melhorar validações com feedback amigável
+- [ ] Evitar estados inconsistentes no setup
+
+---
+
+## 🔗 Integração com Módulos
+
+- [ ] Integrar seleção de área com `roadmap-comercio`
+- [ ] Integrar seleção de área com `roadmap-seguranca`
+- [ ] Integrar seleção de área com `roadmap-saude`
+- [ ] Manter funcionamento padrão quando área = `geral`
 
 ---
 
