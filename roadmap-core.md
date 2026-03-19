@@ -533,7 +533,7 @@ reduzindo esforço manual no setup e melhorando a experiência no primeiro uso.
 
 ### 📦 Presets por área
 
-- [ ] Definir presets padrão por área:
+- [x] Definir presets padrão por área:
   - Segurança Pública → plantão 24x72
   - Hospital / Saúde → plantão 12x36
   - Supermercado / Varejo → semanal 6x1
@@ -544,59 +544,59 @@ reduzindo esforço manual no setup e melhorando a experiência no primeiro uso.
 
 ### 🔄 Aplicação automática
 
-- [ ] Executar no primeiro carregamento do setup
-- [ ] Aplicar sugestão ao selecionar área no setup
-- [ ] Aplicar apenas se:
-  - tipo de escala estiver vazio
-  - padrão da escala estiver vazio
+- [x] Executar no primeiro carregamento do setup
+- [x] Aplicar sugestão ao selecionar área no setup
+- [x] Aplicar automaticamente ao trocar área
+- [x] Aplicar apenas no carregamento inicial se campos estiverem vazios
 
 ---
 
 ### 🚫 Regras de proteção
 
-- [ ] Nunca sobrescrever configurações já definidas pelo usuário
-- [ ] Nunca reexecutar após edição manual
-- [ ] Evitar loops ao trocar área múltiplas vezes
+- [x] Nunca sobrescrever configurações já definidas pelo usuário
+- [x] Permitir sobrescrita ao trocar área (reset intencional de escala)
+- [x] Bloquear sobrescrita apenas dentro da mesma área após edição manual
+- [x] Evitar loops ao trocar área múltiplas vezes
 
 ---
 
 ### 🧠 Controle de estado
 
-- [ ] Criar flag de modificação manual da escala
-- [ ] Ativar flag ao editar:
+- [x] Criar flag de modificação manual da escala
+- [x] Ativar flag ao editar:
   - tipo de escala
   - padrão da escala
-- [ ] Bloquear sugestões após modificação manual
+- [x] Bloquear sugestões após modificação manual
 
 ---
 
 ### ⚙️ Integração com setup
 
-- [ ] Integrar com campo de área (`user.profile.area`)
-- [ ] Atualizar automaticamente:
+- [x] Integrar com campo de área (`user.profile.area`)
+- [x] Atualizar automaticamente:
   - tipo de escala
   - padrão da escala
-- [ ] Refletir mudanças imediatamente na interface (sem reload)
+- [x] Refletir mudanças imediatamente na interface (sem reload)
 
 ---
 
 ### 💬 Experiência do usuário
 
-- [ ] Utilizar preenchimento automático (sem alert)
-- [ ] Evitar mensagens intrusivas
-- [ ] Manter comportamento natural e previsível
+- [x] Utilizar preenchimento automático (sem alert)
+- [x] Evitar mensagens intrusivas
+- [x] Manter comportamento natural e previsível
 
 ---
 
 ## 🧪 Testes
 
-- [ ] Selecionar área com campos vazios → aplicar preset
-- [ ] Selecionar área com campos preenchidos → não alterar
-- [ ] Alterar manualmente → impedir sobrescrita
-- [ ] Trocar área várias vezes → não gerar loop
-- [ ] Testar reload do setup
-- [ ] Testar funcionamento em PWA instalada
-- [ ] Definir valores manualmente → recarregar → não aplicar preset novamente
+- [x] Selecionar área com campos vazios → aplicar preset
+- [x] Selecionar área com campos preenchidos → não alterar
+- [x] Alterar manualmente → impedir sobrescrita
+- [x] Trocar área várias vezes → não gerar loop
+- [x] Testar reload do setup
+- [x] Testar funcionamento em PWA instalada
+- [x] Definir valores manualmente → recarregar → não aplicar preset novamente
 
 ## 🚀 Critério de Conclusão
 

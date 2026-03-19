@@ -280,7 +280,7 @@
                 display: flex;
                 justify-content: center;
                 align-items: flex-end;
-                z-index: 999;
+                z-index: 100;
             }
 
             #pickerOverlay[hidden] {
@@ -365,7 +365,7 @@
                 justify-content: center;
                 align-items: center;
 
-                z-index: 1000;
+                z-index: 9999;
             }
 
             .setup-box {
@@ -497,7 +497,10 @@
             let vacations = [];
             let userModifiedScale = false;
             let isApplyingPreset = false;
-            let setupModal;
+
+            function getSetupModal() {
+                return document.getElementById("setupModal");
+            }
 
             function initUser() {
                 const stored = localStorage.getItem("cyclecal_user");
@@ -530,7 +533,11 @@
             }
 
             function getUser() {
-                return JSON.parse(localStorage.getItem("cyclecal_user"));
+                try {
+                    return JSON.parse(localStorage.getItem("cyclecal_user"));
+                } catch {
+                    return null;
+                }
             }
 
             function saveUser(user) {
@@ -652,10 +659,13 @@
             }
 
             function carregarFerias() {
-                const saved = localStorage.getItem("cyclecal_vacations");
-
-                if (saved) {
-                    vacations = JSON.parse(saved);
+                try {
+                    const saved = localStorage.getItem("cyclecal_vacations");
+                    if (saved) {
+                        vacations = JSON.parse(saved);
+                    }
+                } catch {
+                    vacations = [];
                 }
             }
 
@@ -673,8 +683,6 @@
 
                 const areaSelect = document.getElementById("areaSelect");
 
-                setupModal = document.getElementById("setupModal");
-
                 areaSelect.addEventListener("change", (e) => {
                     const user = getUser();
                     user.profile.area = e.target.value;
@@ -683,7 +691,7 @@
                     userModifiedScale = false;
                     applyAreaPreset(e.target.value);
 
-                    const dsrField = document.getElementById("setupDSR").parentElement;
+                    const dsrField = document.getElementById("dsrWrapper");
 
                     if (AREAS_WITHOUT_DSR.includes(e.target.value)) {
                         dsrField.style.display = "none";
@@ -738,7 +746,8 @@
                 };
 
                 document.getElementById("setupFechar").onclick = function () {
-                    setupModal.style.display = "none";
+                    getSetupModal().style.display = "none";
+                    document.body.style.overflow = "";
                 };
 
                 document.getElementById("setupSalvar").onclick = function () {
@@ -794,12 +803,13 @@
 
                     gerarCalendario(anoAtual, mesAtual);
 
-                    setupModal.style.display = "none";
+                    getSetupModal().style.display = "none";
+                    document.body.style.overflow = "";
                 };
 
                 // ===== PICKER + SWIPE (UNIFICADO) =====
 
-                overlay = document.getElementById("pickerOverlay");
+                let overlay = document.getElementById("pickerOverlay");
 
                 const mesEl = document.getElementById("mesTexto");
                 const anoEl = document.getElementById("anoTexto");
@@ -1349,6 +1359,15 @@
                         e.preventDefault();
                         irParaHoje();
                         break;
+                    case "Escape":
+                        const modal = getSetupModal();
+
+                        if (modal && modal.style.display === "flex") {
+                            modal.style.display = "none";
+                            document.body.style.overflow = "";
+                        }
+
+                        break;
                 }
             });
 
@@ -1379,15 +1398,14 @@
             let overlay;
 
             function closePicker() {
-                overlay.classList.remove("active");
+                const overlayEl = overlay || document.getElementById("pickerOverlay");
+                if (!overlayEl) return;
+                overlayEl.classList.remove("active");
 
-                overlay.addEventListener(
-                    "transitionend",
-                    () => {
-                        overlay.hidden = true;
-                    },
-                    { once: true },
-                );
+                // 🔥 fallback garantido
+                setTimeout(() => {
+                    overlayEl.hidden = true;
+                }, 250);
             }
 
             function ajustarAniversario(dia, mes, ano) {
@@ -1470,15 +1488,17 @@
 
                 vacations.forEach((v, index) => {
                     const item = document.createElement("div");
+                    item.style.marginBottom = "6px";
 
-                    item.innerHTML =
-                        formatarData(v.start) +
-                        " → " +
-                        formatarData(v.end) +
-                        ' <button onclick="removerFerias(' +
-                        index +
-                        ')">Remover</button>';
+                    const texto = document.createTextNode(
+                        formatarData(v.start) + " → " + formatarData(v.end) + " ",
+                    );
+                    const btn = document.createElement("button");
+                    btn.textContent = "Remover";
+                    btn.addEventListener("click", () => removerFerias(index));
 
+                    item.appendChild(texto);
+                    item.appendChild(btn);
                     container.appendChild(item);
                 });
             }
@@ -1496,7 +1516,7 @@
             function verificarPerfil() {
                 const user = getUser();
 
-                if (!user.profile.name || !user.settings.base_date) {
+                if (!user || !user.profile.name || !user.settings.base_date) {
                     setTimeout(() => mostrarSetup(), 0);
                 }
             }
@@ -1588,7 +1608,7 @@
 
                 const area = user.profile.area;
 
-                const dsrField = document.getElementById("setupDSR").parentElement;
+                const dsrField = document.getElementById("dsrWrapper");
 
                 if (AREAS_WITHOUT_DSR.includes(area)) {
                     dsrField.style.display = "none";
@@ -1611,13 +1631,31 @@
             }
 
             function mostrarSetup() {
-                if (overlay) {
-                    overlay.classList.remove("active");
-                    overlay.hidden = true;
+                const overlayEl = document.getElementById("pickerOverlay");
+
+                if (overlayEl && !overlayEl.hidden) {
+                    closePicker();
+
+                    // 🔥 espera realmente fechar (não tempo fixo)
+                    const observer = new MutationObserver(() => {
+                        if (overlayEl.hidden) {
+                            observer.disconnect();
+                            abrirSetup();
+                        }
+                    });
+
+                    observer.observe(overlayEl, { attributes: true, attributeFilter: ["hidden"] });
+
+                    return;
                 }
 
+                abrirSetup();
+            }
+
+            function abrirSetup() {
                 preencherSetup();
-                setupModal.style.display = "flex";
+                getSetupModal().style.display = "flex";
+                document.body.style.overflow = "hidden";
             }
         </script>
 
@@ -1647,16 +1685,18 @@
 
                 <label>Padrão da escala</label>
                 <input type="text" id="setupScalePattern" />
-                <label>Descanso semanal (DSR)</label>
-                <select id="setupDSR">
-                    <option value="0">Domingo</option>
-                    <option value="1">Segunda</option>
-                    <option value="2">Terça</option>
-                    <option value="3">Quarta</option>
-                    <option value="4">Quinta</option>
-                    <option value="5">Sexta</option>
-                    <option value="6">Sábado</option>
-                </select>
+                <div id="dsrWrapper">
+                    <label>Descanso semanal (DSR)</label>
+                    <select id="setupDSR">
+                        <option value="0">Domingo</option>
+                        <option value="1">Segunda</option>
+                        <option value="2">Terça</option>
+                        <option value="3">Quarta</option>
+                        <option value="4">Quinta</option>
+                        <option value="5">Sexta</option>
+                        <option value="6">Sábado</option>
+                    </select>
+                </div>
 
                 <label>Tema</label>
                 <select id="setupTheme">

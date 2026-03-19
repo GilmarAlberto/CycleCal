@@ -564,6 +564,8 @@
             }
 
             function applyAreaPreset(area) {
+                if (userModifiedScale) return;
+
                 const preset = AREA_PRESETS[area];
                 if (!preset) return;
 
@@ -571,6 +573,12 @@
 
                 document.getElementById("setupScaleType").value = preset.scale_type;
                 document.getElementById("setupScalePattern").value = preset.scale_pattern;
+
+                // 🔥 SALVAR NO USER
+                const user = getUser();
+                user.settings.scale_type = preset.scale_type;
+                user.settings.scale_pattern = preset.scale_pattern;
+                saveUser(user);
 
                 isApplyingPreset = false;
             }
@@ -672,6 +680,8 @@
             document.addEventListener("DOMContentLoaded", function () {
                 initUser();
 
+                carregarFerias();
+
                 const user = getUser();
 
                 if (!user.profile.area) {
@@ -685,11 +695,16 @@
 
                 areaSelect.addEventListener("change", (e) => {
                     const user = getUser();
-                    user.profile.area = e.target.value;
+                    const oldArea = user.profile.area;
+                    const newArea = e.target.value;
+                    user.profile.area = newArea;
                     saveUser(user);
 
-                    userModifiedScale = false;
-                    applyAreaPreset(e.target.value);
+                    //userModifiedScale = false;
+                    if (oldArea !== newArea) {
+                        userModifiedScale = false;
+                        applyAreaPreset(e.target.value);
+                    }
 
                     const dsrField = document.getElementById("dsrWrapper");
 
@@ -741,12 +756,13 @@
                 document.getElementById("btnHoje").innerText = hoje.getDate();
 
                 document.getElementById("btnSetup").onclick = function () {
-                    userModifiedScale = false;
+                    //userModifiedScale = false;
                     mostrarSetup();
                 };
 
                 document.getElementById("setupFechar").onclick = function () {
                     getSetupModal().style.display = "none";
+                    document.body.style.overflow = "";
                 };
 
                 document.getElementById("setupSalvar").onclick = function () {
@@ -803,11 +819,12 @@
                     gerarCalendario(anoAtual, mesAtual);
 
                     getSetupModal().style.display = "none";
+                    document.body.style.overflow = "";
                 };
 
                 // ===== PICKER + SWIPE (UNIFICADO) =====
 
-                overlay = document.getElementById("pickerOverlay");
+                let overlay = document.getElementById("pickerOverlay");
 
                 const mesEl = document.getElementById("mesTexto");
                 const anoEl = document.getElementById("anoTexto");
@@ -1357,6 +1374,15 @@
                         e.preventDefault();
                         irParaHoje();
                         break;
+                    case "Escape":
+                        const modal = getSetupModal();
+
+                        if (modal && modal.style.display === "flex") {
+                            modal.style.display = "none";
+                            document.body.style.overflow = "";
+                        }
+
+                        break;
                 }
             });
 
@@ -1480,7 +1506,7 @@
                     item.style.marginBottom = "6px";
 
                     const texto = document.createTextNode(
-                        formatarData(v.start) + " → " + formatarData(v.end) + " "
+                        formatarData(v.start) + " → " + formatarData(v.end) + " ",
                     );
                     const btn = document.createElement("button");
                     btn.textContent = "Remover";
@@ -1606,8 +1632,9 @@
                     dsrField.style.display = "";
                 }
 
-                document.getElementById("setupScaleType").value = "";
-                document.getElementById("setupScalePattern").value = "";
+                document.getElementById("setupScaleType").value = user.settings.scale_type || "";
+                document.getElementById("setupScalePattern").value =
+                    user.settings.scale_pattern || "";
 
                 if (!AREAS_WITHOUT_DSR.includes(area)) {
                     document.getElementById("setupDSR").value = String(user.settings.dsr ?? 0);
@@ -1616,24 +1643,43 @@
                 document.getElementById("setupTheme").value = user.preferences.theme || "auto";
 
                 // aplica preset
-                applyAreaPreset(user.profile.area);
+                //applyAreaPreset(user.profile.area);
+
+                if (
+                    !user.settings.scale_type &&
+                    !user.settings.scale_pattern &&
+                    !userModifiedScale
+                ) {
+                    applyAreaPreset(user.profile.area);
+                }
             }
 
             function mostrarSetup() {
                 const overlayEl = document.getElementById("pickerOverlay");
+
                 if (overlayEl && !overlayEl.hidden) {
                     closePicker();
-                    setTimeout(() => {
-                        abrirSetup();
-                    }, 260);
+
+                    // 🔥 espera realmente fechar (não tempo fixo)
+                    const observer = new MutationObserver(() => {
+                        if (overlayEl.hidden) {
+                            observer.disconnect();
+                            abrirSetup();
+                        }
+                    });
+
+                    observer.observe(overlayEl, { attributes: true, attributeFilter: ["hidden"] });
+
                     return;
                 }
+
                 abrirSetup();
             }
 
             function abrirSetup() {
                 preencherSetup();
                 getSetupModal().style.display = "flex";
+                document.body.style.overflow = "hidden";
             }
         </script>
 
