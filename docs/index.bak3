@@ -533,11 +533,7 @@
             }
 
             function getUser() {
-                try {
-                    return JSON.parse(localStorage.getItem("cyclecal_user"));
-                } catch {
-                    return null;
-                }
+                return JSON.parse(localStorage.getItem("cyclecal_user"));
             }
 
             function saveUser(user) {
@@ -659,13 +655,10 @@
             }
 
             function carregarFerias() {
-                try {
-                    const saved = localStorage.getItem("cyclecal_vacations");
-                    if (saved) {
-                        vacations = JSON.parse(saved);
-                    }
-                } catch {
-                    vacations = [];
+                const saved = localStorage.getItem("cyclecal_vacations");
+
+                if (saved) {
+                    vacations = JSON.parse(saved);
                 }
             }
 
@@ -691,7 +684,7 @@
                     userModifiedScale = false;
                     applyAreaPreset(e.target.value);
 
-                    const dsrField = document.getElementById("dsrWrapper");
+                    const dsrField = document.getElementById("setupDSR").parentElement;
 
                     if (AREAS_WITHOUT_DSR.includes(e.target.value)) {
                         dsrField.style.display = "none";
@@ -1387,13 +1380,11 @@
             let overlay;
 
             function closePicker() {
-                const overlayEl = overlay || document.getElementById("pickerOverlay");
-                if (!overlayEl) return;
-                overlayEl.classList.remove("active");
+                overlay.classList.remove("active");
 
                 // 🔥 fallback garantido
                 setTimeout(() => {
-                    overlayEl.hidden = true;
+                    overlay.hidden = true;
                 }, 250);
             }
 
@@ -1477,17 +1468,15 @@
 
                 vacations.forEach((v, index) => {
                     const item = document.createElement("div");
-                    item.style.marginBottom = "6px";
 
-                    const texto = document.createTextNode(
-                        formatarData(v.start) + " → " + formatarData(v.end) + " "
-                    );
-                    const btn = document.createElement("button");
-                    btn.textContent = "Remover";
-                    btn.addEventListener("click", () => removerFerias(index));
+                    item.innerHTML =
+                        formatarData(v.start) +
+                        " → " +
+                        formatarData(v.end) +
+                        ' <button onclick="removerFerias(' +
+                        index +
+                        ')">Remover</button>';
 
-                    item.appendChild(texto);
-                    item.appendChild(btn);
                     container.appendChild(item);
                 });
             }
@@ -1505,7 +1494,7 @@
             function verificarPerfil() {
                 const user = getUser();
 
-                if (!user || !user.profile.name || !user.settings.base_date) {
+                if (!user.profile.name || !user.settings.base_date) {
                     setTimeout(() => mostrarSetup(), 0);
                 }
             }
@@ -1597,7 +1586,7 @@
 
                 const area = user.profile.area;
 
-                const dsrField = document.getElementById("dsrWrapper");
+                const dsrField = document.getElementById("setupDSR").parentElement;
 
                 if (AREAS_WITHOUT_DSR.includes(area)) {
                     dsrField.style.display = "none";
@@ -1663,18 +1652,16 @@
 
                 <label>Padrão da escala</label>
                 <input type="text" id="setupScalePattern" />
-                <div id="dsrWrapper">
-                    <label>Descanso semanal (DSR)</label>
-                    <select id="setupDSR">
-                        <option value="0">Domingo</option>
-                        <option value="1">Segunda</option>
-                        <option value="2">Terça</option>
-                        <option value="3">Quarta</option>
-                        <option value="4">Quinta</option>
-                        <option value="5">Sexta</option>
-                        <option value="6">Sábado</option>
-                    </select>
-                </div>
+                <label>Descanso semanal (DSR)</label>
+                <select id="setupDSR">
+                    <option value="0">Domingo</option>
+                    <option value="1">Segunda</option>
+                    <option value="2">Terça</option>
+                    <option value="3">Quarta</option>
+                    <option value="4">Quinta</option>
+                    <option value="5">Sexta</option>
+                    <option value="6">Sábado</option>
+                </select>
 
                 <label>Tema</label>
                 <select id="setupTheme">

@@ -10,7 +10,7 @@
 
         <link rel="icon" href="icon-256.png" type="image/png" />
 
-        <!-- Versão 1.8.2 -->
+        <!-- Versão 1.8.0 -->
 
         <style>
             :root {
@@ -280,7 +280,7 @@
                 display: flex;
                 justify-content: center;
                 align-items: flex-end;
-                z-index: 100;
+                z-index: 999;
             }
 
             #pickerOverlay[hidden] {
@@ -365,7 +365,7 @@
                 justify-content: center;
                 align-items: center;
 
-                z-index: 9999;
+                z-index: 1000;
             }
 
             .setup-box {
@@ -388,7 +388,7 @@
                     <div class="title-group">
                         <div class="title-line">
                             <h1>CycleCal</h1>
-                            <span class="version">v1.8.2</span>
+                            <span class="version">v1.8.0</span>
                         </div>
 
                         <div id="userGreeting"></div>
@@ -455,27 +455,6 @@
                 { value: "outros", label: "Outros" },
             ];
 
-            const AREA_PRESETS = {
-                seguranca: {
-                    scale_type: "plantao",
-                    scale_pattern: "24x72",
-                },
-                hospital: {
-                    scale_type: "plantao",
-                    scale_pattern: "12x36",
-                },
-                supermercado: {
-                    scale_type: "semanal",
-                    scale_pattern: "6x1",
-                },
-                industria: {
-                    scale_type: "turno",
-                    scale_pattern: "5x1",
-                },
-            };
-
-            const AREAS_WITHOUT_DSR = ["seguranca", "hospital"];
-
             const mesesAbreviados = [
                 "JAN",
                 "FEV",
@@ -495,12 +474,6 @@
             let mesAtual;
             let yearBlockStart;
             let vacations = [];
-            let userModifiedScale = false;
-            let isApplyingPreset = false;
-
-            function getSetupModal() {
-                return document.getElementById("setupModal");
-            }
 
             function initUser() {
                 const stored = localStorage.getItem("cyclecal_user");
@@ -533,11 +506,7 @@
             }
 
             function getUser() {
-                try {
-                    return JSON.parse(localStorage.getItem("cyclecal_user"));
-                } catch {
-                    return null;
-                }
+                return JSON.parse(localStorage.getItem("cyclecal_user"));
             }
 
             function saveUser(user) {
@@ -561,18 +530,6 @@
 
                 const user = getUser();
                 select.value = user.profile.area || "outros";
-            }
-
-            function applyAreaPreset(area) {
-                const preset = AREA_PRESETS[area];
-                if (!preset) return;
-
-                isApplyingPreset = true;
-
-                document.getElementById("setupScaleType").value = preset.scale_type;
-                document.getElementById("setupScalePattern").value = preset.scale_pattern;
-
-                isApplyingPreset = false;
             }
 
             function getBaseDate() {
@@ -659,13 +616,10 @@
             }
 
             function carregarFerias() {
-                try {
-                    const saved = localStorage.getItem("cyclecal_vacations");
-                    if (saved) {
-                        vacations = JSON.parse(saved);
-                    }
-                } catch {
-                    vacations = [];
+                const saved = localStorage.getItem("cyclecal_vacations");
+
+                if (saved) {
+                    vacations = JSON.parse(saved);
                 }
             }
 
@@ -680,37 +634,6 @@
                 }
 
                 renderAreaSelect();
-
-                const areaSelect = document.getElementById("areaSelect");
-
-                areaSelect.addEventListener("change", (e) => {
-                    const user = getUser();
-                    user.profile.area = e.target.value;
-                    saveUser(user);
-
-                    userModifiedScale = false;
-                    applyAreaPreset(e.target.value);
-
-                    const dsrField = document.getElementById("dsrWrapper");
-
-                    if (AREAS_WITHOUT_DSR.includes(e.target.value)) {
-                        dsrField.style.display = "none";
-                        document.getElementById("setupDSR").value = "0";
-                    } else {
-                        dsrField.style.display = "";
-                    }
-                });
-
-                document.getElementById("setupScaleType").addEventListener("input", () => {
-                    if (isApplyingPreset) return;
-                    userModifiedScale = true;
-                });
-
-                document.getElementById("setupScalePattern").addEventListener("input", () => {
-                    if (isApplyingPreset) return;
-                    userModifiedScale = true;
-                });
-
                 verificarPerfil();
                 atualizarSaudacao();
                 atualizarFooterBase();
@@ -739,14 +662,15 @@
 
                 gerarCalendario(anoAtual, mesAtual);
                 document.getElementById("btnHoje").innerText = hoje.getDate();
+                const setupModal = document.getElementById("setupModal");
 
                 document.getElementById("btnSetup").onclick = function () {
-                    userModifiedScale = false;
-                    mostrarSetup();
+                    preencherSetup();
+                    setupModal.style.display = "flex";
                 };
 
                 document.getElementById("setupFechar").onclick = function () {
-                    getSetupModal().style.display = "none";
+                    setupModal.style.display = "none";
                 };
 
                 document.getElementById("setupSalvar").onclick = function () {
@@ -802,79 +726,8 @@
 
                     gerarCalendario(anoAtual, mesAtual);
 
-                    getSetupModal().style.display = "none";
+                    setupModal.style.display = "none";
                 };
-
-                // ===== PICKER + SWIPE (UNIFICADO) =====
-
-                overlay = document.getElementById("pickerOverlay");
-
-                const mesEl = document.getElementById("mesTexto");
-                const anoEl = document.getElementById("anoTexto");
-
-                function openPicker() {
-                    renderMonthPicker();
-                    overlay.hidden = false;
-
-                    requestAnimationFrame(() => {
-                        overlay.classList.add("active");
-                    });
-                }
-
-                mesEl.addEventListener("click", openPicker);
-
-                anoEl.addEventListener("click", function (e) {
-                    e.stopPropagation();
-
-                    renderYearPicker();
-                    overlay.hidden = false;
-
-                    requestAnimationFrame(() => {
-                        overlay.classList.add("active");
-                    });
-                });
-
-                overlay.addEventListener("click", function (e) {
-                    if (e.target === overlay) {
-                        closePicker();
-                    }
-                });
-
-                // SWIPE
-                let touchStartX = 0;
-                let touchStartY = 0;
-
-                const calendarioEl = document.getElementById("calendario");
-
-                if (calendarioEl) {
-                    calendarioEl.addEventListener(
-                        "touchstart",
-                        function (e) {
-                            const touch = e.changedTouches[0];
-                            touchStartX = touch.clientX;
-                            touchStartY = touch.clientY;
-                        },
-                        { passive: true },
-                    );
-
-                    calendarioEl.addEventListener(
-                        "touchend",
-                        function (e) {
-                            const touch = e.changedTouches[0];
-
-                            const deltaX = touch.clientX - touchStartX;
-                            const deltaY = touch.clientY - touchStartY;
-
-                            const threshold = calendarioEl.clientWidth * 0.18;
-
-                            if (Math.abs(deltaY) > Math.abs(deltaX)) return;
-
-                            if (deltaX > threshold) mesAnterior();
-                            else if (deltaX < -threshold) proximoMes();
-                        },
-                        { passive: true },
-                    );
-                }
             });
 
             function irParaHoje() {
@@ -1016,14 +869,9 @@
             function ehFolga(data) {
                 const user = getUser();
                 const dsr = Number(user.settings.dsr || 0);
-                const area = user.profile.area;
 
-                // 🚫 ignora DSR para essas áreas
-                if (!AREAS_WITHOUT_DSR.includes(area)) {
-                    if (data.getDay() === dsr) return true;
-                }
+                if (data.getDay() === dsr) return true;
 
-                // 🔁 ciclo de domingo (mantido)
                 if (data.getDay() === 0) {
                     const diff = Math.floor(
                         (Date.UTC(data.getFullYear(), data.getMonth(), data.getDate()) -
@@ -1362,7 +1210,45 @@
 
             /* ===== SWIPE NAVIGATION v1.2.3 ===== */
 
+            let touchStartX = 0;
+            let touchStartY = 0;
             let swipeLocked = false;
+
+            const calendarioEl = document.getElementById("calendario");
+
+            calendarioEl.addEventListener(
+                "touchstart",
+                function (e) {
+                    const touch = e.changedTouches[0];
+                    touchStartX = touch.clientX;
+                    touchStartY = touch.clientY;
+                },
+                { passive: true },
+            );
+
+            calendarioEl.addEventListener(
+                "touchend",
+                function (e) {
+                    if (swipeLocked) return;
+
+                    const touch = e.changedTouches[0];
+
+                    const deltaX = touch.clientX - touchStartX;
+                    const deltaY = touch.clientY - touchStartY;
+
+                    const threshold = calendarioEl.clientWidth * 0.18;
+
+                    // Ignorar se movimento for mais vertical que horizontal
+                    if (Math.abs(deltaY) > Math.abs(deltaX)) return;
+
+                    if (deltaX > threshold) {
+                        mesAnterior();
+                    } else if (deltaX < -threshold) {
+                        proximoMes();
+                    }
+                },
+                { passive: true },
+            );
 
             if ("serviceWorker" in navigator) {
                 navigator.serviceWorker.register("sw.js").then((reg) => {
@@ -1387,15 +1273,53 @@
             let overlay;
 
             function closePicker() {
-                const overlayEl = overlay || document.getElementById("pickerOverlay");
-                if (!overlayEl) return;
-                overlayEl.classList.remove("active");
+                overlay.classList.remove("active");
 
-                // 🔥 fallback garantido
-                setTimeout(() => {
-                    overlayEl.hidden = true;
-                }, 250);
+                overlay.addEventListener(
+                    "transitionend",
+                    () => {
+                        overlay.hidden = true;
+                    },
+                    { once: true },
+                );
             }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                overlay = document.getElementById("pickerOverlay");
+
+                const mesEl = document.getElementById("mesTexto");
+                const anoEl = document.getElementById("anoTexto");
+
+                function openPicker() {
+                    renderMonthPicker();
+                    overlay.hidden = false;
+
+                    requestAnimationFrame(() => {
+                        overlay.classList.add("active");
+                    });
+                }
+
+                // clicar no mês → abre seletor de mês
+                mesEl.addEventListener("click", openPicker);
+
+                // clicar no ano → evento separado
+                anoEl.addEventListener("click", function (e) {
+                    e.stopPropagation();
+
+                    renderYearPicker();
+                    overlay.hidden = false;
+
+                    requestAnimationFrame(() => {
+                        overlay.classList.add("active");
+                    });
+                });
+
+                overlay.addEventListener("click", function (e) {
+                    if (e.target === overlay) {
+                        closePicker();
+                    }
+                });
+            });
 
             function ajustarAniversario(dia, mes, ano) {
                 // fevereiro = 1 no JavaScript
@@ -1477,17 +1401,15 @@
 
                 vacations.forEach((v, index) => {
                     const item = document.createElement("div");
-                    item.style.marginBottom = "6px";
 
-                    const texto = document.createTextNode(
-                        formatarData(v.start) + " → " + formatarData(v.end) + " "
-                    );
-                    const btn = document.createElement("button");
-                    btn.textContent = "Remover";
-                    btn.addEventListener("click", () => removerFerias(index));
+                    item.innerHTML =
+                        formatarData(v.start) +
+                        " → " +
+                        formatarData(v.end) +
+                        ' <button onclick="removerFerias(' +
+                        index +
+                        ')">Remover</button>';
 
-                    item.appendChild(texto);
-                    item.appendChild(btn);
                     container.appendChild(item);
                 });
             }
@@ -1505,8 +1427,8 @@
             function verificarPerfil() {
                 const user = getUser();
 
-                if (!user || !user.profile.name || !user.settings.base_date) {
-                    setTimeout(() => mostrarSetup(), 0);
+                if (!user.profile.name || !user.settings.base_date) {
+                    mostrarSetup();
                 }
             }
 
@@ -1592,48 +1514,18 @@
                 }
 
                 document.getElementById("setupBaseDate").value = user.settings.base_date || "";
-
                 document.getElementById("areaSelect").value = user.profile.area || "outros";
-
-                const area = user.profile.area;
-
-                const dsrField = document.getElementById("dsrWrapper");
-
-                if (AREAS_WITHOUT_DSR.includes(area)) {
-                    dsrField.style.display = "none";
-                    document.getElementById("setupDSR").value = "0";
-                } else {
-                    dsrField.style.display = "";
-                }
-
-                document.getElementById("setupScaleType").value = "";
-                document.getElementById("setupScalePattern").value = "";
-
-                if (!AREAS_WITHOUT_DSR.includes(area)) {
-                    document.getElementById("setupDSR").value = String(user.settings.dsr ?? 0);
-                }
-
+                document.getElementById("setupScaleType").value = user.settings.scale_type || "";
+                document.getElementById("setupScalePattern").value =
+                    user.settings.scale_pattern || "";
+                document.getElementById("setupDSR").value = String(user.settings.dsr ?? 0);
                 document.getElementById("setupTheme").value = user.preferences.theme || "auto";
-
-                // aplica preset
-                applyAreaPreset(user.profile.area);
             }
 
             function mostrarSetup() {
-                const overlayEl = document.getElementById("pickerOverlay");
-                if (overlayEl && !overlayEl.hidden) {
-                    closePicker();
-                    setTimeout(() => {
-                        abrirSetup();
-                    }, 260);
-                    return;
-                }
-                abrirSetup();
-            }
-
-            function abrirSetup() {
                 preencherSetup();
-                getSetupModal().style.display = "flex";
+                const setupModal = document.getElementById("setupModal");
+                setupModal.style.display = "flex";
             }
         </script>
 
@@ -1663,18 +1555,16 @@
 
                 <label>Padrão da escala</label>
                 <input type="text" id="setupScalePattern" />
-                <div id="dsrWrapper">
-                    <label>Descanso semanal (DSR)</label>
-                    <select id="setupDSR">
-                        <option value="0">Domingo</option>
-                        <option value="1">Segunda</option>
-                        <option value="2">Terça</option>
-                        <option value="3">Quarta</option>
-                        <option value="4">Quinta</option>
-                        <option value="5">Sexta</option>
-                        <option value="6">Sábado</option>
-                    </select>
-                </div>
+                <label>Descanso semanal (DSR)</label>
+                <select id="setupDSR">
+                    <option value="0">Domingo</option>
+                    <option value="1">Segunda</option>
+                    <option value="2">Terça</option>
+                    <option value="3">Quarta</option>
+                    <option value="4">Quinta</option>
+                    <option value="5">Sexta</option>
+                    <option value="6">Sábado</option>
+                </select>
 
                 <label>Tema</label>
                 <select id="setupTheme">

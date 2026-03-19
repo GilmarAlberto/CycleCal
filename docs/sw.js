@@ -1,75 +1,83 @@
-// ===================================
+// ==============================
 // CycleCal Service Worker
-// Versão 1.8.0
-// Escopo: /docs/
-// ===================================
+// ==============================
 
-const CACHE_NAME = "cyclecal-v1.8.0";
+// 🔁 ATUALIZE A CADA RELEASE
+const CACHE_NAME = "cyclecal-v1.8.2";
 
-// Arquivos relativos à pasta mobile
-const URLS_TO_CACHE = [
-    "index.html",
-    "manifest.json",
-    "icon-256.png",
-    "icon-512.png",
+// Arquivos essenciais
+const ASSETS = [
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./icon-256.png",
+  "./icon-512.png",
 ];
 
-// ===============================
-// INSTALAÇÃO
-// ===============================
+// ==============================
+// INSTALL (instala e força ativação)
+// ==============================
 self.addEventListener("install", (event) => {
-    console.log("SW: Instalando", CACHE_NAME);
+  console.log("[SW] Installing...");
 
-    event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(URLS_TO_CACHE)));
+  self.skipWaiting(); // 🔥 ativa imediatamente
 
-    self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    })
+  );
 });
 
-// ===============================
-// ATIVAÇÃO
-// ===============================
+// ==============================
+// ACTIVATE (limpa caches antigos)
+// ==============================
 self.addEventListener("activate", (event) => {
-    console.log("SW: Ativando e limpando caches antigos...");
+  console.log("[SW] Activating...");
 
-    event.waitUntil(
-        caches
-            .keys()
-            .then((cacheNames) =>
-                Promise.all(
-                    cacheNames
-                        .filter((name) => name !== CACHE_NAME)
-                        .map((name) => caches.delete(name)),
-                ),
-            ),
-    );
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            console.log("[SW] Removing old cache:", key);
+            return caches.delete(key);
+          }
+        })
+      );
+    })
+  );
 
-    self.clients.claim();
+  self.clients.claim(); // 🔥 assume controle imediato
 });
 
-// ===============================
-// FETCH – Cache First
-// ===============================
-
-// ===============================
-// FETCH
-// ===============================
-
+// ==============================
+// FETCH (estratégia)
+// ==============================
 self.addEventListener("fetch", (event) => {
-    if (event.request.mode === "navigate") {
-        event.respondWith(fetch(event.request).catch(() => caches.match("index.html")));
-        return;
-    }
+  const request = event.request;
 
-    event.respondWith(
-        caches.match(event.request).then((response) => response || fetch(event.request)),
-    );
-});
+  // Só GET
+  if (request.method !== "GET") return;
 
-// ===============================
-// Atualização forçada opcional
-// ===============================
-self.addEventListener("message", (event) => {
-    if (event.data && event.data.type === "SKIP_WAITING") {
-        self.skipWaiting();
-    }
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) {
+        return cached; // ⚡ rápido (cache-first)
+      }
+
+      return fetch(request)
+        .then((response) => {
+          // guarda no cache dinamicamente
+          return caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, response.clone());
+            return response;
+          });
+        })
+        .catch(() => {
+          // fallback offline
+          return caches.match("./index.html");
+        });
+    })
+  );
 });

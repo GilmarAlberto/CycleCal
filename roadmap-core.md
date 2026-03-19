@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.8.0
-Base: v1.7.5
+Status: 🟢 v1.8.2
+Base: v1.8.0
 Branch: main
 
 ---
@@ -524,181 +524,149 @@ Permitir que o usuário informe sua área de trabalho para personalização futu
 
 ## 🎯 Objetivo
 
-Tornar o CycleCal capaz de sugerir automaticamente configurações iniciais com base na área de atuação do usuário, reduzindo esforço manual e aumentando a usabilidade.
+Sugerir automaticamente configurações iniciais com base na área de atuação do usuário,
+reduzindo esforço manual no setup e melhorando a experiência no primeiro uso.
 
 ---
 
-## ⚙️ Sugestões automáticas por área
+## ⚙️ Funcionalidade
 
-- [ ] Definir regras padrão por área:
-  - Segurança Pública:
-    - Tipo: plantão
-    - Padrão: 24x72
-  - Hospital / Saúde:
-    - Tipo: plantão
-    - Padrão: 12x36
-  - Supermercado / Varejo:
-    - Tipo: semanal
-    - Padrão: 6x1
-  - Indústria:
-    - Tipo: turno
-    - Padrão: 5x1
-  - Outros:
-    - Nenhuma sugestão automática
+### 📦 Presets por área
+
+- [ ] Definir presets padrão por área:
+  - Segurança Pública → plantão 24x72
+  - Hospital / Saúde → plantão 12x36
+  - Supermercado / Varejo → semanal 6x1
+  - Indústria → turno 5x1
+  - Outros → sem sugestão automática
 
 ---
 
-## 🔄 Aplicação automática
+### 🔄 Aplicação automática
 
-- [ ] Aplicar sugestões ao selecionar área no setup
-- [ ] Aplicar sugestões apenas se campos estiverem vazios
-- [ ] Não sobrescrever configurações já definidas pelo usuário
+- [ ] Executar no primeiro carregamento do setup
+- [ ] Aplicar sugestão ao selecionar área no setup
+- [ ] Aplicar apenas se:
+  - tipo de escala estiver vazio
+  - padrão da escala estiver vazio
 
 ---
 
-## 🧠 Integração com setup
+### 🚫 Regras de proteção
 
+- [ ] Nunca sobrescrever configurações já definidas pelo usuário
+- [ ] Nunca reexecutar após edição manual
+- [ ] Evitar loops ao trocar área múltiplas vezes
+
+---
+
+### 🧠 Controle de estado
+
+- [ ] Criar flag de modificação manual da escala
+- [ ] Ativar flag ao editar:
+  - tipo de escala
+  - padrão da escala
+- [ ] Bloquear sugestões após modificação manual
+
+---
+
+### ⚙️ Integração com setup
+
+- [ ] Integrar com campo de área (`user.profile.area`)
 - [ ] Atualizar automaticamente:
-  - setupScaleType
-  - setupScalePattern
+  - tipo de escala
+  - padrão da escala
 - [ ] Refletir mudanças imediatamente na interface (sem reload)
+
+---
+
+### 💬 Experiência do usuário
+
+- [ ] Utilizar preenchimento automático (sem alert)
+- [ ] Evitar mensagens intrusivas
+- [ ] Manter comportamento natural e previsível
+
+---
+
+## 🧪 Testes
+
+- [ ] Selecionar área com campos vazios → aplicar preset
+- [ ] Selecionar área com campos preenchidos → não alterar
+- [ ] Alterar manualmente → impedir sobrescrita
+- [ ] Trocar área várias vezes → não gerar loop
+- [ ] Testar reload do setup
+- [ ] Testar funcionamento em PWA instalada
+- [ ] Definir valores manualmente → recarregar → não aplicar preset novamente
+
+## 🚀 Critério de Conclusão
+
+A versão será considerada concluída quando:
+
+- O usuário receber sugestões automáticas corretamente
+- Nenhuma configuração manual for sobrescrita
+- Não houver loops ou comportamento inesperado
+- A interface refletir mudanças imediatamente
+- O comportamento estiver estável em mobile e PWA
+- O comportamento deve ser determinístico (sem variações inesperadas)
+
+---
+
+# 🎨 v1.8.5 — Refinamentos de UX e Interface
+
+## 🎯 Objetivo
+
+Refinar a experiência visual e consistência do sistema,
+sem alterar regras de negócio.
+
+---
+
+## 🎂 Aniversário (input)
+
+- [ ] Validar datas inválidas (ex: 31/02)
+- [ ] Implementar auto zero (1 → 01/)
+- [ ] Tratar entradas incompletas (ex: 1/, 12/)
 
 ---
 
 ## 💬 Feedback ao usuário
 
-- [ ] Exibir sugestão de forma sutil (ex: placeholder ou preenchimento automático)
-- [ ] Evitar mensagens intrusivas
+- [ ] Substituir `alert()` por feedback visual no sistema
+- [ ] Melhorar mensagens de validação no setup
 
 ---
 
-## 🧪 Regras de segurança
+## 🎨 Interface
 
-- [ ] Garantir que usuário possa alterar manualmente após sugestão
-- [ ] Evitar loops de atualização ao trocar área
-
----
-
-## 🚀 Impacto esperado
-
-- Redução do tempo de configuração inicial
-- Melhor experiência para novos usuários
-- Base para futuras personalizações inteligentes
-
----
-
-## 🔮 Expansões futuras
-
-- [ ] Ajustar DSR automaticamente por área
-- [ ] Personalizar mensagens por profissão
-- [ ] Adaptar nomenclaturas (plantão, turno, folga)
-
-# 🧠 v1.8.2 — Inteligência por Área
-
-## 🎯 Objetivo
-
-Utilizar a área de atuação do usuário para personalizar o comportamento do CycleCal, tornando a experiência mais inteligente e adaptada ao perfil profissional.
-
----
-
-## 💬 Personalização de textos
-
-- [ ] Adaptar mensagens com base na área:
-  - Segurança Pública → "Bom plantão 👮‍♂️"
-  - Hospital / Saúde → "Força no plantão 🏥"
-  - Supermercado / Varejo → mensagem padrão
-  - Outros → mensagem padrão
-
-- [ ] Integrar com a saudação existente (header)
-
----
-
-## 🏷 Ajustes de nomenclatura
-
-- [ ] Adaptar termos conforme a área:
-  - "Folga" → pode virar "Descanso", "Off", etc
-  - "Escala" → pode virar "Plantão" ou "Turno"
-
-- [ ] Aplicar mudanças de forma sutil (sem quebrar layout)
-
----
-
-## ⚙️ Regras específicas por área
-
-- [ ] Preparar estrutura para regras futuras:
-  - Segurança → lógica de plantão (24x72, 24x96)
-  - Hospital → lógica de plantão (12x36)
-  - Outros → comportamento padrão
-
-- [ ] Criar base para decisões condicionais no código:
-  ```js
-  if (user.profile.area === "seguranca") { ... }
-
-## Interface
-
-- [ ] Substituir `alert()` por mensagem visual no sistema
-- [ ] Melhorar layout do formulário de registro de férias
+- [ ] Melhorar layout do formulário de férias
 - [ ] Melhorar visual da lista de períodos de férias
-
-## UX
-
-- [ ] Padronizar formato de datas exibidas
-- [ ] Melhorar espaçamento e alinhamento da interface
-
-### 🎨 Refinamento de UX — Setup (Aniversário e Perfil)
-
-Melhorar a experiência de entrada de dados e personalização do usuário no setup.
-
-#### 🎂 Aniversário (dd/mm)
-
-- [x] Alterar input de data para texto (formato dd/mm)
-- [x] Implementar máscara automática (1007 → 10/07)
-- [x] Converter para formato interno (YYYY-MM-DD) ao salvar
-- [x] Ajustar carregamento para exibir dd/mm
-
-- [ ] Validar datas inválidas (ex: 31/02)
-- [ ] Melhorar digitação (auto zero: 1 → 01/)
-- [ ] Tratar casos incompletos (ex: 1/, 12/)
+- [ ] Padronizar inputs (mesmo estilo visual)
+- [ ] Ajustar espaçamento e alinhamento geral
 
 ---
 
-#### 🧑‍💼 Área de atuação
+## 🧠 Personalização por área
 
-- [x] Criar select dinâmico com AREAS
-- [x] Persistir em user.profile.area
-- [x] Restaurar valor no setup
-
-- [ ] Sugerir configurações iniciais com base na área
-- [ ] Ajustar nomenclaturas dinamicamente (plantão, turno, folga)
-
----
-
-#### 🧠 Personalização inteligente
-
-- [ ] Mensagens personalizadas por área
+- [ ] Exibir mensagens por área:
   - Segurança → "Bom plantão 👮‍♂️"
-  - Hospital → "Força no plantão 🏥"
+  - Saúde → "Força no plantão 🏥"
   - Outros → padrão
 
-- [ ] Destacar eventos relevantes por perfil
+- [ ] Ajustar nomenclaturas:
+  - "Escala" → "Plantão" / "Turno"
+  - "Folga" → "Descanso"
 
 ---
 
-#### 🧪 Consistência e UX
+## 🧪 Consistência
 
-- [ ] Padronizar inputs (mesmo estilo visual)
-- [ ] Melhorar validações com feedback amigável
 - [ ] Evitar estados inconsistentes no setup
+- [ ] Garantir sincronização entre estado interno e UI
 
 ---
 
-## 🔗 Integração com Módulos
+## 🚀 Critério de Conclusão
 
-- [ ] Integrar seleção de área com `roadmap-comercio`
-- [ ] Integrar seleção de área com `roadmap-seguranca`
-- [ ] Integrar seleção de área com `roadmap-saude`
-- [ ] Manter funcionamento padrão quando área = `geral`
-
----
-
-
+- Interface consistente e padronizada
+- Feedback claro e não intrusivo
+- Inputs robustos e confiáveis
+- Melhor percepção geral de qualidade
