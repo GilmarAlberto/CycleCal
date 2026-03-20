@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.8.2
-Base: v1.8.0
+Status: 🟢 v1.8.5
+Base: v1.8.2
 Branch: main
 
 ---
@@ -620,23 +620,41 @@ sem alterar regras de negócio.
 
 ---
 
-## 🎂 Aniversário (input)
+# 🗺️ CycleCal — v1.8.5
 
-- [ ] Validar datas inválidas (ex: 31/02)
-- [ ] Implementar auto zero (1 → 01/)
-- [ ] Tratar entradas incompletas (ex: 1/, 12/)
+## 🧩 Tela (base)
+- [ ] Melhorar estrutura da tela de setup
+- [ ] Organizar blocos visuais
+- [ ] Ajustar hierarquia visual
+
+---
+
+## 🌴 Férias no setup
+- [ ] Mover lógica de férias para dentro do setup
+- [ ] Garantir persistência correta
+- [ ] Validar integração com estado global
 
 ---
 
 ## 💬 Feedback ao usuário
+- [ ] Substituir `alert()` por feedback visual
+- [ ] Criar padrão:
+  showFeedback(message, type)
+- [ ] Melhorar mensagens de validação
+- [ ] Garantir feedback não intrusivo
 
-- [ ] Substituir `alert()` por feedback visual no sistema
-- [ ] Melhorar mensagens de validação no setup
+---
+
+## 🎂 Aniversário (input)
+- [ ] Validar datas inválidas (ex: 31/02)
+- [ ] Implementar auto zero (1 → 01)
+- [ ] Tratar entradas incompletas (ex: 1/, 12/)
+- [ ] Normalizar formato interno (ex: DD/MM)
+- [ ] Evitar reprocessamento desnecessário
 
 ---
 
 ## 🎨 Interface
-
 - [ ] Melhorar layout do formulário de férias
 - [ ] Melhorar visual da lista de períodos de férias
 - [ ] Padronizar inputs (mesmo estilo visual)
@@ -644,8 +662,15 @@ sem alterar regras de negócio.
 
 ---
 
-## 🧠 Personalização por área
+## 🧠 Consistência
+- [ ] Evitar estados inconsistentes no setup
+- [ ] Garantir sincronização entre estado interno e UI
+- [ ] Revisar fluxo de atualização
+- [ ] Garantir previsibilidade após alterações
 
+---
+
+## 🏷️ Personalização por área
 - [ ] Exibir mensagens por área:
   - Segurança → "Bom plantão 👮‍♂️"
   - Saúde → "Força no plantão 🏥"
@@ -657,16 +682,9 @@ sem alterar regras de negócio.
 
 ---
 
-## 🧪 Consistência
-
-- [ ] Evitar estados inconsistentes no setup
-- [ ] Garantir sincronização entre estado interno e UI
-
----
-
 ## 🚀 Critério de Conclusão
-
-- Interface consistente e padronizada
-- Feedback claro e não intrusivo
-- Inputs robustos e confiáveis
-- Melhor percepção geral de qualidade
+- [ ] Interface consistente e padronizada
+- [ ] Feedback claro e não intrusivo
+- [ ] Inputs robustos e confiáveis
+- [ ] Estado previsível
+- [ ] Melhor percepção geral de qualidade

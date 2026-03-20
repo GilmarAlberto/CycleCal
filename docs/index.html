@@ -1,4 +1,4 @@
-<!doctype html>
+e!doctype html>
 <html lang="pt-BR">
     <head>
         <meta charset="UTF-8" />
@@ -10,7 +10,7 @@
 
         <link rel="icon" href="icon-256.png" type="image/png" />
 
-        <!-- Versão 1.8.2 -->
+        <!-- Versão 1.8.5 -->
 
         <style>
             :root {
@@ -369,12 +369,119 @@
             }
 
             .setup-box {
-                background: white;
-                padding: 20px;
-                border-radius: 12px;
-                width: 280px;
+                background: #1e293b;
+                padding: 24px;
+                border-radius: 16px;
+                width: 100%;
+                max-width: 420px;
 
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+                color: #e2e8f0;
+            }
+
+            .setup-box label {
+                font-size: 12px;
+                color: #94a3b8;
+                display: block;
+                margin-top: 10px;
+                margin-bottom: 4px;
+            }
+
+            .setup-box input,
+            .setup-box select {
+                width: 100%;
+                padding: 8px 10px;
+                border-radius: 8px;
+                border: 1px solid #334155;
+                background: #0f172a;
+                color: #e2e8f0;
+            }
+
+            .setup-box input:focus,
+            .setup-box select:focus {
+                outline: none;
+                border-color: #3b82f6;
+            }
+
+            .setup-box button {
+                width: 100%;
+                padding: 10px;
+                border-radius: 10px;
+                border: none;
+                margin-top: 10px;
+                cursor: pointer;
+                font-weight: 500;
+            }
+
+            .setup-section {
+                margin-top: 20px;
+                border: 1px solid #334155;
+                border-radius: 10px;
+                padding: 14px;
+                position: relative;
+            }
+
+            .setup-section h4 {
+                position: absolute;
+                top: -8px;
+                left: 10px;
+                background: #1e293b; /* mesma cor do card */
+                padding: 0 6px;
+
+                font-size: 11px;
+                color: #94a3b8;
+            }
+
+            #setupSalvar {
+                background: #3b82f6;
+                color: white;
+            }
+
+            #setupFechar {
+                background: #334155;
+                color: #e2e8f0;
+            }
+
+            .setup-box h3 {
+                margin-top: 0;
+                margin-bottom: 10px;
+                font-size: 18px;
+            }
+
+            .setup-title {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                margin-bottom: 12px;
+            }
+
+            .setup-icon {
+                width: 18px;
+                height: 18px;
+            }
+
+            .setup-box h3 {
+                margin: 0;
+                font-size: 16px;
+            }
+
+            .setup-section {
+                margin-top: 20px;
+            }
+
+            .setup-section h4 {
+                font-size: 12px;
+                color: #cbd5f5;
+                margin-bottom: 8px;
+                margin-top: 4px;
+            }
+
+            .setup-section:first-of-type {
+                margin-top: 10px;
+            }
+
+            * {
+                box-sizing: border-box;
             }
         </style>
     </head>
@@ -388,7 +495,7 @@
                     <div class="title-group">
                         <div class="title-line">
                             <h1>CycleCal</h1>
-                            <span class="version">v1.8.2</span>
+                            <span class="version">v1.8.5</span>
                         </div>
 
                         <div id="userGreeting"></div>
@@ -522,9 +629,6 @@
                             scale_pattern: "",
                             dsr: 0,
                         },
-                        preferences: {
-                            theme: "auto",
-                        },
                         vacations: [],
                     };
 
@@ -644,22 +748,6 @@
                 if (!pattern) return;
 
                 setScalePattern(pattern);
-            }
-
-            function setTheme(theme) {
-                const user = getUser();
-
-                user.preferences.theme = theme;
-
-                saveUser(user);
-            }
-
-            function alterarTema() {
-                const tema = prompt("Tema (auto, dark, light)");
-
-                if (!tema) return;
-
-                setTheme(tema);
             }
 
             function salvarFerias() {
@@ -805,8 +893,6 @@
                         document.getElementById("setupScalePattern").value;
 
                     user.settings.dsr = Number(document.getElementById("setupDSR").value);
-
-                    user.preferences.theme = document.getElementById("setupTheme").value;
 
                     saveUser(user);
 
@@ -1640,8 +1726,6 @@
                     document.getElementById("setupDSR").value = String(user.settings.dsr ?? 0);
                 }
 
-                document.getElementById("setupTheme").value = user.preferences.theme || "auto";
-
                 // aplica preset
                 //applyAreaPreset(user.profile.area);
 
@@ -1690,44 +1774,48 @@
 
         <div id="setupModal" class="setup-modal">
             <div class="setup-box">
-                <h3>Configurações</h3>
-
-                <label>Nome</label>
-                <input type="text" id="setupUserName" placeholder="Seu nome" />
-
-                <label>Aniversário</label>
-                <input type="text" id="setupBirthday" placeholder="dd/mm" maxlength="5" />
-
-                <label>Data base da escala</label>
-                <input type="date" id="setupBaseDate" />
-
-                <label for="areaSelect">Área de atuação</label>
-                <select id="areaSelect"></select>
-
-                <label>Tipo de escala</label>
-                <input type="text" id="setupScaleType" />
-
-                <label>Padrão da escala</label>
-                <input type="text" id="setupScalePattern" />
-                <div id="dsrWrapper">
-                    <label>Descanso semanal (DSR)</label>
-                    <select id="setupDSR">
-                        <option value="0">Domingo</option>
-                        <option value="1">Segunda</option>
-                        <option value="2">Terça</option>
-                        <option value="3">Quarta</option>
-                        <option value="4">Quinta</option>
-                        <option value="5">Sexta</option>
-                        <option value="6">Sábado</option>
-                    </select>
+                <div class="setup-title">
+                    <img src="icon-256.png" class="setup-icon" style="width: 18px; height: 18px" />
+                    <h3>Configurações</h3>
                 </div>
 
-                <label>Tema</label>
-                <select id="setupTheme">
-                    <option value="auto">Auto</option>
-                    <option value="dark">Dark</option>
-                    <option value="light">Light</option>
-                </select>
+                <div class="setup-section">
+                    <h4>Perfil</h4>
+
+                    <label>Nome</label>
+                    <input type="text" id="setupUserName" placeholder="Seu nome" />
+
+                    <label>Aniversário</label>
+                    <input type="text" id="setupBirthday" placeholder="dd/mm" maxlength="5" />
+                </div>
+
+                <div class="setup-section">
+                    <h4>Escala</h4>
+
+                    <label>Data base da escala</label>
+                    <input type="date" id="setupBaseDate" />
+
+                    <label for="areaSelect">Área de atuação</label>
+                    <select id="areaSelect"></select>
+
+                    <label>Tipo de escala</label>
+                    <input type="text" id="setupScaleType" />
+
+                    <label>Padrão da escala</label>
+                    <input type="text" id="setupScalePattern" />
+                    <div id="dsrWrapper">
+                        <label>Descanso semanal (DSR)</label>
+                        <select id="setupDSR">
+                            <option value="0">Domingo</option>
+                            <option value="1">Segunda</option>
+                            <option value="2">Terça</option>
+                            <option value="3">Quarta</option>
+                            <option value="4">Quinta</option>
+                            <option value="5">Sexta</option>
+                            <option value="6">Sábado</option>
+                        </select>
+                    </div>
+                </div>
 
                 <br /><br />
 
