@@ -483,6 +483,40 @@ e!doctype html>
             * {
                 box-sizing: border-box;
             }
+
+            .toast {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%) translateY(20px);
+
+                background: #1e293b;
+                color: #e2e8f0;
+
+                padding: 12px 16px;
+                border-radius: 10px;
+
+                font-size: 14px;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+
+                opacity: 0;
+                transition: all 0.2s ease;
+
+                z-index: 9999;
+            }
+
+            .toast.show {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+
+            .toast.error {
+                background: #7f1d1d;
+            }
+
+            .toast.success {
+                background: #065f46;
+            }
         </style>
     </head>
 
@@ -683,6 +717,7 @@ e!doctype html>
                 user.settings.scale_type = preset.scale_type;
                 user.settings.scale_pattern = preset.scale_pattern;
                 saveUser(user);
+                showToast("Salvo com sucesso!", "success");
 
                 isApplyingPreset = false;
             }
@@ -870,12 +905,12 @@ e!doctype html>
                     }
 
                     if (!userName) {
-                        alert("Como deseja ser chamado?");
+                        showToast("Como deseja ser chamado?", "error");
                         return;
                     }
 
                     if (!baseDate) {
-                        alert("Informe a data base da escala.");
+                        showToast("Informe a data base da escala.", "error");
                         return;
                     }
 
@@ -895,6 +930,8 @@ e!doctype html>
                     user.settings.dsr = Number(document.getElementById("setupDSR").value);
 
                     saveUser(user);
+
+                    showToast("Salvo com sucesso!", "success");
 
                     atualizarSaudacao();
 
@@ -1555,12 +1592,12 @@ e!doctype html>
                 const fim = document.getElementById("feriasFim").value;
 
                 if (!inicio || !fim) {
-                    alert("Informe as datas.");
+                    showToast("Informe as datas.", "error");
                     return;
                 }
 
                 if (fim < inicio) {
-                    alert("Data final inválida.");
+                    showToast("Data final inválida.", "error");
                     return;
                 }
 
@@ -1764,6 +1801,26 @@ e!doctype html>
                 preencherSetup();
                 getSetupModal().style.display = "flex";
                 document.body.style.overflow = "hidden";
+            }
+
+            function showToast(message, type = "info") {
+                const toast = document.createElement("div");
+                toast.className = `toast ${type}`;
+                toast.innerText = message;
+
+                document.body.appendChild(toast);
+
+                requestAnimationFrame(() => {
+                    toast.classList.add("show");
+                });
+
+                setTimeout(() => {
+                    toast.classList.remove("show");
+
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 200);
+                }, 2500);
             }
         </script>
 
