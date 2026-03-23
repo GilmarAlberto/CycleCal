@@ -1,4 +1,4 @@
-e!doctype html>
+<!doctype html>
 <html lang="pt-BR">
     <head>
         <meta charset="UTF-8" />
@@ -10,7 +10,7 @@ e!doctype html>
 
         <link rel="icon" href="icon-256.png" type="image/png" />
 
-        <!-- Versão 1.8.5 -->
+        <!-- Versão 1.8.5.1 -->
 
         <style>
             :root {
@@ -168,13 +168,7 @@ e!doctype html>
             }
 
             .day.vacation {
-                background: repeating-linear-gradient(
-                    45deg,
-                    #f5f5f5,
-                    #f5f5f5 4px,
-                    #e0e0e0 4px,
-                    #e0e0e0 8px
-                );
+                background: repeating-linear-gradient(45deg, #f5f5f5, #f5f5f5 4px, #e0e0e0 4px, #e0e0e0 8px);
                 border: 2px solid #9e9e9e;
             }
 
@@ -211,13 +205,7 @@ e!doctype html>
             }
 
             .legend-box.vacation {
-                background: repeating-linear-gradient(
-                    45deg,
-                    #f5f5f5,
-                    #f5f5f5 4px,
-                    #e0e0e0 4px,
-                    #e0e0e0 8px
-                );
+                background: repeating-linear-gradient(45deg, #f5f5f5, #f5f5f5 4px, #e0e0e0 4px, #e0e0e0 8px);
                 border: 1px solid #9e9e9e;
             }
 
@@ -363,17 +351,23 @@ e!doctype html>
                 background: rgba(0, 0, 0, 0.35);
 
                 justify-content: center;
-                align-items: center;
+                align-items: flex-start;
 
                 z-index: 9999;
+                padding: 10px;
             }
 
             .setup-box {
                 background: #1e293b;
                 padding: 24px;
                 border-radius: 16px;
+
                 width: 100%;
                 max-width: 420px;
+                max-height: 90vh;
+
+                display: flex;
+                flex-direction: column;
 
                 box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
                 color: #e2e8f0;
@@ -517,6 +511,140 @@ e!doctype html>
             .toast.success {
                 background: #065f46;
             }
+
+            @media (max-width: 480px) {
+                .setup-modal {
+                    padding: 0;
+                }
+
+                .setup-box {
+                    max-width: 100%;
+                    max-height: 100vh;
+                    height: 100%;
+                    border-radius: 0;
+                }
+            }
+
+            .setup-footer {
+                position: sticky;
+                bottom: 0;
+                background: #1e293b;
+                padding: 12px;
+                display: flex;
+                gap: 10px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .setup-footer button {
+                flex: 1;
+            }
+
+            .ferias-row {
+                display: flex;
+                gap: 10px;
+            }
+
+            .ferias-row > div {
+                flex: 1;
+            }
+
+            .ferias-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+
+                background: rgba(255, 255, 255, 0.05);
+                padding: 10px;
+                border-radius: 8px;
+                margin-top: 8px;
+            }
+
+            .ferias-item span {
+                flex: 1;
+                white-space: nowrap;
+            }
+
+            .btn-remover {
+                background: transparent;
+                border: 1px solid #ff5c5c;
+                color: #ff5c5c;
+
+                padding: 4px 8px;
+                font-size: 12px;
+
+                border-radius: 6px;
+                cursor: pointer;
+
+                transition: 0.2s;
+
+                width: auto !important;
+                margin-top: 0 !important;
+                flex-shrink: 0;
+                align-self: center;
+            }
+
+            .btn-remover:hover {
+                background: #ff5c5c;
+                color: white;
+            }
+
+            .setup-box .ferias-item .btn-remover {
+                width: auto;
+                margin-top: 0;
+                padding: 4px 8px;
+                flex-shrink: 0;
+                align-self: center;
+            }
+
+            #feriasForm {
+                max-height: 0;
+                overflow: hidden;
+
+                opacity: 0;
+                transform: translateY(-4px);
+
+                transition: all 0.25s ease;
+            }
+
+            #feriasForm.active {
+                max-height: 1000px;
+
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            #setupSalvarFeriasBtn.active {
+                background: #22c55e;
+                color: white;
+            }
+
+            #btnCancelarFerias {
+                background: #334155;
+                color: #e2e8f0;
+                margin-top: 8px;
+                opacity: 0.9;
+            }
+
+            #btnCancelarFerias:hover {
+                opacity: 1;
+            }
+
+            .ferias-actions {
+                display: flex;
+                gap: 10px;
+                margin-top: 10px;
+            }
+
+            .ferias-actions button {
+                flex: 1;
+                width: auto !important;
+            }
+
+            .setup-content {
+                overflow-y: auto;
+                flex: 1;
+            }
         </style>
     </head>
 
@@ -529,7 +657,7 @@ e!doctype html>
                     <div class="title-group">
                         <div class="title-line">
                             <h1>CycleCal</h1>
-                            <span class="version">v1.8.5</span>
+                            <span class="version">v1.8.5.1</span>
                         </div>
 
                         <div id="userGreeting"></div>
@@ -557,20 +685,7 @@ e!doctype html>
             <div class="calendar" id="calendario"></div>
 
             <div style="margin-top: 15px; text-align: center">
-                <button id="btnFerias">Registrar Férias</button>
                 <button id="btnSetup">Setup ⚙</button>
-
-                <div id="formFerias" style="display: none; margin-top: 10px">
-                    <label>Início:</label>
-                    <input type="date" id="feriasInicio" />
-
-                    <label>Fim:</label>
-                    <input type="date" id="feriasFim" />
-
-                    <button id="salvarFeriasBtn">Salvar</button>
-                </div>
-
-                <div id="listaFerias" style="margin-top: 10px"></div>
             </div>
 
             <div class="footer">
@@ -579,9 +694,7 @@ e!doctype html>
 
                 <div class="legend" id="birthdayLegend">🎂 Aniversário</div>
 
-                <div class="legend" id="vacationLegend">
-                    <span class="legend-box vacation"></span> Férias
-                </div>
+                <div class="legend" id="vacationLegend"><span class="legend-box vacation"></span> Férias</div>
 
                 <div class="holidays" id="listaFeriados"></div>
             </div>
@@ -638,6 +751,7 @@ e!doctype html>
             let vacations = [];
             let userModifiedScale = false;
             let isApplyingPreset = false;
+            let feriasFormAberto = false;
 
             function getSetupModal() {
                 return document.getElementById("setupModal");
@@ -786,24 +900,41 @@ e!doctype html>
             }
 
             function salvarFerias() {
-                localStorage.setItem("cyclecal_vacations", JSON.stringify(vacations));
+                const user = getUser();
+                user.vacations = vacations;
+                saveUser(user);
             }
 
             function carregarFerias() {
-                try {
-                    const saved = localStorage.getItem("cyclecal_vacations");
-                    if (saved) {
-                        vacations = JSON.parse(saved);
-                    }
-                } catch {
+                const user = getUser();
+
+                if (!user) {
                     vacations = [];
+                    return;
                 }
+
+                vacations = user.vacations || [];
             }
 
             document.addEventListener("DOMContentLoaded", function () {
                 initUser();
 
                 carregarFerias();
+
+                preencherSetup();
+                verificarPerfil();
+                atualizarSaudacao();
+                atualizarFooterBase();
+
+                // 🔥 ATIVA SALVAR AO MODIFICAR
+                document.getElementById("setupUserName").addEventListener("input", ativarSalvar);
+                document.getElementById("setupBirthday").addEventListener("input", ativarSalvar);
+                document.getElementById("setupBaseDate").addEventListener("input", ativarSalvar);
+                document.getElementById("setupScaleType").addEventListener("input", ativarSalvar);
+                document.getElementById("setupScalePattern").addEventListener("input", ativarSalvar);
+
+                document.getElementById("areaSelect").addEventListener("change", ativarSalvar);
+                document.getElementById("setupDSR").addEventListener("change", ativarSalvar);
 
                 const user = getUser();
 
@@ -848,10 +979,6 @@ e!doctype html>
                     if (isApplyingPreset) return;
                     userModifiedScale = true;
                 });
-
-                verificarPerfil();
-                atualizarSaudacao();
-                atualizarFooterBase();
 
                 const birthdayInput = document.getElementById("setupBirthday");
 
@@ -924,8 +1051,7 @@ e!doctype html>
 
                     user.settings.scale_type = document.getElementById("setupScaleType").value;
 
-                    user.settings.scale_pattern =
-                        document.getElementById("setupScalePattern").value;
+                    user.settings.scale_pattern = document.getElementById("setupScalePattern").value;
 
                     user.settings.dsr = Number(document.getElementById("setupDSR").value);
 
@@ -944,6 +1070,83 @@ e!doctype html>
                     getSetupModal().style.display = "none";
                     document.body.style.overflow = "";
                 };
+
+                document.getElementById("setupSalvarFeriasBtn").addEventListener("click", function () {
+                    const form = document.getElementById("feriasForm");
+
+                    form.classList.add("active");
+                    feriasFormAberto = true;
+
+                    document.getElementById("setupSalvarFeriasBtn").style.display = "none";
+                    document.querySelector(".setup-footer").style.display = "none";
+
+                    setTimeout(() => {
+                        form.scrollIntoView({ behavior: "smooth", block: "end" });
+                    }, 200);
+                });
+
+                document.getElementById("btnConfirmarFerias").addEventListener("click", function () {
+                    const inicio = document.getElementById("setupFeriasInicio").value;
+                    const fim = document.getElementById("setupFeriasFim").value;
+
+                    if (!inicio || !fim) {
+                        showToast("Informe as datas.", "error");
+                        return;
+                    }
+
+                    if (fim < inicio) {
+                        showToast("Data final inválida.", "error");
+                        return;
+                    }
+
+                    const exists = vacations.some((v) => v.start === inicio && v.end === fim);
+                    if (exists) {
+                        showToast("Período já adicionado.", "error");
+                        return;
+                    }
+
+                    vacations.push({ start: inicio, end: fim });
+
+                    salvarFerias();
+                    ativarSalvar();
+                    gerarCalendario(anoAtual, mesAtual);
+                    renderListaFeriasSetup();
+
+                    showToast("Férias adicionadas!", "success");
+
+                    // reset
+                    const form = document.getElementById("feriasForm");
+                    form.classList.remove("active");
+
+                    feriasFormAberto = false;
+
+                    document.getElementById("setupFeriasInicio").value = "";
+                    document.getElementById("setupFeriasFim").value = "";
+
+                    document.getElementById("setupSalvarFeriasBtn").style.display = "";
+                    document.querySelector(".setup-footer").style.display = "flex";
+                });
+
+                document.getElementById("btnCancelarFerias").addEventListener("click", function () {
+                    const form = document.getElementById("feriasForm");
+                    const btn = document.getElementById("setupSalvarFeriasBtn");
+
+                    // fecha form
+                    form.classList.remove("active");
+
+                    // reseta botão principal
+                    btn.textContent = "Adicionar período";
+                    btn.classList.remove("active");
+
+                    feriasFormAberto = false;
+
+                    document.getElementById("setupSalvarFeriasBtn").style.display = "";
+                    document.querySelector(".setup-footer").style.display = "flex";
+
+                    // limpa inputs
+                    document.getElementById("setupFeriasInicio").value = "";
+                    document.getElementById("setupFeriasFim").value = "";
+                });
 
                 // ===== PICKER + SWIPE (UNIFICADO) =====
 
@@ -1140,15 +1343,12 @@ e!doctype html>
                 const listaDiv = document.getElementById("listaFeriados");
                 listaDiv.innerHTML = "";
 
-                const feriadosDoMes = lista
-                    .filter((f) => f.mes === mes)
-                    .sort((a, b) => a.dia - b.dia);
+                const feriadosDoMes = lista.filter((f) => f.mes === mes).sort((a, b) => a.dia - b.dia);
 
                 feriadosDoMes.forEach((f) => {
                     const div = document.createElement("div");
                     div.innerText =
-                        `${String(f.dia).padStart(2, "0")}/` +
-                        `${String(f.mes + 1).padStart(2, "0")} – ${f.nome}`;
+                        `${String(f.dia).padStart(2, "0")}/` + `${String(f.mes + 1).padStart(2, "0")} – ${f.nome}`;
                     listaDiv.appendChild(div);
                 });
             }
@@ -1281,11 +1481,7 @@ e!doctype html>
                         el.classList.add("birthday");
                     }
 
-                    if (
-                        dia === agora.getDate() &&
-                        mes === agora.getMonth() &&
-                        ano === agora.getFullYear()
-                    ) {
+                    if (dia === agora.getDate() && mes === agora.getMonth() && ano === agora.getFullYear()) {
                         el.classList.add("today");
                     }
 
@@ -1520,10 +1716,7 @@ e!doctype html>
                         if (!newWorker) return;
 
                         newWorker.addEventListener("statechange", () => {
-                            if (
-                                newWorker.state === "installed" &&
-                                navigator.serviceWorker.controller
-                            ) {
+                            if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
                                 window.location.reload();
                             }
                         });
@@ -1532,8 +1725,6 @@ e!doctype html>
             }
 
             /* ===== Bottom Sheet v1.4.3 ===== */
-
-            let overlay;
 
             function closePicker() {
                 const overlayEl = overlay || document.getElementById("pickerOverlay");
@@ -1570,91 +1761,54 @@ e!doctype html>
 
                 if (ehFeriado(data, carnaval)) eventos.push("cultural");
 
-                if (
-                    aniversario &&
-                    data.getDate() === aniversario.dia &&
-                    data.getMonth() === aniversario.mes
-                ) {
+                if (aniversario && data.getDate() === aniversario.dia && data.getMonth() === aniversario.mes) {
                     eventos.push("birthday");
                 }
 
                 return eventos;
             }
 
-            document.getElementById("btnFerias").addEventListener("click", function () {
-                const form = document.getElementById("formFerias");
-
-                form.style.display = form.style.display === "none" ? "block" : "none";
-            });
-
-            document.getElementById("salvarFeriasBtn").addEventListener("click", function () {
-                const inicio = document.getElementById("feriasInicio").value;
-                const fim = document.getElementById("feriasFim").value;
-
-                if (!inicio || !fim) {
-                    showToast("Informe as datas.", "error");
-                    return;
-                }
-
-                if (fim < inicio) {
-                    showToast("Data final inválida.", "error");
-                    return;
-                }
-
-                vacations.push({
-                    start: inicio,
-                    end: fim,
-                });
-
-                salvarFerias();
-
-                gerarCalendario(anoAtual, mesAtual);
-
-                renderListaFerias();
-
-                document.getElementById("formFerias").style.display = "none";
-            });
-
             function formatarData(dataISO) {
                 const [ano, mes, dia] = dataISO.split("-");
                 return `${dia}/${mes}/${ano}`;
             }
 
-            function renderListaFerias() {
-                const container = document.getElementById("listaFerias");
+            function renderListaFeriasSetup() {
+                const container = document.getElementById("setupListaFerias");
+                if (!container) return;
+
                 container.innerHTML = "";
 
                 vacations.forEach((v, index) => {
                     const item = document.createElement("div");
-                    item.style.marginBottom = "6px";
+                    item.className = "ferias-item";
 
-                    const texto = document.createTextNode(
-                        formatarData(v.start) + " → " + formatarData(v.end) + " ",
-                    );
+                    const texto = document.createElement("span");
+                    texto.textContent = `${formatarData(v.start)} → ${formatarData(v.end)}`;
+
                     const btn = document.createElement("button");
                     btn.textContent = "Remover";
-                    btn.addEventListener("click", () => removerFerias(index));
+                    btn.className = "btn-remover";
+
+                    btn.onclick = () => {
+                        vacations.splice(index, 1);
+                        salvarFerias();
+                        ativarSalvar();
+                        renderListaFeriasSetup();
+                        gerarCalendario(anoAtual, mesAtual);
+                    };
 
                     item.appendChild(texto);
                     item.appendChild(btn);
+
                     container.appendChild(item);
                 });
-            }
-
-            function removerFerias(index) {
-                vacations.splice(index, 1);
-
-                salvarFerias();
-
-                gerarCalendario(anoAtual, mesAtual);
-
-                renderListaFerias();
             }
 
             function verificarPerfil() {
                 const user = getUser();
 
-                if (!user || !user.profile.name || !user.settings.base_date) {
+                if (!user || !user.profile || !user.settings || !user.settings.base_date) {
                     setTimeout(() => mostrarSetup(), 0);
                 }
             }
@@ -1697,15 +1851,7 @@ e!doctype html>
                 }
 
                 // 📆 DSR
-                const diasSemana = [
-                    "Domingo",
-                    "Segunda",
-                    "Terça",
-                    "Quarta",
-                    "Quinta",
-                    "Sexta",
-                    "Sábado",
-                ];
+                const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
                 const dsr = Number(user.settings.dsr ?? 0);
                 partes.push(`DSR: ${diasSemana[dsr]}`);
@@ -1756,8 +1902,7 @@ e!doctype html>
                 }
 
                 document.getElementById("setupScaleType").value = user.settings.scale_type || "";
-                document.getElementById("setupScalePattern").value =
-                    user.settings.scale_pattern || "";
+                document.getElementById("setupScalePattern").value = user.settings.scale_pattern || "";
 
                 if (!AREAS_WITHOUT_DSR.includes(area)) {
                     document.getElementById("setupDSR").value = String(user.settings.dsr ?? 0);
@@ -1766,11 +1911,7 @@ e!doctype html>
                 // aplica preset
                 //applyAreaPreset(user.profile.area);
 
-                if (
-                    !user.settings.scale_type &&
-                    !user.settings.scale_pattern &&
-                    !userModifiedScale
-                ) {
+                if (!user.settings.scale_type && !user.settings.scale_pattern && !userModifiedScale) {
                     applyAreaPreset(user.profile.area);
                 }
             }
@@ -1799,8 +1940,17 @@ e!doctype html>
 
             function abrirSetup() {
                 preencherSetup();
+
+                renderListaFeriasSetup();
+
                 getSetupModal().style.display = "flex";
                 document.body.style.overflow = "hidden";
+
+                setTimeout(() => {
+                    document.querySelector(".setup-content").scrollTop = 0;
+                }, 0);
+
+                document.getElementById("setupSalvar").disabled = true;
             }
 
             function showToast(message, type = "info") {
@@ -1822,6 +1972,10 @@ e!doctype html>
                     }, 200);
                 }, 2500);
             }
+
+            function ativarSalvar() {
+                document.getElementById("setupSalvar").disabled = false;
+            }
         </script>
 
         <!-- Bottom Sheet Overlay -->
@@ -1831,53 +1985,83 @@ e!doctype html>
 
         <div id="setupModal" class="setup-modal">
             <div class="setup-box">
-                <div class="setup-title">
-                    <img src="icon-256.png" class="setup-icon" style="width: 18px; height: 18px" />
-                    <h3>Configurações</h3>
-                </div>
+                <div class="setup-content">
+                    <div class="setup-title">
+                        <img src="icon-256.png" class="setup-icon" style="width: 18px; height: 18px" />
+                        <h3>Configurações</h3>
+                    </div>
 
-                <div class="setup-section">
-                    <h4>Perfil</h4>
+                    <div class="setup-section">
+                        <h4>Perfil</h4>
 
-                    <label>Nome</label>
-                    <input type="text" id="setupUserName" placeholder="Seu nome" />
+                        <label>Nome</label>
+                        <input type="text" id="setupUserName" placeholder="Seu nome" />
 
-                    <label>Aniversário</label>
-                    <input type="text" id="setupBirthday" placeholder="dd/mm" maxlength="5" />
-                </div>
+                        <label>Aniversário</label>
+                        <input type="text" id="setupBirthday" placeholder="dd/mm" maxlength="5" />
+                    </div>
 
-                <div class="setup-section">
-                    <h4>Escala</h4>
+                    <div class="setup-section">
+                        <h4>Escala</h4>
 
-                    <label>Data base da escala</label>
-                    <input type="date" id="setupBaseDate" />
+                        <label>Data base da escala</label>
+                        <input type="date" id="setupBaseDate" />
 
-                    <label for="areaSelect">Área de atuação</label>
-                    <select id="areaSelect"></select>
+                        <label for="areaSelect">Área de atuação</label>
+                        <select id="areaSelect"></select>
 
-                    <label>Tipo de escala</label>
-                    <input type="text" id="setupScaleType" />
+                        <label>Tipo de escala</label>
+                        <input type="text" id="setupScaleType" />
 
-                    <label>Padrão da escala</label>
-                    <input type="text" id="setupScalePattern" />
-                    <div id="dsrWrapper">
-                        <label>Descanso semanal (DSR)</label>
-                        <select id="setupDSR">
-                            <option value="0">Domingo</option>
-                            <option value="1">Segunda</option>
-                            <option value="2">Terça</option>
-                            <option value="3">Quarta</option>
-                            <option value="4">Quinta</option>
-                            <option value="5">Sexta</option>
-                            <option value="6">Sábado</option>
-                        </select>
+                        <label>Padrão da escala</label>
+                        <input type="text" id="setupScalePattern" />
+                        <div id="dsrWrapper">
+                            <label>Descanso semanal (DSR)</label>
+                            <select id="setupDSR">
+                                <option value="0">Domingo</option>
+                                <option value="1">Segunda</option>
+                                <option value="2">Ter/ça</option>
+                                <option value="3">Quarta</option>
+                                <option value="4">Quinta</option>
+                                <option value="5">Sexta</option>
+                                <option value="6">Sábado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="setup-section">
+                        <h4>Férias</h4>
+
+                        <div id="setupListaFerias"></div>
+
+                        <button id="setupSalvarFeriasBtn">Adicionar período</button>
+
+                        <div id="feriasForm">
+                            <div class="ferias-row">
+                                <div>
+                                    <label>Início</label>
+                                    <input type="date" id="setupFeriasInicio" />
+                                </div>
+
+                                <div>
+                                    <label>Fim</label>
+                                    <input type="date" id="setupFeriasFim" />
+                                </div>
+                            </div>
+
+                            <!-- 👇 COLOCA OS DOIS AQUI -->
+                            <div class="ferias-actions">
+                                <button id="btnConfirmarFerias" type="button">Confirmar</button>
+                                <button id="btnCancelarFerias" type="button">Cancelar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <br /><br />
-
-                <button id="setupSalvar">Salvar</button>
-                <button id="setupFechar">Fechar</button>
+                <div class="setup-footer">
+                    <button id="setupSalvar" disabled>Salvar</button>
+                    <button id="setupFechar">Fechar</button>
+                </div>
             </div>
         </div>
     </body>

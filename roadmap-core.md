@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.8.5
-Base: v1.8.2
+Status: 🟢 v1.8.5-1
+Base: v1.8.5
 Branch: main
 
 ---
@@ -623,25 +623,47 @@ sem alterar regras de negócio.
 # 🗺️ CycleCal — v1.8.5
 
 ## 🧩 Tela (base)
-- [ ] Melhorar estrutura da tela de setup
-- [ ] Organizar blocos visuais
-- [ ] Ajustar hierarquia visual
-
----
-
-## 🌴 Férias no setup
-- [ ] Mover lógica de férias para dentro do setup
-- [ ] Garantir persistência correta
-- [ ] Validar integração com estado global
+- [x] Melhorar estrutura da tela de setup
+- [x] Organizar blocos visuais
+- [x] Ajustar hierarquia visual
 
 ---
 
 ## 💬 Feedback ao usuário
-- [ ] Substituir `alert()` por feedback visual
-- [ ] Criar padrão:
-  showFeedback(message, type)
-- [ ] Melhorar mensagens de validação
-- [ ] Garantir feedback não intrusivo
+- [x] Substituir `alert()` por feedback visual
+- [x] Criar padrão:
+  showToast(message, type)
+- [x] Melhorar mensagens de validação
+- [x] Garantir feedback não intrusivo
+
+---
+
+## 🌴 Férias no setup (1.8.5.1)
+
+- [x] Mover lógica de férias para dentro do setup
+- [x] Garantir persistência correta
+- [x] Validar integração com estado global
+- [x] Mostrar inputs (início/fim) apenas ao clicar em "Adicionar período"
+- [x] Exibir períodos cadastrados no topo da seção
+- [x] Layout horizontal para inputs de data (início/fim lado a lado)
+- [x] Esconder botões principais (Salvar / Fechar) durante edição
+- [x] Restaurar estado após confirmar/cancelar
+- [x] Scroll automático ao abrir formulário
+- [x] Corrigir posição inicial do scroll (topo ao abrir setup)
+- [x] Separar área scrollável (`setup-content`) do footer
+- [x] Fixar footer (Salvar / Fechar) no rodapé
+- [x] Garantir consistência visual e fluxo de interação
+
+---
+
+## 💾 Controle de alterações (UX) (1.8.5.1)
+
+- [x] Desabilitar botão "Salvar" por padrão
+- [x] Habilitar apenas quando houver modificação
+- [x] Detectar alterações em inputs e selects
+- [x] Detectar alterações em férias (adicionar/remover)
+- [x] Resetar estado ao abrir setup
+- [x] Evitar listeners duplicados
 
 ---
 
@@ -651,14 +673,6 @@ sem alterar regras de negócio.
 - [ ] Tratar entradas incompletas (ex: 1/, 12/)
 - [ ] Normalizar formato interno (ex: DD/MM)
 - [ ] Evitar reprocessamento desnecessário
-
----
-
-## 🎨 Interface
-- [ ] Melhorar layout do formulário de férias
-- [ ] Melhorar visual da lista de períodos de férias
-- [ ] Padronizar inputs (mesmo estilo visual)
-- [ ] Ajustar espaçamento e alinhamento geral
 
 ---
 
