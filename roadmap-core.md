@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.8.5-1
-Base: v1.8.5
+Status: 🟢 v1.8.5.2
+Base: v1.8.5.1
 Branch: main
 
 ---
@@ -667,20 +667,20 @@ sem alterar regras de negócio.
 
 ---
 
-## 🎂 Aniversário (input)
-- [ ] Validar datas inválidas (ex: 31/02)
-- [ ] Implementar auto zero (1 → 01)
-- [ ] Tratar entradas incompletas (ex: 1/, 12/)
-- [ ] Normalizar formato interno (ex: DD/MM)
-- [ ] Evitar reprocessamento desnecessário
+## 🎂 Aniversário (input) (1.8.5.2)
+- [x] Validar datas inválidas (ex: 31/02)
+- [x] Implementar auto zero (1 → 01)
+- [x] Tratar entradas incompletas (ex: 1/, 12/)
+- [x] Normalizar formato interno (ex: DD/MM)
+- [x] Evitar reprocessamento desnecessário
 
 ---
 
 ## 🧠 Consistência
-- [ ] Evitar estados inconsistentes no setup
-- [ ] Garantir sincronização entre estado interno e UI
-- [ ] Revisar fluxo de atualização
-- [ ] Garantir previsibilidade após alterações
+- [x] Evitar estados inconsistentes no setup
+- [x] Garantir sincronização entre estado interno e UI
+- [x] Revisar fluxo de atualização
+- [x] Garantir previsibilidade após alterações
 
 ---
 

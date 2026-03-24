@@ -10,7 +10,7 @@
 
         <link rel="icon" href="icon-256.png" type="image/png" />
 
-        <!-- Versão 1.8.5.1 -->
+        <!-- Versão 1.8.5.2 -->
 
         <style>
             :root {
@@ -657,7 +657,7 @@
                     <div class="title-group">
                         <div class="title-line">
                             <h1>CycleCal</h1>
-                            <span class="version">v1.8.5.1</span>
+                            <span class="version">v1.8.5.2</span>
                         </div>
 
                         <div id="userGreeting"></div>
@@ -925,6 +925,7 @@
                 verificarPerfil();
                 atualizarSaudacao();
                 atualizarFooterBase();
+                agendarAtualizacaoDiaria();
 
                 // 🔥 ATIVA SALVAR AO MODIFICAR
                 document.getElementById("setupUserName").addEventListener("input", ativarSalvar);
@@ -1026,9 +1027,22 @@
                     if (birthdayInput && birthdayInput.includes("/")) {
                         const [d, m] = birthdayInput.split("/");
 
-                        if (d && m) {
-                            birthday = `2000-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+                        if (!d || !m) {
+                            showToast("Data incompleta.", "error");
+                            return;
                         }
+
+                        if (!isValidDate(d, m)) {
+                            showToast("Data de aniversário inválida.", "error");
+                            return;
+                        }
+
+                        const dPad = d.padStart(2, "0");
+                        const mPad = m.padStart(2, "0");
+
+                        document.getElementById("setupBirthday").value = `${dPad}/${mPad}`;
+
+                        birthday = `2000-${mPad}-${dPad}`;
                     }
 
                     if (!userName) {
@@ -1055,17 +1069,9 @@
 
                     user.settings.dsr = Number(document.getElementById("setupDSR").value);
 
-                    saveUser(user);
+                    aplicarSetup(user);
 
                     showToast("Salvo com sucesso!", "success");
-
-                    atualizarSaudacao();
-
-                    atualizarFooterBase();
-
-                    baseFolgaDomingo = getBaseDate();
-
-                    gerarCalendario(anoAtual, mesAtual);
 
                     getSetupModal().style.display = "none";
                     document.body.style.overflow = "";
@@ -1976,6 +1982,40 @@
             function ativarSalvar() {
                 document.getElementById("setupSalvar").disabled = false;
             }
+
+            function agendarAtualizacaoDiaria() {
+                const agora = new Date();
+
+                const proximaMeiaNoite = new Date();
+                proximaMeiaNoite.setHours(24, 0, 0, 0);
+
+                const msAteMeiaNoite = proximaMeiaNoite - agora;
+
+                setTimeout(() => {
+                    location.reload(); // simples e confiável
+                }, msAteMeiaNoite);
+            }
+
+            function isValidDate(day, month) {
+                const d = Number(day);
+                const m = Number(month);
+
+                if (m < 1 || m > 12) return false;
+                if (d < 1) return false;
+
+                const daysInMonth = new Date(2024, m, 0).getDate(); // ano fixo evita leap issues
+                return d <= daysInMonth;
+            }
+
+	    function aplicarSetup(user) {
+    saveUser(user);
+
+    baseFolgaDomingo = getBaseDate();
+
+    atualizarSaudacao();
+    atualizarFooterBase();
+    gerarCalendario(anoAtual, mesAtual);
+}
         </script>
 
         <!-- Bottom Sheet Overlay -->
