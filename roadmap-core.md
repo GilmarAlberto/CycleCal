@@ -697,8 +697,8 @@ sem alterar regras de negócio.
 ---
 
 ## 🚀 Critério de Conclusão (1.8.5.3)
-- [ ] Interface consistente e padronizada
-- [ ] Feedback claro e não intrusivo
-- [ ] Inputs robustos e confiáveis
-- [ ] Estado previsível
-- [ ] Melhor percepção geral de qualidade
+- [x] Interface consistente e padronizada
+- [x] Feedback claro e não intrusivo
+- [x] Inputs robustos e confiáveis
+- [x] Estado previsível
+- [x] Melhor percepção geral de qualidade

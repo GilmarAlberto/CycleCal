@@ -853,8 +853,8 @@
                 const user = getUser();
                 user.settings.scale_type = preset.scale_type;
                 user.settings.scale_pattern = preset.scale_pattern;
-                saveUser(user);
-                showToast("Salvo com sucesso!", "success");
+                //saveUser(user);
+                //showToast("Salvo com sucesso!", "success");
 
                 isApplyingPreset = false;
             }
@@ -977,7 +977,7 @@
                     const oldArea = user.profile.area;
                     const newArea = e.target.value;
                     user.profile.area = newArea;
-                    saveUser(user);
+                    //saveUser(user);
 
                     //userModifiedScale = false;
                     if (oldArea !== newArea) {
@@ -1036,6 +1036,8 @@
                 };
 
                 document.getElementById("setupFechar").onclick = function () {
+                    preencherSetup(); // 🔥 garante reset total
+
                     getSetupModal().style.display = "none";
                     document.body.style.overflow = "";
                 };
@@ -1723,14 +1725,15 @@
                         e.preventDefault();
                         irParaHoje();
                         break;
+
                     case "Escape":
                         const modal = getSetupModal();
 
                         if (modal && modal.style.display === "flex") {
+                            preencherSetup(); // 🔥 faltando aqui
                             modal.style.display = "none";
                             document.body.style.overflow = "";
                         }
-
                         break;
                 }
             });
@@ -2166,7 +2169,7 @@
 
                             <!-- 👇 COLOCA OS DOIS AQUI -->
                             <div class="ferias-actions">
-                                <button id="btnConfirmarFerias" type="button">Confirmar</button>
+                                <button id="btnConfirmarFerias" type="button">Confirmar</button>:
                                 <button id="btnCancelarFerias" type="button">Cancelar</button>
                             </div>
                         </div>
@@ -2175,7 +2178,7 @@
 
                 <div class="setup-footer">
                     <button id="setupSalvar" disabled>Salvar</button>
-                    <button id="setupFechar">Fechar</button>
+                    <button id="setupFechar">Cancelar</button>
                 </div>
             </div>
         </div>
