@@ -3,7 +3,7 @@
 // ==============================
 
 // 🔁 ATUALIZE A CADA RELEASE
-const CACHE_NAME = "cyclecal-v1.8.5.2";
+const CACHE_NAME = "cyclecal-v1.8.5.3";
 
 // Arquivos essenciais
 const ASSETS = [

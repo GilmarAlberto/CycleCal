@@ -10,7 +10,7 @@
 
         <link rel="icon" href="icon-256.png" type="image/png" />
 
-        <!-- Versão 1.8.5.2 -->
+        <!-- Versão 1.8.5.3 -->
 
         <style>
             :root {
@@ -657,7 +657,7 @@
                     <div class="title-group">
                         <div class="title-line">
                             <h1>CycleCal</h1>
-                            <span class="version">v1.8.5.2</span>
+                            <span class="version">v1.8.5.3</span>
                         </div>
 
                         <div id="userGreeting"></div>
@@ -729,6 +729,29 @@
             };
 
             const AREAS_WITHOUT_DSR = ["seguranca", "hospital"];
+
+            const AREA_CONFIG = {
+                seguranca: {
+                    trabalho: "Bom plantão 👮‍♂️",
+                    folga: "Bom descanso",
+                    escala: "Plantão",
+                    folgaLabel: "Descanso",
+                },
+                hospital: {
+                    trabalho: "Bom plantão 🏥",
+                    folga: "Bom descanso",
+                    escala: "Plantão",
+                    folgaLabel: "Descanso",
+                },
+                supermercado: {
+                    trabalho: "Bom turno",
+                    folga: "Boa folga",
+                    escala: "Turno",
+                    folgaLabel: "Folga",
+                },
+                industria: {},
+                outros: {},
+            };
 
             const mesesAbreviados = [
                 "JAN",
@@ -925,6 +948,7 @@
                 verificarPerfil();
                 atualizarSaudacao();
                 atualizarFooterBase();
+                atualizarInfoEscala();
                 agendarAtualizacaoDiaria();
 
                 // 🔥 ATIVA SALVAR AO MODIFICAR
@@ -1825,6 +1849,9 @@
 
                 if (!user.profile.name) return;
 
+                const area = normalizeArea(user.profile.area);
+                const config = getAreaConfig(area);
+
                 const hoje = new Date();
 
                 let isAniversario = false;
@@ -1840,7 +1867,12 @@
                 if (isAniversario) {
                     el.innerText = `Feliz Aniversário, ${user.profile.name}! 🎂`;
                 } else {
-                    el.innerText = `Olá ${user.profile.name}`;
+                    const isFolgaHoje = ehFolga(hoje);
+                    const tipoDia = isFolgaHoje ? "folga" : "trabalho";
+
+                    const mensagem = config[tipoDia].toLowerCase();
+
+                    el.innerText = `Olá ${user.profile.name}, ${mensagem}!`;
                 }
             }
 
@@ -2007,15 +2039,58 @@
                 return d <= daysInMonth;
             }
 
-	    function aplicarSetup(user) {
-    saveUser(user);
+            function aplicarSetup(user) {
+                saveUser(user);
 
-    baseFolgaDomingo = getBaseDate();
+                baseFolgaDomingo = getBaseDate();
 
-    atualizarSaudacao();
-    atualizarFooterBase();
-    gerarCalendario(anoAtual, mesAtual);
-}
+                atualizarSaudacao();
+                atualizarFooterBase();
+                gerarCalendario(anoAtual, mesAtual);
+            }
+
+            function getAreaConfig(area) {
+                const base = {
+                    trabalho: "Bom turno",
+                    folga: "Bom descanso",
+                    escala: "Turno",
+                    folgaLabel: "Descanso",
+                };
+
+                return {
+                    ...base,
+                    ...(AREA_CONFIG[area] || {}),
+                };
+            }
+
+            function normalizeArea(area) {
+                const valid = ["seguranca", "hospital", "supermercado", "industria", "outros"];
+
+                if (!valid.includes(area)) {
+                    return "outros";
+                }
+
+                return area;
+            }
+
+            function atualizarInfoEscala() {
+                const el = document.getElementById("infoEscala");
+                const user = getUser();
+
+                const area = normalizeArea(user.profile.area);
+                const config = getAreaConfig(area);
+
+                if (!user.settings.scale_pattern) {
+                    el.innerText = "";
+                    return;
+                }
+
+                const hoje = new Date();
+                const isFolgaHoje = ehFolga(hoje);
+                const status = isFolgaHoje ? config.folgaLabel : config.escala;
+
+                el.innerText = `${config.escala}: ${user.settings.scale_pattern} • Hoje: ${status}`;
+            }
         </script>
 
         <!-- Bottom Sheet Overlay -->

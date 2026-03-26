@@ -1,7 +1,7 @@
 # CycleCal
 
-Status: 🟢 v1.8.5.2
-Base: v1.8.5.1
+Status: 🟢 v1.8.5.3
+Base: v1.8.5.2
 Branch: main
 
 ---
@@ -676,7 +676,7 @@ sem alterar regras de negócio.
 
 ---
 
-## 🧠 Consistência
+## 🧠 Consistência (1.8.5.2)
 - [x] Evitar estados inconsistentes no setup
 - [x] Garantir sincronização entre estado interno e UI
 - [x] Revisar fluxo de atualização
@@ -684,19 +684,19 @@ sem alterar regras de negócio.
 
 ---
 
-## 🏷️ Personalização por área
+## 🏷️ Personalização por área (1.8.5.3)
 - [ ] Exibir mensagens por área:
   - Segurança → "Bom plantão 👮‍♂️"
   - Saúde → "Força no plantão 🏥"
   - Outros → padrão
 
-- [ ] Ajustar nomenclaturas:
+- [ ] Ajustar nomenclaturas: (1.8.5.3)
   - "Escala" → "Plantão" / "Turno"
   - "Folga" → "Descanso"
 
 ---
 
-## 🚀 Critério de Conclusão
+## 🚀 Critério de Conclusão (1.8.5.3)
 - [ ] Interface consistente e padronizada
 - [ ] Feedback claro e não intrusivo
 - [ ] Inputs robustos e confiáveis
