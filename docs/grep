@@ -1,6 +1,0 @@
-496:            let userModifiedScale = false;
-559:                if (userModifiedScale) return;
-671:                    userModifiedScale = false; // 🔥 ESSENCIAL
-676:                    userModifiedScale = true;
-680:                    userModifiedScale = true;
-714:                    userModifiedScale = false;

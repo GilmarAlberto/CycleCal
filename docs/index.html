@@ -10,7 +10,7 @@
 
         <link rel="icon" href="icon-256.png" type="image/png" />
 
-        <!-- Versão 1.8.5.3 -->
+        <!-- Versão 1.9.0 -->
 
         <style>
             :root {
@@ -657,7 +657,7 @@
                     <div class="title-group">
                         <div class="title-line">
                             <h1>CycleCal</h1>
-                            <span class="version">v1.8.5.3</span>
+                            <span class="version">v1.9.0</span>
                         </div>
 
                         <div id="userGreeting"></div>
@@ -699,6 +699,8 @@
                 <div class="holidays" id="listaFeriados"></div>
             </div>
         </div>
+
+        <script src="js/calendario.js" defer></script>
 
         <script>
             const AREAS = [
@@ -744,7 +746,7 @@
                     folgaLabel: "Descanso",
                 },
                 supermercado: {
-                    trabalho: "Bom turno",
+                    trabalho: "Bom trabalho",
                     folga: "Boa folga",
                     escala: "Turno",
                     folgaLabel: "Folga",
@@ -1357,20 +1359,6 @@
 
             const prioridadeEventos = ["vacation", "folga", "holiday", "cultural", "birthday"];
 
-            function resolverEvento(eventos) {
-                for (const tipo of prioridadeEventos) {
-                    if (eventos.includes(tipo)) {
-                        return tipo;
-                    }
-                }
-
-                return null;
-            }
-
-            function ehFeriado(data, lista) {
-                return lista.find((f) => f.dia === data.getDate() && f.mes === data.getMonth());
-            }
-
             function listarFeriadosDoMes(ano, mes, lista) {
                 const listaDiv = document.getElementById("listaFeriados");
                 listaDiv.innerHTML = "";
@@ -1383,46 +1371,6 @@
                         `${String(f.dia).padStart(2, "0")}/` + `${String(f.mes + 1).padStart(2, "0")} – ${f.nome}`;
                     listaDiv.appendChild(div);
                 });
-            }
-
-            function ehFolga(data) {
-                const user = getUser();
-                const dsr = Number(user.settings.dsr || 0);
-                const area = user.profile.area;
-
-                // 🚫 ignora DSR para essas áreas
-                if (!AREAS_WITHOUT_DSR.includes(area)) {
-                    if (data.getDay() === dsr) return true;
-                }
-
-                // 🔁 ciclo de domingo (mantido)
-                if (data.getDay() === 0) {
-                    const diff = Math.floor(
-                        (Date.UTC(data.getFullYear(), data.getMonth(), data.getDate()) -
-                            Date.UTC(
-                                baseFolgaDomingo.getFullYear(),
-                                baseFolgaDomingo.getMonth(),
-                                baseFolgaDomingo.getDate(),
-                            )) /
-                            86400000,
-                    );
-
-                    const semanas = Math.floor(diff / 7);
-                    return semanas % 3 === 0;
-                }
-
-                return false;
-            }
-
-            function ehFerias(data) {
-                const dateStr =
-                    data.getFullYear() +
-                    "-" +
-                    String(data.getMonth() + 1).padStart(2, "0") +
-                    "-" +
-                    String(data.getDate()).padStart(2, "0");
-
-                return vacations.some((v) => dateStr >= v.start && dateStr <= v.end);
             }
 
             function gerarCalendario(ano, mes) {
@@ -1501,9 +1449,9 @@
                     span.innerText = dia;
                     el.appendChild(span);
 
-                    const eventos = eventosDoDia(data, todosFeriados, carnaval, aniversario);
+                    const eventos = Calendario.eventosDoDia(data, todosFeriados, carnaval, aniversario);
 
-                    const principal = resolverEvento(eventos);
+                    const principal = Calendario.resolverEvento(eventos);
 
                     if (principal) {
                         el.classList.add(principal);
@@ -1757,14 +1705,12 @@
                 });
             }
 
-            /* ===== Bottom Sheet v1.4.3 ===== */
-
             function closePicker() {
-                const overlayEl = overlay || document.getElementById("pickerOverlay");
+                const overlayEl = document.getElementById("pickerOverlay");
                 if (!overlayEl) return;
+
                 overlayEl.classList.remove("active");
 
-                // 🔥 fallback garantido
                 setTimeout(() => {
                     overlayEl.hidden = true;
                 }, 250);
@@ -1781,24 +1727,6 @@
                 }
 
                 return { dia, mes };
-            }
-
-            function eventosDoDia(data, todosFeriados, carnaval, aniversario) {
-                const eventos = [];
-
-                if (ehFolga(data)) eventos.push("folga");
-
-                if (ehFerias(data)) eventos.push("vacation");
-
-                if (ehFeriado(data, todosFeriados)) eventos.push("holiday");
-
-                if (ehFeriado(data, carnaval)) eventos.push("cultural");
-
-                if (aniversario && data.getDate() === aniversario.dia && data.getMonth() === aniversario.mes) {
-                    eventos.push("birthday");
-                }
-
-                return eventos;
             }
 
             function formatarData(dataISO) {
@@ -1870,7 +1798,7 @@
                 if (isAniversario) {
                     el.innerText = `Feliz Aniversário, ${user.profile.name}! 🎂`;
                 } else {
-                    const isFolgaHoje = ehFolga(hoje);
+                    const isFolgaHoje = Calendario.ehFolga(hoje);
                     const tipoDia = isFolgaHoje ? "folga" : "trabalho";
 
                     const mensagem = config[tipoDia].toLowerCase();
@@ -2054,7 +1982,7 @@
 
             function getAreaConfig(area) {
                 const base = {
-                    trabalho: "Bom turno",
+                    trabalho: "Bom trabalho",
                     folga: "Bom descanso",
                     escala: "Turno",
                     folgaLabel: "Descanso",
@@ -2089,7 +2017,7 @@
                 }
 
                 const hoje = new Date();
-                const isFolgaHoje = ehFolga(hoje);
+                const isFolgaHoje = Calendario.ehFolga(hoje);
                 const status = isFolgaHoje ? config.folgaLabel : config.escala;
 
                 el.innerText = `${config.escala}: ${user.settings.scale_pattern} • Hoje: ${status}`;
@@ -2169,7 +2097,7 @@
 
                             <!-- 👇 COLOCA OS DOIS AQUI -->
                             <div class="ferias-actions">
-                                <button id="btnConfirmarFerias" type="button">Confirmar</button>:
+                                <button id="btnConfirmarFerias" type="button">Confirmar</button>
                                 <button id="btnCancelarFerias" type="button">Cancelar</button>
                             </div>
                         </div>

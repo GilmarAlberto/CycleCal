@@ -1,7 +1,8 @@
 # CycleCal — Infraestrutura da Plataforma
 
-Status: 🔮 Planejamento
-Compatível com: v1.x → v4.x
+
+Status: 🟢 v1.9.0
+Base: 🔮 Planejamento
 Branch: main
 
 # Papel deste documento
@@ -18,7 +19,7 @@ v4.x — Saúde
 
 ---
 
-# 🧩 Modularização do Frontend (v1.8.x)
+# 🧩 Modularização do Frontend (v1.9.x)
 
 Objetivo:  
 Reduzir complexidade do `index.html` e preparar o CycleCal
@@ -77,7 +78,7 @@ Garantir que o CycleCal tenha uma base técnica escalável.
 
 ## Estrutura
 
-- [ ] v1.9.0 — Separar motor de regras do calendário
+- [x] v1.9.0 — Separar motor de regras do calendário
 - [ ] v1.9.1 — Criar objeto central `config`
 - [ ] v1.9.2 — Implementar sistema de camadas (layers)
 - [ ] v1.9.3 — Definir modelo de dados baseado em parâmetros
