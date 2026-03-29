@@ -11,8 +11,6 @@
         <link rel="icon" href="icon-256.png" type="image/png" />
 
         <link rel="stylesheet" href="css/styles.css" />
-
-        <!-- Versão 1.9.1 -->
     </head>
 
     <body>
@@ -24,7 +22,7 @@
                     <div class="title-group">
                         <div class="title-line">
                             <h1>CycleCal</h1>
-                            <span class="version">v1.9.1 </span>
+                            <span id="app-version" class="version"></span>
                         </div>
 
                         <div id="userGreeting"></div>
@@ -68,1161 +66,1171 @@
         </div>
 
         <script>
-                        const mesesAbreviados = [
-                            "JAN",
-                            "FEV",
-                            "MAR",
-                            "ABR",
-                            "MAI",
-                            "JUN",
-                            "JUL",
-                            "AGO",
-                            "SET",
-                            "OUT",
-                            "NOV",
-                            "DEZ",
-                        ];
+            const config = {
+                appName: "CycleCal",
+                version: "1.9.2",
+                debug: false,
+            };
 
-                        let anoAtual;
-                        let mesAtual;
-                        let yearBlockStart;
-                        let vacations = [];
-                        let userModifiedScale = false;
-                        let isApplyingPreset = false;
-                        let feriasFormAberto = false;
+            const mesesAbreviados = [
+                "JAN",
+                "FEV",
+                "MAR",
+                "ABR",
+                "MAI",
+                "JUN",
+                "JUL",
+                "AGO",
+                "SET",
+                "OUT",
+                "NOV",
+                "DEZ",
+            ];
 
-                        function getSetupModal() {
-                            return document.getElementById("setupModal");
+            let anoAtual;
+            let mesAtual;
+            let yearBlockStart;
+            let vacations = [];
+            let userModifiedScale = false;
+            let isApplyingPreset = false;
+            let feriasFormAberto = false;
+
+            document.addEventListener("DOMContentLoaded", () => {
+                document.getElementById("app-version").textContent = `v${config.version}`;
+            });
+
+            function getSetupModal() {
+                return document.getElementById("setupModal");
+            }
+
+            function initUser() {
+                const stored = localStorage.getItem("cyclecal_user");
+
+                if (!stored) {
+                    const user = {
+                        version: 1,
+                        updated_at: "",
+                        profile: {
+                            user_id: crypto.randomUUID(),
+                            name: "",
+                            area: "",
+                            birthday: "",
+                            created_at: new Date().toISOString(),
+                        },
+                        settings: {
+                            base_date: "",
+                            scale_type: "",
+                            scale_pattern: "",
+                            dsr: 0,
+                        },
+                        vacations: [],
+                    };
+
+                    localStorage.setItem("cyclecal_user", JSON.stringify(user));
+                }
+            }
+
+            function getUser() {
+                try {
+                    return JSON.parse(localStorage.getItem("cyclecal_user"));
+                } catch {
+                    return null;
+                }
+            }
+
+            function saveUser(user) {
+                user.updated_at = new Date().toISOString();
+                localStorage.setItem("cyclecal_user", JSON.stringify(user));
+            }
+
+            function renderAreaSelect() {
+                const select = document.getElementById("areaSelect");
+
+                if (!select) return;
+
+                select.innerHTML = "";
+
+                AREAS.forEach((area) => {
+                    const option = document.createElement("option");
+                    option.value = area.value;
+                    option.textContent = area.label;
+                    select.appendChild(option);
+                });
+
+                const user = getUser();
+                select.value = user.profile.area || "outros";
+            }
+
+            function applyAreaPreset(area) {
+                if (userModifiedScale) return;
+
+                const preset = AREA_PRESETS[area];
+                if (!preset) return;
+
+                isApplyingPreset = true;
+
+                document.getElementById("setupScaleType").value = preset.scale_type;
+                document.getElementById("setupScalePattern").value = preset.scale_pattern;
+
+                // 🔥 SALVAR NO USER
+                const user = getUser();
+                user.settings.scale_type = preset.scale_type;
+                user.settings.scale_pattern = preset.scale_pattern;
+                //saveUser(user);
+                //showToast("Salvo com sucesso!", "success");
+
+                isApplyingPreset = false;
+            }
+
+            function getBaseDate() {
+                const user = getUser();
+
+                if (user.settings.base_date) {
+                    return new Date(user.settings.base_date);
+                }
+
+                // fallback padrão atual
+                return new Date(2026, 1, 15);
+            }
+
+            function setBaseDate(dateStr) {
+                const user = getUser();
+
+                user.settings.base_date = dateStr;
+
+                saveUser(user);
+
+                baseFolgaDomingo = new Date(dateStr);
+
+                gerarCalendario(anoAtual, mesAtual);
+            }
+
+            function alterarBaseDate() {
+                const novaData = prompt("Informe a nova data base (AAAA-MM-DD):");
+
+                if (!novaData) return;
+
+                setBaseDate(novaData);
+            }
+
+            function setScaleType(type) {
+                const user = getUser();
+
+                user.settings.scale_type = type;
+
+                saveUser(user);
+            }
+
+            function alterarTipoEscala() {
+                const tipo = prompt("Tipo de escala (ex: semanal, plantao)");
+
+                if (!tipo) return;
+
+                setScaleType(tipo);
+            }
+
+            function setScalePattern(pattern) {
+                const user = getUser();
+
+                user.settings.scale_pattern = pattern;
+
+                saveUser(user);
+            }
+
+            function alterarPadraoEscala() {
+                const pattern = prompt("Padrão da escala (ex: 7, 5x1, 12x36)");
+
+                if (!pattern) return;
+
+                setScalePattern(pattern);
+            }
+
+            function salvarFerias() {
+                const user = getUser();
+                user.vacations = vacations;
+                saveUser(user);
+            }
+
+            function carregarFerias() {
+                const user = getUser();
+
+                if (!user) {
+                    vacations = [];
+                    return;
+                }
+
+                vacations = user.vacations || [];
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                initUser();
+
+                baseFolgaDomingo = getBaseDate();
+
+                carregarFerias();
+
+                preencherSetup();
+                verificarPerfil();
+                atualizarSaudacao();
+                atualizarFooterBase();
+                atualizarInfoEscala();
+                agendarAtualizacaoDiaria();
+
+                // 🔥 ATIVA SALVAR AO MODIFICAR
+                document.getElementById("setupUserName").addEventListener("input", ativarSalvar);
+                document.getElementById("setupBirthday").addEventListener("input", ativarSalvar);
+                document.getElementById("setupBaseDate").addEventListener("input", ativarSalvar);
+                document.getElementById("setupScaleType").addEventListener("input", ativarSalvar);
+                document.getElementById("setupScalePattern").addEventListener("input", ativarSalvar);
+
+                document.getElementById("areaSelect").addEventListener("change", ativarSalvar);
+                document.getElementById("setupDSR").addEventListener("change", ativarSalvar);
+
+                const user = getUser();
+
+                if (!user.profile.area) {
+                    user.profile.area = "outros";
+                    saveUser(user);
+                }
+
+                renderAreaSelect();
+
+                const areaSelect = document.getElementById("areaSelect");
+
+                areaSelect.addEventListener("change", (e) => {
+                    const user = getUser();
+                    const oldArea = user.profile.area;
+                    const newArea = e.target.value;
+                    user.profile.area = newArea;
+                    //saveUser(user);
+
+                    //userModifiedScale = false;
+                    if (oldArea !== newArea) {
+                        userModifiedScale = false;
+                        applyAreaPreset(e.target.value);
+                    }
+
+                    const dsrField = document.getElementById("dsrWrapper");
+
+                    if (AREAS_WITHOUT_DSR.includes(e.target.value)) {
+                        dsrField.style.display = "none";
+                        document.getElementById("setupDSR").value = "0";
+                    } else {
+                        dsrField.style.display = "";
+                    }
+                });
+
+                document.getElementById("setupScaleType").addEventListener("input", () => {
+                    if (isApplyingPreset) return;
+                    userModifiedScale = true;
+                });
+
+                document.getElementById("setupScalePattern").addEventListener("input", () => {
+                    if (isApplyingPreset) return;
+                    userModifiedScale = true;
+                });
+
+                const birthdayInput = document.getElementById("setupBirthday");
+
+                if (birthdayInput) {
+                    birthdayInput.addEventListener("input", function (e) {
+                        let v = e.target.value.replace(/\D/g, "");
+
+                        if (v.length > 4) v = v.slice(0, 4);
+
+                        if (v.length >= 3) {
+                            v = v.slice(0, 2) + "/" + v.slice(2);
                         }
 
-                        function initUser() {
-                            const stored = localStorage.getItem("cyclecal_user");
+                        e.target.value = v;
+                    });
+                }
 
-                            if (!stored) {
-                                const user = {
-                                    version: 1,
-                                    updated_at: "",
-                                    profile: {
-                                        user_id: crypto.randomUUID(),
-                                        name: "",
-                                        area: "",
-                                        birthday: "",
-                                        created_at: new Date().toISOString(),
-                                    },
-                                    settings: {
-                                        base_date: "",
-                                        scale_type: "",
-                                        scale_pattern: "",
-                                        dsr: 0,
-                                    },
-                                    vacations: [],
-                                };
+                baseFolgaDomingo = getBaseDate();
 
-                                localStorage.setItem("cyclecal_user", JSON.stringify(user));
-                            }
+                const hoje = new Date();
+                anoAtual = hoje.getFullYear();
+                mesAtual = hoje.getMonth();
+
+                gerarCalendario(anoAtual, mesAtual);
+                document.getElementById("btnHoje").innerText = hoje.getDate();
+
+                document.getElementById("btnSetup").onclick = function () {
+                    //userModifiedScale = false;
+                    mostrarSetup();
+                };
+
+                document.getElementById("setupFechar").onclick = function () {
+                    preencherSetup(); // 🔥 garante reset total
+
+                    getSetupModal().style.display = "none";
+                    document.body.style.overflow = "";
+                };
+
+                document.getElementById("setupSalvar").onclick = function () {
+                    const baseDate = document.getElementById("setupBaseDate").value;
+                    const userName = document.getElementById("setupUserName").value;
+
+                    const birthdayInput = document.getElementById("setupBirthday").value;
+
+                    let birthday = "";
+
+                    if (birthdayInput && birthdayInput.includes("/")) {
+                        const [d, m] = birthdayInput.split("/");
+
+                        if (!d || !m) {
+                            showToast("Data incompleta.", "error");
+                            return;
                         }
 
-                        function getUser() {
-                            try {
-                                return JSON.parse(localStorage.getItem("cyclecal_user"));
-                            } catch {
-                                return null;
-                            }
+                        if (!isValidDate(d, m)) {
+                            showToast("Data de aniversário inválida.", "error");
+                            return;
                         }
 
-                        function saveUser(user) {
-                            user.updated_at = new Date().toISOString();
-                            localStorage.setItem("cyclecal_user", JSON.stringify(user));
-                        }
+                        const dPad = d.padStart(2, "0");
+                        const mPad = m.padStart(2, "0");
 
-                        function renderAreaSelect() {
-                            const select = document.getElementById("areaSelect");
+                        document.getElementById("setupBirthday").value = `${dPad}/${mPad}`;
 
-                            if (!select) return;
+                        birthday = `2000-${mPad}-${dPad}`;
+                    }
 
-                            select.innerHTML = "";
+                    if (!userName) {
+                        showToast("Como deseja ser chamado?", "error");
+                        return;
+                    }
 
-                            AREAS.forEach((area) => {
-                                const option = document.createElement("option");
-                                option.value = area.value;
-                                option.textContent = area.label;
-                                select.appendChild(option);
-                            });
+                    if (!baseDate) {
+                        showToast("Informe a data base da escala.", "error");
+                        return;
+                    }
 
-                            const user = getUser();
-                            select.value = user.profile.area || "outros";
-                        }
+                    const user = getUser();
+                    user.profile.name = userName;
+                    user.profile.birthday = birthday;
 
-                        function applyAreaPreset(area) {
-                            if (userModifiedScale) return;
+                    user.profile.area = document.getElementById("areaSelect").value || "outros";
 
-                            const preset = AREA_PRESETS[area];
-                            if (!preset) return;
+                    user.settings.base_date = baseDate;
 
-                            isApplyingPreset = true;
+                    user.settings.scale_type = document.getElementById("setupScaleType").value;
 
-                            document.getElementById("setupScaleType").value = preset.scale_type;
-                            document.getElementById("setupScalePattern").value = preset.scale_pattern;
+                    user.settings.scale_pattern = document.getElementById("setupScalePattern").value;
 
-                            // 🔥 SALVAR NO USER
-                            const user = getUser();
-                            user.settings.scale_type = preset.scale_type;
-                            user.settings.scale_pattern = preset.scale_pattern;
-                            //saveUser(user);
-                            //showToast("Salvo com sucesso!", "success");
+                    user.settings.dsr = Number(document.getElementById("setupDSR").value);
 
-                            isApplyingPreset = false;
-                        }
+                    aplicarSetup(user);
 
-                        function getBaseDate() {
-                            const user = getUser();
+                    showToast("Salvo com sucesso!", "success");
 
-                            if (user.settings.base_date) {
-                                return new Date(user.settings.base_date);
-                            }
+                    getSetupModal().style.display = "none";
+                    document.body.style.overflow = "";
+                };
 
-                            // fallback padrão atual
-                            return new Date(2026, 1, 15);
-                        }
+                document.getElementById("setupSalvarFeriasBtn").addEventListener("click", function () {
+                    const form = document.getElementById("feriasForm");
 
-                        function setBaseDate(dateStr) {
-                            const user = getUser();
+                    form.classList.add("active");
+                    feriasFormAberto = true;
 
-                            user.settings.base_date = dateStr;
+                    document.getElementById("setupSalvarFeriasBtn").style.display = "none";
+                    document.querySelector(".setup-footer").style.display = "none";
 
-                            saveUser(user);
+                    setTimeout(() => {
+                        form.scrollIntoView({ behavior: "smooth", block: "end" });
+                    }, 200);
+                });
 
-                            baseFolgaDomingo = new Date(dateStr);
+                document.getElementById("btnConfirmarFerias").addEventListener("click", function () {
+                    const inicio = document.getElementById("setupFeriasInicio").value;
+                    const fim = document.getElementById("setupFeriasFim").value;
 
+                    if (!inicio || !fim) {
+                        showToast("Informe as datas.", "error");
+                        return;
+                    }
+
+                    if (fim < inicio) {
+                        showToast("Data final inválida.", "error");
+                        return;
+                    }
+
+                    const exists = vacations.some((v) => v.start === inicio && v.end === fim);
+                    if (exists) {
+                        showToast("Período já adicionado.", "error");
+                        return;
+                    }
+
+                    vacations.push({ start: inicio, end: fim });
+
+                    salvarFerias();
+                    ativarSalvar();
+                    gerarCalendario(anoAtual, mesAtual);
+                    renderListaFeriasSetup();
+
+                    showToast("Férias adicionadas!", "success");
+
+                    // reset
+                    const form = document.getElementById("feriasForm");
+                    form.classList.remove("active");
+
+                    feriasFormAberto = false;
+
+                    document.getElementById("setupFeriasInicio").value = "";
+                    document.getElementById("setupFeriasFim").value = "";
+
+                    document.getElementById("setupSalvarFeriasBtn").style.display = "";
+                    document.querySelector(".setup-footer").style.display = "flex";
+                });
+
+                document.getElementById("btnCancelarFerias").addEventListener("click", function () {
+                    const form = document.getElementById("feriasForm");
+                    const btn = document.getElementById("setupSalvarFeriasBtn");
+
+                    // fecha form
+                    form.classList.remove("active");
+
+                    // reseta botão principal
+                    btn.textContent = "Adicionar período";
+                    btn.classList.remove("active");
+
+                    feriasFormAberto = false;
+
+                    document.getElementById("setupSalvarFeriasBtn").style.display = "";
+                    document.querySelector(".setup-footer").style.display = "flex";
+
+                    // limpa inputs
+                    document.getElementById("setupFeriasInicio").value = "";
+                    document.getElementById("setupFeriasFim").value = "";
+                });
+
+                // ===== PICKER + SWIPE (UNIFICADO) =====
+
+                let overlay = document.getElementById("pickerOverlay");
+
+                const mesEl = document.getElementById("mesTexto");
+                const anoEl = document.getElementById("anoTexto");
+
+                function openPicker() {
+                    renderMonthPicker();
+                    overlay.hidden = false;
+
+                    requestAnimationFrame(() => {
+                        overlay.classList.add("active");
+                    });
+                }
+
+                mesEl.addEventListener("click", openPicker);
+
+                anoEl.addEventListener("click", function (e) {
+                    e.stopPropagation();
+
+                    renderYearPicker();
+                    overlay.hidden = false;
+
+                    requestAnimationFrame(() => {
+                        overlay.classList.add("active");
+                    });
+                });
+
+                overlay.addEventListener("click", function (e) {
+                    if (e.target === overlay) {
+                        closePicker();
+                    }
+                });
+
+                // SWIPE
+                let touchStartX = 0;
+                let touchStartY = 0;
+
+                const calendarioEl = document.getElementById("calendario");
+
+                if (calendarioEl) {
+                    calendarioEl.addEventListener(
+                        "touchstart",
+                        function (e) {
+                            const touch = e.changedTouches[0];
+                            touchStartX = touch.clientX;
+                            touchStartY = touch.clientY;
+                        },
+                        { passive: true },
+                    );
+
+                    calendarioEl.addEventListener(
+                        "touchend",
+                        function (e) {
+                            const touch = e.changedTouches[0];
+
+                            const deltaX = touch.clientX - touchStartX;
+                            const deltaY = touch.clientY - touchStartY;
+
+                            const threshold = calendarioEl.clientWidth * 0.18;
+
+                            if (Math.abs(deltaY) > Math.abs(deltaX)) return;
+
+                            if (deltaX > threshold) mesAnterior();
+                            else if (deltaX < -threshold) proximoMes();
+                        },
+                        { passive: true },
+                    );
+                }
+            });
+
+            function irParaHoje() {
+                const agora = new Date();
+                anoAtual = agora.getFullYear();
+                mesAtual = agora.getMonth();
+                document.getElementById("btnHoje").innerText = agora.getDate();
+                gerarCalendario(anoAtual, mesAtual);
+            }
+
+            let baseFolgaDomingo;
+
+            /* ===== FERIADOS FIXOS ===== */
+            /* (mantido exatamente igual ao original) */
+
+            // ✅ Feriados movidos para js/logic/feriados.js
+            // As funções abaixo são expostas pelo main.js via window para compatibilidade
+            // com o código legado de gerarCalendario() no index.html
+
+            const prioridadeEventos = ["vacation", "folga", "holiday", "cultural", "birthday"];
+
+            function listarFeriadosDoMes(ano, mes, lista) {
+                const listaDiv = document.getElementById("listaFeriados");
+                listaDiv.innerHTML = "";
+
+                const feriadosDoMes = lista.filter((f) => f.mes === mes).sort((a, b) => a.dia - b.dia);
+
+                feriadosDoMes.forEach((f) => {
+                    const div = document.createElement("div");
+                    div.innerText =
+                        `${String(f.dia).padStart(2, "0")}/` + `${String(f.mes + 1).padStart(2, "0")} – ${f.nome}`;
+                    listaDiv.appendChild(div);
+                });
+            }
+
+            function gerarCalendario(ano, mes) {
+                const mesEl = document.getElementById("mesTexto");
+                const anoEl = document.getElementById("anoTexto");
+
+                mesEl.textContent = mesesAbreviados[mes];
+                anoEl.textContent = ano;
+
+                const legend = document.getElementById("birthdayLegend");
+
+                if (mes === 6) {
+                    legend.style.display = "block";
+                } else {
+                    legend.style.display = "none";
+                }
+
+                const vacationLegend = document.getElementById("vacationLegend");
+
+                const inicioMes = new Date(ano, mes, 1);
+                const fimMes = new Date(ano, mes + 1, 0);
+
+                const temFeriasNoMes = vacations.some((v) => {
+                    const inicio = new Date(v.start);
+                    const fim = new Date(v.end);
+
+                    return inicio <= fimMes && fim >= inicioMes;
+                });
+
+                vacationLegend.style.display = temFeriasNoMes ? "block" : "none";
+
+                const calendario = document.getElementById("calendario");
+                // Início da microtransição
+                calendario.classList.remove("calendar-transition-active");
+                calendario.classList.add("calendar-transition");
+                calendario.innerHTML = "";
+
+                const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+                diasSemana.forEach((d) => {
+                    const el = document.createElement("div");
+                    el.className = "header-day";
+                    el.innerText = d;
+                    calendario.appendChild(el);
+                });
+
+                const primeiroDia = new Date(ano, mes, 1);
+                const inicio = primeiroDia.getDay();
+                const agora = new Date();
+                const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+
+                const ctx = getContext(ano);
+                const todosFeriados = ctx.todosFeriados;
+                const carnaval = ctx.carnaval;
+
+                for (let i = 0; i < inicio; i++) {
+                    calendario.appendChild(document.createElement("div"));
+                }
+
+                for (let dia = 1; dia <= diasNoMes; dia++) {
+                    const data = new Date(ano, mes, dia);
+                    const el = document.createElement("div");
+                    el.className = "day";
+
+                    const span = document.createElement("span");
+                    span.innerText = dia;
+                    el.appendChild(span);
+
+                    const eventos = getEventos(data);
+                    const principal = getEventoPrincipal(data);
+
+                    if (principal) {
+                        el.classList.add(principal);
+                    }
+
+                    if (eventos.includes("birthday")) {
+                        el.classList.add("birthday");
+                    }
+
+                    if (dia === agora.getDate() && mes === agora.getMonth() && ano === agora.getFullYear()) {
+                        el.classList.add("today");
+                    }
+
+                    calendario.appendChild(el);
+                }
+
+                listarFeriadosDoMes(ano, mes, [...todosFeriados, ...carnaval]);
+                // Ativar microtransição
+                void calendario.offsetWidth;
+                calendario.classList.add("calendar-transition-active");
+                calendario.classList.remove("calendar-transition");
+            }
+
+            function proximoMes() {
+                mesAtual++;
+                if (mesAtual > 11) {
+                    mesAtual = 0;
+                    anoAtual++;
+                }
+                gerarCalendario(anoAtual, mesAtual);
+            }
+
+            function mesAnterior() {
+                mesAtual--;
+                if (mesAtual < 0) {
+                    mesAtual = 11;
+                    anoAtual--;
+                }
+                gerarCalendario(anoAtual, mesAtual);
+            }
+
+            function renderMonthPicker() {
+                const sheet = document.getElementById("pickerSheet");
+
+                sheet.innerHTML = "";
+
+                const handle = document.createElement("div");
+                handle.className = "picker-handle";
+                sheet.appendChild(handle);
+
+                const grid = document.createElement("div");
+                grid.className = "month-grid";
+
+                mesesAbreviados.forEach((mes, index) => {
+                    const item = document.createElement("div");
+                    item.className = "month-item";
+                    item.innerText = mes;
+
+                    if (index === mesAtual) {
+                        item.classList.add("active");
+                    }
+
+                    item.addEventListener("click", () => {
+                        sheet.querySelectorAll(".month-item.active").forEach((el) => {
+                            el.classList.remove("active");
+                        });
+                        item.classList.add("active");
+
+                        setTimeout(() => {
+                            mesAtual = index;
                             gerarCalendario(anoAtual, mesAtual);
-                        }
+                            closePicker();
+                        }, 120);
+                    });
 
-                        function alterarBaseDate() {
-                            const novaData = prompt("Informe a nova data base (AAAA-MM-DD):");
+                    grid.appendChild(item);
+                });
 
-                            if (!novaData) return;
+                sheet.appendChild(grid);
+            }
 
-                            setBaseDate(novaData);
-                        }
+            function renderYearPicker() {
+                const sheet = document.getElementById("pickerSheet");
 
-                        function setScaleType(type) {
-                            const user = getUser();
+                sheet.innerHTML = "";
 
-                            user.settings.scale_type = type;
+                const handle = document.createElement("div");
+                handle.className = "picker-handle";
+                sheet.appendChild(handle);
 
-                            saveUser(user);
-                        }
+                if (yearBlockStart === undefined) {
+                    yearBlockStart = Math.floor(anoAtual / 12) * 12;
+                }
 
-                        function alterarTipoEscala() {
-                            const tipo = prompt("Tipo de escala (ex: semanal, plantao)");
+                const startYear = yearBlockStart;
 
-                            if (!tipo) return;
+                const header = document.createElement("div");
+                header.style.display = "flex";
+                header.style.justifyContent = "space-between";
+                header.style.alignItems = "center";
+                header.style.marginBottom = "10px";
 
-                            setScaleType(tipo);
-                        }
+                const prev = document.createElement("div");
+                prev.innerText = "◀";
+                prev.style.cursor = "pointer";
+                prev.style.padding = "6px";
 
-                        function setScalePattern(pattern) {
-                            const user = getUser();
+                const title = document.createElement("div");
+                title.innerText = `${startYear} - ${startYear + 11}`;
+                title.style.fontWeight = "600";
 
-                            user.settings.scale_pattern = pattern;
+                const next = document.createElement("div");
+                next.innerText = "▶";
+                next.style.cursor = "pointer";
+                next.style.padding = "6px";
 
-                            saveUser(user);
-                        }
+                header.appendChild(prev);
+                header.appendChild(title);
+                header.appendChild(next);
 
-                        function alterarPadraoEscala() {
-                            const pattern = prompt("Padrão da escala (ex: 7, 5x1, 12x36)");
+                sheet.appendChild(header);
 
-                            if (!pattern) return;
+                prev.addEventListener("click", () => {
+                    yearBlockStart -= 12;
+                    renderYearPicker();
+                });
 
-                            setScalePattern(pattern);
-                        }
+                next.addEventListener("click", () => {
+                    yearBlockStart += 12;
+                    renderYearPicker();
+                });
 
-                        function salvarFerias() {
-                            const user = getUser();
-                            user.vacations = vacations;
-                            saveUser(user);
-                        }
+                const grid = document.createElement("div");
+                grid.className = "month-grid";
 
-                        function carregarFerias() {
-                            const user = getUser();
+                for (let i = 0; i < 12; i++) {
+                    const year = startYear + i;
 
-                            if (!user) {
-                                vacations = [];
-                                return;
-                            }
+                    const item = document.createElement("div");
+                    item.className = "month-item";
+                    item.innerText = year;
 
-                            vacations = user.vacations || [];
-                        }
+                    if (year === anoAtual) {
+                        item.classList.add("active");
+                    }
 
-                        document.addEventListener("DOMContentLoaded", function () {
-                            initUser();
+                    item.addEventListener("click", () => {
+                        item.classList.add("active");
 
-                            baseFolgaDomingo = getBaseDate();
-
-                            carregarFerias();
-
-                            preencherSetup();
-                            verificarPerfil();
-                            atualizarSaudacao();
-                            atualizarFooterBase();
-                            atualizarInfoEscala();
-                            agendarAtualizacaoDiaria();
-
-                            // 🔥 ATIVA SALVAR AO MODIFICAR
-                            document.getElementById("setupUserName").addEventListener("input", ativarSalvar);
-                            document.getElementById("setupBirthday").addEventListener("input", ativarSalvar);
-                            document.getElementById("setupBaseDate").addEventListener("input", ativarSalvar);
-                            document.getElementById("setupScaleType").addEventListener("input", ativarSalvar);
-                            document.getElementById("setupScalePattern").addEventListener("input", ativarSalvar);
-
-                            document.getElementById("areaSelect").addEventListener("change", ativarSalvar);
-                            document.getElementById("setupDSR").addEventListener("change", ativarSalvar);
-
-                            const user = getUser();
-
-                            if (!user.profile.area) {
-                                user.profile.area = "outros";
-                                saveUser(user);
-                            }
-
-                            renderAreaSelect();
-
-                            const areaSelect = document.getElementById("areaSelect");
-
-                            areaSelect.addEventListener("change", (e) => {
-                                const user = getUser();
-                                const oldArea = user.profile.area;
-                                const newArea = e.target.value;
-                                user.profile.area = newArea;
-                                //saveUser(user);
-
-                                //userModifiedScale = false;
-                                if (oldArea !== newArea) {
-                                    userModifiedScale = false;
-                                    applyAreaPreset(e.target.value);
-                                }
-
-                                const dsrField = document.getElementById("dsrWrapper");
-
-                                if (AREAS_WITHOUT_DSR.includes(e.target.value)) {
-                                    dsrField.style.display = "none";
-                                    document.getElementById("setupDSR").value = "0";
-                                } else {
-                                    dsrField.style.display = "";
-                                }
-                            });
-
-                            document.getElementById("setupScaleType").addEventListener("input", () => {
-                                if (isApplyingPreset) return;
-                                userModifiedScale = true;
-                            });
-
-                            document.getElementById("setupScalePattern").addEventListener("input", () => {
-                                if (isApplyingPreset) return;
-                                userModifiedScale = true;
-                            });
-
-                            const birthdayInput = document.getElementById("setupBirthday");
-
-                            if (birthdayInput) {
-                                birthdayInput.addEventListener("input", function (e) {
-                                    let v = e.target.value.replace(/\D/g, "");
-
-                                    if (v.length > 4) v = v.slice(0, 4);
-
-                                    if (v.length >= 3) {
-                                        v = v.slice(0, 2) + "/" + v.slice(2);
-                                    }
-
-                                    e.target.value = v;
-                                });
-                            }
-
-                            baseFolgaDomingo = getBaseDate();
-
-                            const hoje = new Date();
-                            anoAtual = hoje.getFullYear();
-                            mesAtual = hoje.getMonth();
-
+                        setTimeout(() => {
+                            anoAtual = year;
+                            yearBlockStart = undefined;
                             gerarCalendario(anoAtual, mesAtual);
-                            document.getElementById("btnHoje").innerText = hoje.getDate();
+                            closePicker();
+                        }, 120);
+                    });
 
-                            document.getElementById("btnSetup").onclick = function () {
-                                //userModifiedScale = false;
-                                mostrarSetup();
-                            };
+                    grid.appendChild(item);
+                }
 
-                            document.getElementById("setupFechar").onclick = function () {
-                                preencherSetup(); // 🔥 garante reset total
+                sheet.appendChild(grid);
 
-                                getSetupModal().style.display = "none";
-                                document.body.style.overflow = "";
-                            };
+                let startX = 0;
 
-                            document.getElementById("setupSalvar").onclick = function () {
-                                const baseDate = document.getElementById("setupBaseDate").value;
-                                const userName = document.getElementById("setupUserName").value;
+                sheet.ontouchstart = (e) => {
+                    startX = e.changedTouches[0].clientX;
+                };
 
-                                const birthdayInput = document.getElementById("setupBirthday").value;
+                sheet.ontouchend = (e) => {
+                    const deltaX = e.changedTouches[0].clientX - startX;
 
-                                let birthday = "";
+                    const threshold = sheet.clientWidth * 0.18;
 
-                                if (birthdayInput && birthdayInput.includes("/")) {
-                                    const [d, m] = birthdayInput.split("/");
+                    if (deltaX > threshold) {
+                        yearBlockStart -= 12;
+                        renderYearPicker();
+                    } else if (deltaX < -threshold) {
+                        yearBlockStart += 12;
+                        renderYearPicker();
+                    }
+                };
+            }
 
-                                    if (!d || !m) {
-                                        showToast("Data incompleta.", "error");
-                                        return;
-                                    }
+            /* ===== KEYBOARD NAVIGATION v1.3.5 ===== */
 
-                                    if (!isValidDate(d, m)) {
-                                        showToast("Data de aniversário inválida.", "error");
-                                        return;
-                                    }
+            document.addEventListener("keydown", function (e) {
+                if (e.target.tagName === "INPUT") return;
 
-                                    const dPad = d.padStart(2, "0");
-                                    const mPad = m.padStart(2, "0");
+                switch (e.key) {
+                    case "ArrowLeft":
+                        mesAnterior();
+                        break;
 
-                                    document.getElementById("setupBirthday").value = `${dPad}/${mPad}`;
+                    case "ArrowRight":
+                        proximoMes();
+                        break;
 
-                                    birthday = `2000-${mPad}-${dPad}`;
-                                }
+                    case "ArrowUp":
+                        anoAtual--;
+                        gerarCalendario(anoAtual, mesAtual);
+                        break;
 
-                                if (!userName) {
-                                    showToast("Como deseja ser chamado?", "error");
-                                    return;
-                                }
+                    case "ArrowDown":
+                        anoAtual++;
+                        gerarCalendario(anoAtual, mesAtual);
+                        break;
 
-                                if (!baseDate) {
-                                    showToast("Informe a data base da escala.", "error");
-                                    return;
-                                }
+                    case "PageUp":
+                        e.preventDefault();
+                        mesAnterior();
+                        break;
 
-                                const user = getUser();
-                                user.profile.name = userName;
-                                user.profile.birthday = birthday;
+                    case "PageDown":
+                        e.preventDefault();
+                        proximoMes();
+                        break;
 
-                                user.profile.area = document.getElementById("areaSelect").value || "outros";
+                    case "Home":
+                        e.preventDefault();
+                        irParaHoje();
+                        break;
 
-                                user.settings.base_date = baseDate;
+                    case "Escape":
+                        const modal = getSetupModal();
 
-                                user.settings.scale_type = document.getElementById("setupScaleType").value;
+                        if (modal && modal.style.display === "flex") {
+                            preencherSetup(); // 🔥 faltando aqui
+                            modal.style.display = "none";
+                            document.body.style.overflow = "";
+                        }
+                        break;
+                }
+            });
 
-                                user.settings.scale_pattern = document.getElementById("setupScalePattern").value;
+            /* ===== SWIPE NAVIGATION v1.2.3 ===== */
 
-                                user.settings.dsr = Number(document.getElementById("setupDSR").value);
+            let swipeLocked = false;
 
-                                aplicarSetup(user);
+            if ("serviceWorker" in navigator) {
+                navigator.serviceWorker.register("sw.js").then((reg) => {
+                    reg.addEventListener("updatefound", () => {
+                        const newWorker = reg.installing;
+                        if (!newWorker) return;
 
-                                showToast("Salvo com sucesso!", "success");
-
-                                getSetupModal().style.display = "none";
-                                document.body.style.overflow = "";
-                            };
-
-                            document.getElementById("setupSalvarFeriasBtn").addEventListener("click", function () {
-                                const form = document.getElementById("feriasForm");
-
-                                form.classList.add("active");
-                                feriasFormAberto = true;
-
-                                document.getElementById("setupSalvarFeriasBtn").style.display = "none";
-                                document.querySelector(".setup-footer").style.display = "none";
-
-                                setTimeout(() => {
-                                    form.scrollIntoView({ behavior: "smooth", block: "end" });
-                                }, 200);
-                            });
-
-                            document.getElementById("btnConfirmarFerias").addEventListener("click", function () {
-                                const inicio = document.getElementById("setupFeriasInicio").value;
-                                const fim = document.getElementById("setupFeriasFim").value;
-
-                                if (!inicio || !fim) {
-                                    showToast("Informe as datas.", "error");
-                                    return;
-                                }
-
-                                if (fim < inicio) {
-                                    showToast("Data final inválida.", "error");
-                                    return;
-                                }
-
-                                const exists = vacations.some((v) => v.start === inicio && v.end === fim);
-                                if (exists) {
-                                    showToast("Período já adicionado.", "error");
-                                    return;
-                                }
-
-                                vacations.push({ start: inicio, end: fim });
-
-                                salvarFerias();
-                                ativarSalvar();
-                                gerarCalendario(anoAtual, mesAtual);
-                                renderListaFeriasSetup();
-
-                                showToast("Férias adicionadas!", "success");
-
-                                // reset
-                                const form = document.getElementById("feriasForm");
-                                form.classList.remove("active");
-
-                                feriasFormAberto = false;
-
-                                document.getElementById("setupFeriasInicio").value = "";
-                                document.getElementById("setupFeriasFim").value = "";
-
-                                document.getElementById("setupSalvarFeriasBtn").style.display = "";
-                                document.querySelector(".setup-footer").style.display = "flex";
-                            });
-
-                            document.getElementById("btnCancelarFerias").addEventListener("click", function () {
-                                const form = document.getElementById("feriasForm");
-                                const btn = document.getElementById("setupSalvarFeriasBtn");
-
-                                // fecha form
-                                form.classList.remove("active");
-
-                                // reseta botão principal
-                                btn.textContent = "Adicionar período";
-                                btn.classList.remove("active");
-
-                                feriasFormAberto = false;
-
-                                document.getElementById("setupSalvarFeriasBtn").style.display = "";
-                                document.querySelector(".setup-footer").style.display = "flex";
-
-                                // limpa inputs
-                                document.getElementById("setupFeriasInicio").value = "";
-                                document.getElementById("setupFeriasFim").value = "";
-                            });
-
-                            // ===== PICKER + SWIPE (UNIFICADO) =====
-
-                            let overlay = document.getElementById("pickerOverlay");
-
-                            const mesEl = document.getElementById("mesTexto");
-                            const anoEl = document.getElementById("anoTexto");
-
-                            function openPicker() {
-                                renderMonthPicker();
-                                overlay.hidden = false;
-
-                                requestAnimationFrame(() => {
-                                    overlay.classList.add("active");
-                                });
-                            }
-
-                            mesEl.addEventListener("click", openPicker);
-
-                            anoEl.addEventListener("click", function (e) {
-                                e.stopPropagation();
-
-                                renderYearPicker();
-                                overlay.hidden = false;
-
-                                requestAnimationFrame(() => {
-                                    overlay.classList.add("active");
-                                });
-                            });
-
-                            overlay.addEventListener("click", function (e) {
-                                if (e.target === overlay) {
-                                    closePicker();
-                                }
-                            });
-
-                            // SWIPE
-                            let touchStartX = 0;
-                            let touchStartY = 0;
-
-                            const calendarioEl = document.getElementById("calendario");
-
-                            if (calendarioEl) {
-                                calendarioEl.addEventListener(
-                                    "touchstart",
-                                    function (e) {
-                                        const touch = e.changedTouches[0];
-                                        touchStartX = touch.clientX;
-                                        touchStartY = touch.clientY;
-                                    },
-                                    { passive: true },
-                                );
-
-                                calendarioEl.addEventListener(
-                                    "touchend",
-                                    function (e) {
-                                        const touch = e.changedTouches[0];
-
-                                        const deltaX = touch.clientX - touchStartX;
-                                        const deltaY = touch.clientY - touchStartY;
-
-                                        const threshold = calendarioEl.clientWidth * 0.18;
-
-                                        if (Math.abs(deltaY) > Math.abs(deltaX)) return;
-
-                                        if (deltaX > threshold) mesAnterior();
-                                        else if (deltaX < -threshold) proximoMes();
-                                    },
-                                    { passive: true },
-                                );
+                        newWorker.addEventListener("statechange", () => {
+                            if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                                window.location.reload();
                             }
                         });
+                    });
+                });
+            }
 
-                        function irParaHoje() {
-                            const agora = new Date();
-                            anoAtual = agora.getFullYear();
-                            mesAtual = agora.getMonth();
-                            document.getElementById("btnHoje").innerText = agora.getDate();
-                            gerarCalendario(anoAtual, mesAtual);
+            function closePicker() {
+                const overlayEl = document.getElementById("pickerOverlay");
+                if (!overlayEl) return;
+
+                overlayEl.classList.remove("active");
+
+                setTimeout(() => {
+                    overlayEl.hidden = true;
+                }, 250);
+            }
+
+            function renderListaFeriasSetup() {
+                const container = document.getElementById("setupListaFerias");
+                if (!container) return;
+
+                container.innerHTML = "";
+
+                vacations.forEach((v, index) => {
+                    const item = document.createElement("div");
+                    item.className = "ferias-item";
+
+                    const texto = document.createElement("span");
+                    texto.textContent = `${formatarData(v.start)} → ${formatarData(v.end)}`;
+
+                    const btn = document.createElement("button");
+                    btn.textContent = "Remover";
+                    btn.className = "btn-remover";
+
+                    btn.onclick = () => {
+                        vacations.splice(index, 1);
+                        salvarFerias();
+                        ativarSalvar();
+                        renderListaFeriasSetup();
+                        gerarCalendario(anoAtual, mesAtual);
+                    };
+
+                    item.appendChild(texto);
+                    item.appendChild(btn);
+
+                    container.appendChild(item);
+                });
+            }
+
+            function verificarPerfil() {
+                const user = getUser();
+
+                if (!user || !user.profile || !user.settings || !user.settings.base_date) {
+                    setTimeout(() => mostrarSetup(), 0);
+                }
+            }
+
+            function atualizarSaudacao() {
+                const user = getUser();
+                const el = document.getElementById("userGreeting");
+
+                if (!user.profile.name) return;
+
+                const area = normalizeArea(user.profile.area);
+                const config = getAreaConfig(area);
+
+                const hoje = new Date();
+
+                let isAniversario = false;
+
+                if (user.profile.birthday) {
+                    const [y, m, d] = user.profile.birthday.split("-");
+
+                    if (hoje.getDate() === Number(d) && hoje.getMonth() === Number(m) - 1) {
+                        isAniversario = true;
+                    }
+                }
+
+                if (isAniversario) {
+                    el.innerText = `Feliz Aniversário, ${user.profile.name}! 🎂`;
+                } else {
+                    const isFolgaHoje = isFolga(hoje);
+                    const tipoDia = isFolgaHoje ? "folga" : "trabalho";
+
+                    const mensagem = config[tipoDia].toLowerCase();
+
+                    el.innerText = `Olá ${user.profile.name}, ${mensagem}!`;
+                }
+            }
+
+            function atualizarFooterBase() {
+                const el = document.getElementById("footerBase");
+                const user = getUser();
+
+                const partes = [];
+
+                // 📅 BASE
+                if (user.settings.base_date) {
+                    const [y, m, d] = user.settings.base_date.split("-");
+                    partes.push(`Folga Domingo: ${d}/${m}/${y}`);
+                }
+
+                // 📆 DSR
+                const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+
+                const dsr = Number(user.settings.dsr ?? 0);
+                partes.push(`DSR: ${diasSemana[dsr]}`);
+
+                // 🎂 ANIVERSÁRIO
+                if (user.profile.birthday) {
+                    const [y, m, d] = user.profile.birthday.split("-");
+                    partes.push(`🎂 ${d}/${m}`);
+                }
+
+                // 🏖️ DIAS PARA AS FÉRIAS
+                if (window.getProximaFerias) {
+                    const proxima = window.getProximaFerias(vacations);
+                    if (proxima) {
+                        const dias = calcularDiasRestantes(proxima.start);
+                        if (dias > 0) {
+                            partes.push(`🏖️ Férias em ${dias} dia${dias === 1 ? "" : "s"}`);
+                        } else if (dias === 0) {
+                            partes.push(`🏖️ Férias hoje!`);
                         }
+                    }
+                }
 
-                        let baseFolgaDomingo;
+                // 📆 DIA DO ANO
+                const hoje = new Date();
+                const inicioAno = new Date(hoje.getFullYear(), 0, 1);
+                const fimAno = new Date(hoje.getFullYear(), 11, 31);
+                const diaDoAno = Math.ceil((hoje - inicioAno) / 86400000) + 1;
+                const diasNoAno = Math.ceil((fimAno - inicioAno) / 86400000) + 1;
+                const faltam = diasNoAno - diaDoAno;
+                partes.push(`Dia ${diaDoAno} de ${diasNoAno} • Faltam ${faltam}`);
 
-                        /* ===== FERIADOS FIXOS ===== */
-                        /* (mantido exatamente igual ao original) */
+                el.innerText = partes.join(" | ");
+            }
 
-                        // ✅ Feriados movidos para js/logic/feriados.js
-                        // As funções abaixo são expostas pelo main.js via window para compatibilidade
-                        // com o código legado de gerarCalendario() no index.html
+            function preencherSetup() {
+                const user = getUser();
 
-                        const prioridadeEventos = ["vacation", "folga", "holiday", "cultural", "birthday"];
+                document.getElementById("setupUserName").value = user.profile.name || "";
 
-                        function listarFeriadosDoMes(ano, mes, lista) {
-                            const listaDiv = document.getElementById("listaFeriados");
-                            listaDiv.innerHTML = "";
+                const birthday = user.profile.birthday;
 
-                            const feriadosDoMes = lista.filter((f) => f.mes === mes).sort((a, b) => a.dia - b.dia);
+                if (birthday && birthday.includes("-")) {
+                    const parts = birthday.split("-");
 
-                            feriadosDoMes.forEach((f) => {
-                                const div = document.createElement("div");
-                                div.innerText =
-                                    `${String(f.dia).padStart(2, "0")}/` + `${String(f.mes + 1).padStart(2, "0")} – ${f.nome}`;
-                                listaDiv.appendChild(div);
-                            });
-                        }
+                    if (parts.length === 3) {
+                        const d = parts[2];
+                        const m = parts[1];
+                        document.getElementById("setupBirthday").value = `${d}/${m}`;
+                    } else {
+                        document.getElementById("setupBirthday").value = "";
+                    }
+                } else {
+                    document.getElementById("setupBirthday").value = "";
+                }
 
-                        function gerarCalendario(ano, mes) {
-                            const mesEl = document.getElementById("mesTexto");
-                            const anoEl = document.getElementById("anoTexto");
+                document.getElementById("setupBaseDate").value = user.settings.base_date || "";
 
-                            mesEl.textContent = mesesAbreviados[mes];
-                            anoEl.textContent = ano;
+                document.getElementById("areaSelect").value = user.profile.area || "outros";
 
-                            const legend = document.getElementById("birthdayLegend");
+                const area = user.profile.area;
 
-                            if (mes === 6) {
-                                legend.style.display = "block";
-                            } else {
-                                legend.style.display = "none";
-                            }
+                const dsrField = document.getElementById("dsrWrapper");
 
-                            const vacationLegend = document.getElementById("vacationLegend");
+                if (AREAS_WITHOUT_DSR.includes(area)) {
+                    dsrField.style.display = "none";
+                    document.getElementById("setupDSR").value = "0";
+                } else {
+                    dsrField.style.display = "";
+                }
 
-                            const inicioMes = new Date(ano, mes, 1);
-                            const fimMes = new Date(ano, mes + 1, 0);
+                document.getElementById("setupScaleType").value = user.settings.scale_type || "";
+                document.getElementById("setupScalePattern").value = user.settings.scale_pattern || "";
 
-                            const temFeriasNoMes = vacations.some((v) => {
-                                const inicio = new Date(v.start);
-                                const fim = new Date(v.end);
+                if (!AREAS_WITHOUT_DSR.includes(area)) {
+                    document.getElementById("setupDSR").value = String(user.settings.dsr ?? 0);
+                }
 
-                                return inicio <= fimMes && fim >= inicioMes;
-                            });
+                // aplica preset
+                //applyAreaPreset(user.profile.area);
 
-                            vacationLegend.style.display = temFeriasNoMes ? "block" : "none";
+                if (!user.settings.scale_type && !user.settings.scale_pattern && !userModifiedScale) {
+                    applyAreaPreset(user.profile.area);
+                }
+            }
 
-                            const calendario = document.getElementById("calendario");
-                            // Início da microtransição
-                            calendario.classList.remove("calendar-transition-active");
-                            calendario.classList.add("calendar-transition");
-                            calendario.innerHTML = "";
+            function mostrarSetup() {
+                const overlayEl = document.getElementById("pickerOverlay");
 
-                            const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+                if (overlayEl && !overlayEl.hidden) {
+                    closePicker();
 
-                            diasSemana.forEach((d) => {
-                                const el = document.createElement("div");
-                                el.className = "header-day";
-                                el.innerText = d;
-                                calendario.appendChild(el);
-                            });
-
-                            const primeiroDia = new Date(ano, mes, 1);
-                            const inicio = primeiroDia.getDay();
-                            const agora = new Date();
-                            const diasNoMes = new Date(ano, mes + 1, 0).getDate();
-
-                            const ctx = getContext(ano);
-                            const todosFeriados = ctx.todosFeriados;
-                            const carnaval = ctx.carnaval;
-
-                            for (let i = 0; i < inicio; i++) {
-                                calendario.appendChild(document.createElement("div"));
-                            }
-
-                            for (let dia = 1; dia <= diasNoMes; dia++) {
-                                const data = new Date(ano, mes, dia);
-                                const el = document.createElement("div");
-                                el.className = "day";
-
-                                const span = document.createElement("span");
-                                span.innerText = dia;
-                                el.appendChild(span);
-
-                                const eventos = getEventos(data);
-                                const principal = getEventoPrincipal(data);
-
-                                if (principal) {
-                                    el.classList.add(principal);
-                                }
-
-                                if (eventos.includes("birthday")) {
-                                    el.classList.add("birthday");
-                                }
-
-                                if (dia === agora.getDate() && mes === agora.getMonth() && ano === agora.getFullYear()) {
-                                    el.classList.add("today");
-                                }
-
-                                calendario.appendChild(el);
-                            }
-
-                            listarFeriadosDoMes(ano, mes, [...todosFeriados, ...carnaval]);
-                            // Ativar microtransição
-                            void calendario.offsetWidth;
-                            calendario.classList.add("calendar-transition-active");
-                            calendario.classList.remove("calendar-transition");
-                        }
-
-                        function proximoMes() {
-                            mesAtual++;
-                            if (mesAtual > 11) {
-                                mesAtual = 0;
-                                anoAtual++;
-                            }
-                            gerarCalendario(anoAtual, mesAtual);
-                        }
-
-                        function mesAnterior() {
-                            mesAtual--;
-                            if (mesAtual < 0) {
-                                mesAtual = 11;
-                                anoAtual--;
-                            }
-                            gerarCalendario(anoAtual, mesAtual);
-                        }
-
-                        function renderMonthPicker() {
-                            const sheet = document.getElementById("pickerSheet");
-
-                            sheet.innerHTML = "";
-
-                            const handle = document.createElement("div");
-                            handle.className = "picker-handle";
-                            sheet.appendChild(handle);
-
-                            const grid = document.createElement("div");
-                            grid.className = "month-grid";
-
-                            mesesAbreviados.forEach((mes, index) => {
-                                const item = document.createElement("div");
-                                item.className = "month-item";
-                                item.innerText = mes;
-
-                                if (index === mesAtual) {
-                                    item.classList.add("active");
-                                }
-
-                                item.addEventListener("click", () => {
-                                    sheet.querySelectorAll(".month-item.active").forEach((el) => {
-                                        el.classList.remove("active");
-                                    });
-                                    item.classList.add("active");
-
-                                    setTimeout(() => {
-                                        mesAtual = index;
-                                        gerarCalendario(anoAtual, mesAtual);
-                                        closePicker();
-                                    }, 120);
-                                });
-
-                                grid.appendChild(item);
-                            });
-
-                            sheet.appendChild(grid);
-                        }
-
-                        function renderYearPicker() {
-                            const sheet = document.getElementById("pickerSheet");
-
-                            sheet.innerHTML = "";
-
-                            const handle = document.createElement("div");
-                            handle.className = "picker-handle";
-                            sheet.appendChild(handle);
-
-                            if (yearBlockStart === undefined) {
-                                yearBlockStart = Math.floor(anoAtual / 12) * 12;
-                            }
-
-                            const startYear = yearBlockStart;
-
-                            const header = document.createElement("div");
-                            header.style.display = "flex";
-                            header.style.justifyContent = "space-between";
-                            header.style.alignItems = "center";
-                            header.style.marginBottom = "10px";
-
-                            const prev = document.createElement("div");
-                            prev.innerText = "◀";
-                            prev.style.cursor = "pointer";
-                            prev.style.padding = "6px";
-
-                            const title = document.createElement("div");
-                            title.innerText = `${startYear} - ${startYear + 11}`;
-                            title.style.fontWeight = "600";
-
-                            const next = document.createElement("div");
-                            next.innerText = "▶";
-                            next.style.cursor = "pointer";
-                            next.style.padding = "6px";
-
-                            header.appendChild(prev);
-                            header.appendChild(title);
-                            header.appendChild(next);
-
-                            sheet.appendChild(header);
-
-                            prev.addEventListener("click", () => {
-                                yearBlockStart -= 12;
-                                renderYearPicker();
-                            });
-
-                            next.addEventListener("click", () => {
-                                yearBlockStart += 12;
-                                renderYearPicker();
-                            });
-
-                            const grid = document.createElement("div");
-                            grid.className = "month-grid";
-
-                            for (let i = 0; i < 12; i++) {
-                                const year = startYear + i;
-
-                                const item = document.createElement("div");
-                                item.className = "month-item";
-                                item.innerText = year;
-
-                                if (year === anoAtual) {
-                                    item.classList.add("active");
-                                }
-
-                                item.addEventListener("click", () => {
-                                    item.classList.add("active");
-
-                                    setTimeout(() => {
-                                        anoAtual = year;
-                                        yearBlockStart = undefined;
-                                        gerarCalendario(anoAtual, mesAtual);
-                                        closePicker();
-                                    }, 120);
-                                });
-
-                                grid.appendChild(item);
-                            }
-
-                            sheet.appendChild(grid);
-
-                            let startX = 0;
-
-                            sheet.ontouchstart = (e) => {
-                                startX = e.changedTouches[0].clientX;
-                            };
-
-                            sheet.ontouchend = (e) => {
-                                const deltaX = e.changedTouches[0].clientX - startX;
-
-                                const threshold = sheet.clientWidth * 0.18;
-
-                                if (deltaX > threshold) {
-                                    yearBlockStart -= 12;
-                                    renderYearPicker();
-                                } else if (deltaX < -threshold) {
-                                    yearBlockStart += 12;
-                                    renderYearPicker();
-                                }
-                            };
-                        }
-
-                        /* ===== KEYBOARD NAVIGATION v1.3.5 ===== */
-
-                        document.addEventListener("keydown", function (e) {
-                            if (e.target.tagName === "INPUT") return;
-
-                            switch (e.key) {
-                                case "ArrowLeft":
-                                    mesAnterior();
-                                    break;
-
-                                case "ArrowRight":
-                                    proximoMes();
-                                    break;
-
-                                case "ArrowUp":
-                                    anoAtual--;
-                                    gerarCalendario(anoAtual, mesAtual);
-                                    break;
-
-                                case "ArrowDown":
-                                    anoAtual++;
-                                    gerarCalendario(anoAtual, mesAtual);
-                                    break;
-
-                                case "PageUp":
-                                    e.preventDefault();
-                                    mesAnterior();
-                                    break;
-
-                                case "PageDown":
-                                    e.preventDefault();
-                                    proximoMes();
-                                    break;
-
-                                case "Home":
-                                    e.preventDefault();
-                                    irParaHoje();
-                                    break;
-
-                                case "Escape":
-                                    const modal = getSetupModal();
-
-                                    if (modal && modal.style.display === "flex") {
-                                        preencherSetup(); // 🔥 faltando aqui
-                                        modal.style.display = "none";
-                                        document.body.style.overflow = "";
-                                    }
-                                    break;
-                            }
-                        });
-
-                        /* ===== SWIPE NAVIGATION v1.2.3 ===== */
-
-                        let swipeLocked = false;
-
-                        if ("serviceWorker" in navigator) {
-                            navigator.serviceWorker.register("sw.js").then((reg) => {
-                                reg.addEventListener("updatefound", () => {
-                                    const newWorker = reg.installing;
-                                    if (!newWorker) return;
-
-                                    newWorker.addEventListener("statechange", () => {
-                                        if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-                                            window.location.reload();
-                                        }
-                                    });
-                                });
-                            });
-                        }
-
-                        function closePicker() {
-                            const overlayEl = document.getElementById("pickerOverlay");
-                            if (!overlayEl) return;
-
-                            overlayEl.classList.remove("active");
-
-                            setTimeout(() => {
-                                overlayEl.hidden = true;
-                            }, 250);
-                        }
-
-                        function renderListaFeriasSetup() {
-                            const container = document.getElementById("setupListaFerias");
-                            if (!container) return;
-
-                            container.innerHTML = "";
-
-                            vacations.forEach((v, index) => {
-                                const item = document.createElement("div");
-                                item.className = "ferias-item";
-
-                                const texto = document.createElement("span");
-                                texto.textContent = `${formatarData(v.start)} → ${formatarData(v.end)}`;
-
-                                const btn = document.createElement("button");
-                                btn.textContent = "Remover";
-                                btn.className = "btn-remover";
-
-                                btn.onclick = () => {
-                                    vacations.splice(index, 1);
-                                    salvarFerias();
-                                    ativarSalvar();
-                                    renderListaFeriasSetup();
-                                    gerarCalendario(anoAtual, mesAtual);
-                                };
-
-                                item.appendChild(texto);
-                                item.appendChild(btn);
-
-                                container.appendChild(item);
-                            });
-                        }
-
-                        function verificarPerfil() {
-                            const user = getUser();
-
-                            if (!user || !user.profile || !user.settings || !user.settings.base_date) {
-                                setTimeout(() => mostrarSetup(), 0);
-                            }
-                        }
-
-                        function atualizarSaudacao() {
-                            const user = getUser();
-                            const el = document.getElementById("userGreeting");
-
-                            if (!user.profile.name) return;
-
-                            const area = normalizeArea(user.profile.area);
-                            const config = getAreaConfig(area);
-
-                            const hoje = new Date();
-
-                            let isAniversario = false;
-
-                            if (user.profile.birthday) {
-                                const [y, m, d] = user.profile.birthday.split("-");
-
-                                if (hoje.getDate() === Number(d) && hoje.getMonth() === Number(m) - 1) {
-                                    isAniversario = true;
-                                }
-                            }
-
-                            if (isAniversario) {
-                                el.innerText = `Feliz Aniversário, ${user.profile.name}! 🎂`;
-                            } else {
-                                const isFolgaHoje = isFolga(hoje);
-                                const tipoDia = isFolgaHoje ? "folga" : "trabalho";
-
-                                const mensagem = config[tipoDia].toLowerCase();
-
-                                el.innerText = `Olá ${user.profile.name}, ${mensagem}!`;
-                            }
-                        }
-
-                        function atualizarFooterBase() {
-                            const el = document.getElementById("footerBase");
-                            const user = getUser();
-
-                            const partes = [];
-
-                            // 📅 BASE
-                            if (user.settings.base_date) {
-                                const [y, m, d] = user.settings.base_date.split("-");
-                                partes.push(`Folga Domingo: ${d}/${m}/${y}`);
-                            }
-
-                            // 📆 DSR
-                            const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-
-                            const dsr = Number(user.settings.dsr ?? 0);
-                            partes.push(`DSR: ${diasSemana[dsr]}`);
-
-                            // 🎂 ANIVERSÁRIO
-                            if (user.profile.birthday) {
-                                const [y, m, d] = user.profile.birthday.split("-");
-                                partes.push(`🎂 ${d}/${m}`);
-                            }
-
-                            // 🏖️ DIAS PARA AS FÉRIAS
-                            if (window.getProximaFerias) {
-                                const proxima = window.getProximaFerias(vacations);
-                                if (proxima) {
-                                    const dias = calcularDiasRestantes(proxima.start);
-                                    if (dias > 0) {
-                                        partes.push(`🏖️ Férias em ${dias} dia${dias === 1 ? "" : "s"}`);
-                                    } else if (dias === 0) {
-                                        partes.push(`🏖️ Férias hoje!`);
-                                    }
-                                }
-                            }
-
-                            // 📆 DIA DO ANO
-                            const hoje = new Date();
-                            const inicioAno = new Date(hoje.getFullYear(), 0, 1);
-                            const fimAno = new Date(hoje.getFullYear(), 11, 31);
-                            const diaDoAno = Math.ceil((hoje - inicioAno) / 86400000) + 1;
-                            const diasNoAno = Math.ceil((fimAno - inicioAno) / 86400000) + 1;
-                            const faltam = diasNoAno - diaDoAno;
-                            partes.push(`Dia ${diaDoAno} de ${diasNoAno} • Faltam ${faltam}`);
-
-                            el.innerText = partes.join(" | ");
-                        }
-
-                        function preencherSetup() {
-                            const user = getUser();
-
-                            document.getElementById("setupUserName").value = user.profile.name || "";
-
-                            const birthday = user.profile.birthday;
-
-                            if (birthday && birthday.includes("-")) {
-                                const parts = birthday.split("-");
-
-                                if (parts.length === 3) {
-                                    const d = parts[2];
-                                    const m = parts[1];
-                                    document.getElementById("setupBirthday").value = `${d}/${m}`;
-                                } else {
-                                    document.getElementById("setupBirthday").value = "";
-                                }
-                            } else {
-                                document.getElementById("setupBirthday").value = "";
-                            }
-
-                            document.getElementById("setupBaseDate").value = user.settings.base_date || "";
-
-                            document.getElementById("areaSelect").value = user.profile.area || "outros";
-
-                            const area = user.profile.area;
-
-                            const dsrField = document.getElementById("dsrWrapper");
-
-                            if (AREAS_WITHOUT_DSR.includes(area)) {
-                                dsrField.style.display = "none";
-                                document.getElementById("setupDSR").value = "0";
-                            } else {
-                                dsrField.style.display = "";
-                            }
-
-                            document.getElementById("setupScaleType").value = user.settings.scale_type || "";
-                            document.getElementById("setupScalePattern").value = user.settings.scale_pattern || "";
-
-                            if (!AREAS_WITHOUT_DSR.includes(area)) {
-                                document.getElementById("setupDSR").value = String(user.settings.dsr ?? 0);
-                            }
-
-                            // aplica preset
-                            //applyAreaPreset(user.profile.area);
-
-                            if (!user.settings.scale_type && !user.settings.scale_pattern && !userModifiedScale) {
-                                applyAreaPreset(user.profile.area);
-                            }
-                        }
-
-                        function mostrarSetup() {
-                            const overlayEl = document.getElementById("pickerOverlay");
-
-                            if (overlayEl && !overlayEl.hidden) {
-                                closePicker();
-
-                                // 🔥 espera realmente fechar (não tempo fixo)
-                                const observer = new MutationObserver(() => {
-                                    if (overlayEl.hidden) {
-                                        observer.disconnect();
-                                        abrirSetup();
-                                    }
-                                });
-
-                                observer.observe(overlayEl, { attributes: true, attributeFilter: ["hidden"] });
-
-                                return;
-                            }
-
+                    // 🔥 espera realmente fechar (não tempo fixo)
+                    const observer = new MutationObserver(() => {
+                        if (overlayEl.hidden) {
+                            observer.disconnect();
                             abrirSetup();
                         }
+                    });
 
-                        function abrirSetup() {
-                            preencherSetup();
+                    observer.observe(overlayEl, { attributes: true, attributeFilter: ["hidden"] });
 
-                            renderListaFeriasSetup();
+                    return;
+                }
 
-                            getSetupModal().style.display = "flex";
-                            document.body.style.overflow = "hidden";
+                abrirSetup();
+            }
 
-                            setTimeout(() => {
-                                document.querySelector(".setup-content").scrollTop = 0;
-                            }, 0);
+            function abrirSetup() {
+                preencherSetup();
 
-                            document.getElementById("setupSalvar").disabled = true;
-                        }
+                renderListaFeriasSetup();
 
-                        function showToast(message, type = "info") {
-                            const toast = document.createElement("div");
-                            toast.className = `toast ${type}`;
-                            toast.innerText = message;
+                getSetupModal().style.display = "flex";
+                document.body.style.overflow = "hidden";
 
-                            document.body.appendChild(toast);
+                setTimeout(() => {
+                    document.querySelector(".setup-content").scrollTop = 0;
+                }, 0);
 
-                            requestAnimationFrame(() => {
-                                toast.classList.add("show");
-                            });
+                document.getElementById("setupSalvar").disabled = true;
+            }
 
-                            setTimeout(() => {
-                                toast.classList.remove("show");
+            function showToast(message, type = "info") {
+                const toast = document.createElement("div");
+                toast.className = `toast ${type}`;
+                toast.innerText = message;
 
-                                setTimeout(() => {
-                                    toast.remove();
-                                }, 200);
-                            }, 2500);
-                        }
+                document.body.appendChild(toast);
 
-                        function ativarSalvar() {
-                            document.getElementById("setupSalvar").disabled = false;
-                        }
+                requestAnimationFrame(() => {
+                    toast.classList.add("show");
+                });
 
-                        function agendarAtualizacaoDiaria() {
-                            const agora = new Date();
+                setTimeout(() => {
+                    toast.classList.remove("show");
 
-                            const proximaMeiaNoite = new Date();
-                            proximaMeiaNoite.setHours(24, 0, 0, 0);
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 200);
+                }, 2500);
+            }
 
-                            const msAteMeiaNoite = proximaMeiaNoite - agora;
+            function ativarSalvar() {
+                document.getElementById("setupSalvar").disabled = false;
+            }
 
-                            setTimeout(() => {
-                                location.reload(); // simples e confiável
-                            }, msAteMeiaNoite);
-                        }
+            function agendarAtualizacaoDiaria() {
+                const agora = new Date();
 
-                        function aplicarSetup(user) {
-                            saveUser(user);
+                const proximaMeiaNoite = new Date();
+                proximaMeiaNoite.setHours(24, 0, 0, 0);
 
-                            baseFolgaDomingo = getBaseDate();
+                const msAteMeiaNoite = proximaMeiaNoite - agora;
 
-                            atualizarSaudacao();
-                            atualizarFooterBase();
-                            gerarCalendario(anoAtual, mesAtual);
-                        }
+                setTimeout(() => {
+                    location.reload(); // simples e confiável
+                }, msAteMeiaNoite);
+            }
 
-                        function atualizarInfoEscala() {
-                            const el = document.getElementById("infoEscala");
-                            const user = getUser();
+            function aplicarSetup(user) {
+                saveUser(user);
 
-                            const area = normalizeArea(user.profile.area);
-                            const config = getAreaConfig(area);
+                baseFolgaDomingo = getBaseDate();
 
-                            if (!user.settings.scale_pattern) {
-                                el.innerText = "";
-                                return;
-                            }
+                atualizarSaudacao();
+                atualizarFooterBase();
+                gerarCalendario(anoAtual, mesAtual);
+            }
 
-                            const hoje = new Date();
-                            const isFolgaHoje = isFolga(hoje);
-                            const status = isFolgaHoje ? config.folgaLabel : config.escala;
+            function atualizarInfoEscala() {
+                const el = document.getElementById("infoEscala");
+                const user = getUser();
 
-                            el.innerText = `${config.escala}: ${user.settings.scale_pattern} • Hoje: ${status}`;
-                        }
+                const area = normalizeArea(user.profile.area);
+                const config = getAreaConfig(area);
 
-                        function calcularDiasRestantes(dataInicio) {
-                            const hoje = new Date();
-                            hoje.setHours(0, 0, 0, 0);
+                if (!user.settings.scale_pattern) {
+                    el.innerText = "";
+                    return;
+                }
 
-                            const inicio = new Date(dataInicio);
-                            inicio.setHours(0, 0, 0, 0);
+                const hoje = new Date();
+                const isFolgaHoje = isFolga(hoje);
+                const status = isFolgaHoje ? config.folgaLabel : config.escala;
 
-                            const diff = inicio - hoje;
+                el.innerText = `${config.escala}: ${user.settings.scale_pattern} • Hoje: ${status}`;
+            }
 
-                            const dias = Math.ceil(diff / (1000 * 60 * 60 * 24));
+            function calcularDiasRestantes(dataInicio) {
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
 
-                            return dias;
-                        }
+                const inicio = new Date(dataInicio);
+                inicio.setHours(0, 0, 0, 0);
+
+                const diff = inicio - hoje;
+
+                const dias = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+                return dias;
+            }
         </script>
 
         <!-- Bottom Sheet Overlay -->

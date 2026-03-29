@@ -1,8 +1,8 @@
 # CycleCal — Infraestrutura da Plataforma
 
 
-Status: 🟢 v1.9.1 (patch)
-Base: v1.9.0.3
+Status: 🟢 v1.9.2
+Base: v1.9.1
 Branch: main
 
 # Papel deste documento
@@ -77,7 +77,7 @@ Garantir que o CycleCal tenha uma base técnica escalável.
 
 
 - [x] v1.9.0 — Separar motor de regras do calendário
-- [ ] v1.9.2 — Criar objeto central `config`
+- [x] v1.9.2 — Criar objeto central `config`
 - [ ] v1.9.3 — Implementar sistema de camadas (layers)
 - [ ] v1.9.4 — Definir modelo de dados baseado em parâmetros
 
