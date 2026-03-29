@@ -1044,6 +1044,15 @@
                                 }
                             }
 
+                            // 📆 DIA DO ANO
+                            const hoje = new Date();
+                            const inicioAno = new Date(hoje.getFullYear(), 0, 1);
+                            const fimAno = new Date(hoje.getFullYear(), 11, 31);
+                            const diaDoAno = Math.ceil((hoje - inicioAno) / 86400000) + 1;
+                            const diasNoAno = Math.ceil((fimAno - inicioAno) / 86400000) + 1;
+                            const faltam = diasNoAno - diaDoAno;
+                            partes.push(`Dia ${diaDoAno} de ${diasNoAno} • Faltam ${faltam}`);
+
                             el.innerText = partes.join(" | ");
                         }
 
