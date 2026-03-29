@@ -2,7 +2,7 @@
 // CycleCal Service Worker
 // ==============================
 
-const CACHE_NAME = "cyclecal-v1.9.0.2";
+const CACHE_NAME = "cyclecal-v1.9.0.3";
 
 const ASSETS = [
   "./",
@@ -58,18 +58,28 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
+  // 🔥 1. HTML (sempre rede)
+  if (event.request.mode === "navigate") {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // 🔥 2. só trata seu domínio
+  if (!event.request.url.startsWith(self.location.origin)) return;
+
+  // 🔥 3. assets (cache-first inteligente)
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        return caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, response.clone());
-          return response;
-        });
-      })
-      .catch(() => {
-        return caches.match(event.request).then((cached) => {
-          return cached || caches.match("./index.html");
-        });
-      })
+    caches.match(event.request).then((cached) => {
+      const networkFetch = fetch(event.request)
+        .then((response) => {
+          return caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, response.clone());
+            return response;
+          });
+        })
+        .catch(() => cached);
+
+      return cached || networkFetch;
+    })
   );
 });

@@ -1,0 +1,632 @@
+:root {
+    --birthday-color: #d4af37;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f7f6;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 500px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 26px;
+}
+
+.version {
+    font-size: 12px;
+    color: gray;
+    margin-left: 6px;
+}
+
+.title-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.title-line {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.btn-hoje {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: black;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+    line-height: 1;
+}
+
+.line {
+    margin: 15px 0;
+    border-bottom: 2px solid #eee;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+button {
+    padding: 6px 12px;
+    font-size: 16px;
+}
+
+.controls button {
+    min-height: 44px;
+    width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.day,
+.header-day {
+    text-align: center;
+    padding: 12px 0;
+    border-radius: 8px;
+}
+
+.header-day {
+    font-weight: bold;
+    background: #f0f0f0;
+}
+
+.day {
+    background: #fafafa;
+    border: 1px solid #eee;
+    position: relative;
+}
+
+.day.birthday {
+    border: 2px solid var(--birthday-color);
+}
+
+.day.birthday::after {
+    content: "🎂";
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    font-size: 12px;
+}
+
+.day.folga {
+    background: #e6f7f1;
+    border: 2px solid #2faf8a;
+}
+
+.day.holiday {
+    background: #ffeaea;
+    border: 2px solid #c62828;
+}
+
+.day.cultural {
+    background: #f3e8ff;
+    border: 2px solid #8e44ad;
+}
+
+.day.vacation {
+    background: repeating-linear-gradient(45deg, #f5f5f5, #f5f5f5 4px, #e0e0e0 4px, #e0e0e0 8px);
+    border: 2px solid #9e9e9e;
+}
+
+.day.today span {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    border-radius: 50%;
+    background: black;
+    color: white;
+    font-weight: bold;
+}
+
+.footer {
+    margin-top: 20px;
+    font-size: 12px;
+    color: gray;
+}
+
+.legend {
+    margin-top: 8px;
+    color: #444;
+    display: none;
+}
+
+.legend-box {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.legend-box.vacation {
+    background: repeating-linear-gradient(45deg, #f5f5f5, #f5f5f5 4px, #e0e0e0 4px, #e0e0e0 8px);
+    border: 1px solid #9e9e9e;
+}
+
+.footer .holidays {
+    margin-top: 10px;
+    color: #444;
+}
+
+#controle-folgas {
+    font-size: 12px;
+    color: gray;
+    margin-top: 2px;
+}
+
+.calendar-transition {
+    opacity: 0;
+    transform: translateY(4px);
+}
+
+.calendar-transition-active {
+    transition:
+        opacity 140ms ease-out,
+        transform 140ms ease-out;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.periodo {
+    flex: 1;
+    min-height: 44px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 8px;
+    transition:
+        background 0.15s ease,
+        transform 0.08s ease;
+}
+
+.periodo:active {
+    transform: scale(0.97);
+}
+
+@media (hover: hover) {
+    .periodo:hover {
+        background: rgba(0, 0, 0, 0.05);
+    }
+}
+
+/* Bottom Sheet Overlay (base) */
+#pickerOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    z-index: 100;
+}
+
+#pickerOverlay[hidden] {
+    display: none !important;
+}
+
+/* Bottom Sheet (visual + animação) */
+.picker-sheet {
+    width: 100%;
+    max-width: 500px;
+    background: #ffffff;
+    border-radius: 16px 16px 0 0;
+    padding: 20px;
+
+    /* Estado inicial (fechado) */
+    transform: translateY(100%);
+    transition: transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.picker-handle {
+    width: 36px;
+    height: 4px;
+    background: #d0d0d0;
+    border-radius: 3px;
+    margin: 0 auto 12px auto;
+}
+
+.month-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.month-item {
+    padding: 12px;
+    text-align: center;
+    border-radius: 8px;
+    background: #f3f4f4;
+    font-weight: 600;
+    border: 1px solid #e6e6e6;
+}
+
+.month-item.active {
+    background: #2faf8a;
+    color: white;
+}
+
+/* Quando estiver ativo */
+#pickerOverlay.active .picker-sheet {
+    transform: translateY(0);
+}
+
+#anoTexto {
+    margin-left: 6px;
+}
+
+#mesTexto,
+#anoTexto {
+    cursor: pointer;
+}
+
+.periodo span {
+    padding: 4px 2px;
+}
+
+.day span {
+    position: relative;
+    z-index: 1;
+}
+
+.day.birthday::after {
+    z-index: 2;
+}
+
+.setup-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+
+    justify-content: center;
+    align-items: flex-start;
+
+    z-index: 9999;
+    padding: 10px;
+}
+
+.setup-box {
+    background: #1e293b;
+    padding: 24px;
+    border-radius: 16px;
+
+    width: 100%;
+    max-width: 420px;
+    max-height: 90vh;
+
+    display: flex;
+    flex-direction: column;
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    color: #e2e8f0;
+}
+
+.setup-box label {
+    font-size: 12px;
+    color: #94a3b8;
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 4px;
+}
+
+.setup-box input,
+.setup-box select {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+.setup-box input:focus,
+.setup-box select:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.setup-box button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    margin-top: 10px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.setup-section {
+    margin-top: 20px;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 14px;
+    position: relative;
+}
+
+.setup-section h4 {
+    position: absolute;
+    top: -8px;
+    left: 10px;
+    background: #1e293b; /* mesma cor do card */
+    padding: 0 6px;
+
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+#setupSalvar {
+    background: #3b82f6;
+    color: white;
+}
+
+#setupFechar {
+    background: #334155;
+    color: #e2e8f0;
+}
+
+.setup-box h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.setup-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.setup-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.setup-box h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.setup-section {
+    margin-top: 20px;
+}
+
+.setup-section h4 {
+    font-size: 12px;
+    color: #cbd5f5;
+    margin-bottom: 8px;
+    margin-top: 4px;
+}
+
+.setup-section:first-of-type {
+    margin-top: 10px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+
+    background: #1e293b;
+    color: #e2e8f0;
+
+    padding: 12px 16px;
+    border-radius: 10px;
+
+    font-size: 14px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+
+    opacity: 0;
+    transition: all 0.2s ease;
+
+    z-index: 9999;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast.error {
+    background: #7f1d1d;
+}
+
+.toast.success {
+    background: #065f46;
+}
+
+@media (max-width: 480px) {
+    .setup-modal {
+        padding: 0;
+    }
+
+    .setup-box {
+        max-width: 100%;
+        max-height: 100vh;
+        height: 100%;
+        border-radius: 0;
+    }
+}
+
+.setup-footer {
+    position: sticky;
+    bottom: 0;
+    background: #1e293b;
+    padding: 12px;
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.setup-footer button {
+    flex: 1;
+}
+
+.ferias-row {
+    display: flex;
+    gap: 10px;
+}
+
+.ferias-row > div {
+    flex: 1;
+}
+
+.ferias-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 8px;
+}
+
+.ferias-item span {
+    flex: 1;
+    white-space: nowrap;
+}
+
+.btn-remover {
+    background: transparent;
+    border: 1px solid #ff5c5c;
+    color: #ff5c5c;
+
+    padding: 4px 8px;
+    font-size: 12px;
+
+    border-radius: 6px;
+    cursor: pointer;
+
+    transition: 0.2s;
+
+    width: auto !important;
+    margin-top: 0 !important;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.btn-remover:hover {
+    background: #ff5c5c;
+    color: white;
+}
+
+.setup-box .ferias-item .btn-remover {
+    width: auto;
+    margin-top: 0;
+    padding: 4px 8px;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+#feriasForm {
+    max-height: 0;
+    overflow: hidden;
+
+    opacity: 0;
+    transform: translateY(-4px);
+
+    transition: all 0.25s ease;
+}
+
+#feriasForm.active {
+    max-height: 1000px;
+
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#setupSalvarFeriasBtn.active {
+    background: #22c55e;
+    color: white;
+}
+
+#btnCancelarFerias {
+    background: #334155;
+    color: #e2e8f0;
+    margin-top: 8px;
+    opacity: 0.9;
+}
+
+#btnCancelarFerias:hover {
+    opacity: 1;
+}
+
+.ferias-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.ferias-actions button {
+    flex: 1;
+    width: auto !important;
+}
+
+.setup-content {
+    overflow-y: auto;
+    flex: 1;
+}
