@@ -10,7 +10,7 @@
 
         <link rel="icon" href="icon-256.png" type="image/png" />
 
-        <!-- Versão 1.9.0.1 -->
+        <!-- Versão 1.9.0.2 -->
 
         <style>
             :root {
@@ -657,7 +657,7 @@
                     <div class="title-group">
                         <div class="title-line">
                             <h1>CycleCal</h1>
-                            <span class="version">v1.9.0.1</span>
+                            <span class="version">v1.9.0.2</span>
                         </div>
 
                         <div id="userGreeting"></div>
@@ -702,58 +702,6 @@
 
 
         <script>
-            const AREAS = [
-                { value: "supermercado", label: "Supermercado / Varejo" },
-                { value: "seguranca", label: "Segurança Pública" },
-                { value: "hospital", label: "Hospital / Saúde" },
-                { value: "industria", label: "Indústria" },
-                { value: "outros", label: "Outros" },
-            ];
-
-            const AREA_PRESETS = {
-                seguranca: {
-                    scale_type: "plantao",
-                    scale_pattern: "24x72",
-                },
-                hospital: {
-                    scale_type: "plantao",
-                    scale_pattern: "12x36",
-                },
-                supermercado: {
-                    scale_type: "semanal",
-                    scale_pattern: "6x1",
-                },
-                industria: {
-                    scale_type: "turno",
-                    scale_pattern: "5x1",
-                },
-            };
-
-            const AREAS_WITHOUT_DSR = ["seguranca", "hospital"];
-
-            const AREA_CONFIG = {
-                seguranca: {
-                    trabalho: "Bom plantão 👮‍♂️",
-                    folga: "Bom descanso",
-                    escala: "Plantão",
-                    folgaLabel: "Descanso",
-                },
-                hospital: {
-                    trabalho: "Bom plantão 🏥",
-                    folga: "Bom descanso",
-                    escala: "Plantão",
-                    folgaLabel: "Descanso",
-                },
-                supermercado: {
-                    trabalho: "Bom trabalho",
-                    folga: "Boa folga",
-                    escala: "Turno",
-                    folgaLabel: "Folga",
-                },
-                industria: {},
-                outros: {},
-            };
-
             const mesesAbreviados = [
                 "JAN",
                 "FEV",
@@ -942,6 +890,8 @@
 
             document.addEventListener("DOMContentLoaded", function () {
                 initUser();
+
+                baseFolgaDomingo = getBaseDate();
 
                 carregarFerias();
 
@@ -1335,22 +1285,12 @@
                 const agora = new Date();
                 const diasNoMes = new Date(ano, mes + 1, 0).getDate();
 
-                const feriadosMoveis = gerarFeriadosMoveis(ano);
-                const carnaval = gerarCarnaval(ano);
-
-                const todosFeriados = [...feriadosFixos, ...feriadosMoveis];
+                const ctx = getContext(ano);
+                const todosFeriados = ctx.todosFeriados;
+                const carnaval = ctx.carnaval;
 
                 for (let i = 0; i < inicio; i++) {
                     calendario.appendChild(document.createElement("div"));
-                }
-
-                const user = getUser();
-
-                let aniversario = null;
-
-                if (user.profile.birthday) {
-                    const [y, m, d] = user.profile.birthday.split("-");
-                    aniversario = ajustarAniversario(Number(d), Number(m) - 1, ano);
                 }
 
                 for (let dia = 1; dia <= diasNoMes; dia++) {
@@ -1628,23 +1568,7 @@
                 }, 250);
             }
 
-            function ajustarAniversario(dia, mes, ano) {
-                // fevereiro = 1 no JavaScript
-                if (dia === 29 && mes === 1) {
-                    const diasFev = new Date(ano, 2, 0).getDate();
 
-                    if (diasFev === 28) {
-                        return { dia: 28, mes: 1 };
-                    }
-                }
-
-                return { dia, mes };
-            }
-
-            function formatarData(dataISO) {
-                const [ano, mes, dia] = dataISO.split("-");
-                return `${dia}/${mes}/${ano}`;
-            }
 
             function renderListaFeriasSetup() {
                 const container = document.getElementById("setupListaFerias");
@@ -1871,16 +1795,6 @@
                 }, msAteMeiaNoite);
             }
 
-            function isValidDate(day, month) {
-                const d = Number(day);
-                const m = Number(month);
-
-                if (m < 1 || m > 12) return false;
-                if (d < 1) return false;
-
-                const daysInMonth = new Date(2024, m, 0).getDate(); // ano fixo evita leap issues
-                return d <= daysInMonth;
-            }
 
             function aplicarSetup(user) {
                 saveUser(user);
@@ -1892,29 +1806,8 @@
                 gerarCalendario(anoAtual, mesAtual);
             }
 
-            function getAreaConfig(area) {
-                const base = {
-                    trabalho: "Bom trabalho",
-                    folga: "Bom descanso",
-                    escala: "Turno",
-                    folgaLabel: "Descanso",
-                };
 
-                return {
-                    ...base,
-                    ...(AREA_CONFIG[area] || {}),
-                };
-            }
 
-            function normalizeArea(area) {
-                const valid = ["seguranca", "hospital", "supermercado", "industria", "outros"];
-
-                if (!valid.includes(area)) {
-                    return "outros";
-                }
-
-                return area;
-            }
 
             function atualizarInfoEscala() {
                 const el = document.getElementById("infoEscala");

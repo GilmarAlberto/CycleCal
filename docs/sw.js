@@ -2,7 +2,7 @@
 // CycleCal Service Worker
 // ==============================
 
-const CACHE_NAME = "cyclecal-v1.9.1";
+const CACHE_NAME = "cyclecal-v1.9.0.2";
 
 const ASSETS = [
   "./",
@@ -11,12 +11,14 @@ const ASSETS = [
   "./icon-256.png",
   "./icon-512.png",
   "./js/main.js",
-  "./js/calendario.js",
   "./js/logic/events.js",
   "./js/logic/folgas.js",
   "./js/logic/holidays.js",
   "./js/logic/vacations.js",
   "./js/logic/feriados.js",
+  "./js/logic/context.js",
+  "./js/logic/utils.js",
+  "./js/logic/areas.js",
 ];
 
 self.addEventListener("install", (event) => {

@@ -1,56 +1,34 @@
-import { eventosDoDia, resolverEvento } from "./calendario.js";
+import { eventosDoDia, resolverEvento } from "./logic/events.js";
 import { ehFolga } from "./logic/folgas.js";
 import { feriadosFixos, gerarFeriadosMoveis, gerarCarnaval } from "./logic/feriados.js";
+import { getContext } from "./logic/context.js";
+import { ajustarAniversario, formatarData, isValidDate } from "./logic/utils.js";
+import { AREAS, AREA_PRESETS, AREAS_WITHOUT_DSR, normalizeArea, getAreaConfig } from "./logic/areas.js";
 
-function getContext() {
-    const user = getUser();
-
-    let aniversario = null;
-
-    if (user.profile.birthday) {
-        const [y, m, d] = user.profile.birthday.split("-");
-        aniversario = {
-            dia: Number(d),
-            mes: Number(m) - 1,
-        };
-    }
-
-    const feriadosMoveis = gerarFeriadosMoveis(anoAtual);
-    const carnaval = gerarCarnaval(anoAtual);
-    const todosFeriados = [...feriadosFixos, ...feriadosMoveis];
-
-    return {
-        user,
-        vacations,
-        baseFolgaDomingo,
-        AREAS_WITHOUT_DSR,
-        aniversario,
-        todosFeriados,
-        carnaval,
-    };
-}
+// Expõe para o index.html
+window.getContext       = getContext;
+window.getAreaConfig    = getAreaConfig;
+window.normalizeArea    = normalizeArea;
+window.ajustarAniversario = ajustarAniversario;
+window.formatarData     = formatarData;
+window.isValidDate      = isValidDate;
+window.AREAS_WITHOUT_DSR = AREAS_WITHOUT_DSR;
+window.AREAS            = AREAS;
+window.AREA_PRESETS     = AREA_PRESETS;
 
 window.getEventosDoDia = function (data) {
-    const context = getContext();
-    return resolverEvento(eventosDoDia(data, context));
+    return resolverEvento(eventosDoDia(data, getContext()));
 };
 
 window.isFolga = function (data) {
-    const context = getContext();
-    return ehFolga(data, context.user, context.baseFolgaDomingo, context.AREAS_WITHOUT_DSR);
+    const ctx = getContext();
+    return ehFolga(data, ctx.user, ctx.baseFolgaDomingo, ctx.AREAS_WITHOUT_DSR);
 };
 
 window.getEventos = function (data) {
-    const context = getContext();
-    return eventosDoDia(data, context);
+    return eventosDoDia(data, getContext());
 };
 
 window.getEventoPrincipal = function (data) {
     return resolverEvento(window.getEventos(data));
 };
-
-// Expõe funções de feriados globalmente para compatibilidade
-// com gerarCalendario() no index.html (remover após Etapa 4)
-window.gerarFeriadosMoveis = gerarFeriadosMoveis;
-window.gerarCarnaval = gerarCarnaval;
-window.feriadosFixos = feriadosFixos;
