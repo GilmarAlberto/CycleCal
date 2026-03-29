@@ -4,17 +4,19 @@ import { feriadosFixos, gerarFeriadosMoveis, gerarCarnaval } from "./logic/feria
 import { getContext } from "./logic/context.js";
 import { ajustarAniversario, formatarData, isValidDate } from "./logic/utils.js";
 import { AREAS, AREA_PRESETS, AREAS_WITHOUT_DSR, normalizeArea, getAreaConfig } from "./logic/areas.js";
+import { getProximaFerias } from "./logic/vacations.js";
 
 // Expõe para o index.html
-window.getContext       = getContext;
-window.getAreaConfig    = getAreaConfig;
-window.normalizeArea    = normalizeArea;
+window.getContext         = getContext;
+window.getAreaConfig      = getAreaConfig;
+window.normalizeArea      = normalizeArea;
 window.ajustarAniversario = ajustarAniversario;
-window.formatarData     = formatarData;
-window.isValidDate      = isValidDate;
-window.AREAS_WITHOUT_DSR = AREAS_WITHOUT_DSR;
-window.AREAS            = AREAS;
-window.AREA_PRESETS     = AREA_PRESETS;
+window.formatarData       = formatarData;
+window.isValidDate        = isValidDate;
+window.AREAS_WITHOUT_DSR  = AREAS_WITHOUT_DSR;
+window.AREAS              = AREAS;
+window.AREA_PRESETS       = AREA_PRESETS;
+window.getProximaFerias   = getProximaFerias;  // ← estava faltando!
 
 window.getEventosDoDia = function (data) {
     return resolverEvento(eventosDoDia(data, getContext()));

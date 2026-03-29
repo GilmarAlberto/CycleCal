@@ -2,7 +2,7 @@
 // CycleCal Service Worker
 // ==============================
 
-const CACHE_NAME = "cyclecal-v1.9.0.3";
+const CACHE_NAME = "cyclecal-v1.9.1";
 
 const ASSETS = [
   "./",
@@ -38,22 +38,18 @@ self.addEventListener("install", (event) => {
   );
 });
 
-self.addEventListener("activate", (event) => {
-  console.log("[SW] Activating...");
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            console.log("[SW] Removendo cache antigo:", key);
-            return caches.delete(key);
-          }
-        })
-      )
+event.waitUntil(
+  caches.keys().then((keys) =>
+    Promise.all(
+      keys.map((key) => {
+        if (key !== CACHE_NAME) {
+          console.log("[SW] Removendo cache antigo:", key);
+          return caches.delete(key);
+        }
+      })
     )
-  );
-  self.clients.claim();
-});
+  ).then(() => self.clients.claim())
+);
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;

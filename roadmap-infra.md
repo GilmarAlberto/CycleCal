@@ -1,8 +1,8 @@
 # CycleCal — Infraestrutura da Plataforma
 
 
-Status: 🟢 v1.9.0
-Base: 🔮 Planejamento
+Status: 🟢 v1.9.1 (patch)
+Base: v1.9.0.3
 Branch: main
 
 # Papel deste documento
@@ -27,61 +27,59 @@ para crescimento modular e manutenção mais fácil.
 
 ## Estrutura de Código
 
-- [ ] Separar CSS do HTML
-- [ ] Criar pasta `/css`
-- [ ] Criar arquivo `styles.css`
+- [x] Separar CSS do HTML (1.9.0.3)
+- [x] Criar pasta `/css`
+- [x] Criar arquivo `styles.css`
 
-- [ ] Criar pasta `/js`
-- [ ] Separar lógica do calendário
-- [ ] Separar regras de eventos
-- [ ] Separar lógica de feriados
-- [ ] Separar lógica de férias
+- [x] Criar pasta `/js` (1.9.0.2)
+- [x] Separar lógica do calendário
+- [x] Separar regras de eventos
+- [x] Separar lógica de feriados
+- [x] Separar lógica de férias
 
 ## Organização de Arquivos
 
 Estrutura alvo:
 
-docs/
-│
-├── index.html
-│
-├── css/
-│   └── styles.css
-│
 ├── js/
-│   ├── app.js
-│   ├── calendario.js
-│   ├── eventos.js
-│   ├── feriados.js
-│   ├── ferias.js
-│   └── navigation.js
-│
-├── manifest.json
-├── sw.js
-│
-└── icons/
-    ├── icon-256.png
-    └── icon-512.png
+│   ├── main.js
+│   └── logic/
+│       ├── calendario.js
+│       ├── events.js
+│       ├── folgas.js
+│       ├── holidays.js
+│       └── vacations.js
 
 ## Critério de Conclusão
 
-- `index.html` com menos de ~300 linhas
-- Cada módulo com responsabilidade única
-- Nenhuma mudança funcional no comportamento do sistema
+- Lógica principal extraída para módulos JS
+- CSS separado em arquivo dedicado
+- `index.html` focado em estrutura e renderização
 
 ---
+
 
 # 🧱 Arquitetura do Sistema (v1.9.0 – v1.9.3)
 
 Objetivo:
 Garantir que o CycleCal tenha uma base técnica escalável.
 
+
+# 🎯 Features do Core (v1.9.x)
+
+## v1.9.1 (patch)
+
+- [x] Contador de dias restantes para férias no rodapé (quando aplicável)
+
+---
+
 ## Estrutura
 
+
 - [x] v1.9.0 — Separar motor de regras do calendário
-- [ ] v1.9.1 — Criar objeto central `config`
-- [ ] v1.9.2 — Implementar sistema de camadas (layers)
-- [ ] v1.9.3 — Definir modelo de dados baseado em parâmetros
+- [ ] v1.9.2 — Criar objeto central `config`
+- [ ] v1.9.3 — Implementar sistema de camadas (layers)
+- [ ] v1.9.4 — Definir modelo de dados baseado em parâmetros
 
 ---
 
@@ -113,14 +111,14 @@ Exemplo:
 
 ---
 
-# 💾 Persistência de Dados (v1.9.4 – v1.9.8)
+# 💾 Persistência de Dados (v1.9.5 – v1.9.8)
 
 Objetivo:
 Permitir que o usuário mantenha suas escalas e configurações.
 
 ## Estrutura de Persistência
 
-- [ ] v1.9.4 — Criar camada de persistência abstrata (`storage`)
+- [ ] v1.9.5 — Criar camada de persistência abstrata (`storage`)
 - [ ] v1.9.7 — Implementar adapter LocalStorage
 - [ ] v1.9.8 — Implementar adapter IndexedDB
 
