@@ -1,4 +1,4 @@
-import { eventosDoDia, resolverEvento } from "./logic/events.js";
+import { eventosDoDia, buildLayers, getTopLayer } from "./logic/events.js";
 import { ehFolga } from "./logic/folgas.js";
 import { feriadosFixos, gerarFeriadosMoveis, gerarCarnaval } from "./logic/feriados.js";
 import { getContext } from "./logic/context.js";
@@ -16,11 +16,11 @@ window.isValidDate        = isValidDate;
 window.AREAS_WITHOUT_DSR  = AREAS_WITHOUT_DSR;
 window.AREAS              = AREAS;
 window.AREA_PRESETS       = AREA_PRESETS;
-window.getProximaFerias   = getProximaFerias;  // ← estava faltando!
+window.getProximaFerias   = getProximaFerias;
 
-window.getEventosDoDia = function (data) {
-    return resolverEvento(eventosDoDia(data, getContext()));
-};
+// 🆕 Sistema de layers (Fase 1)
+window.buildLayers  = buildLayers;
+window.getTopLayer  = getTopLayer;
 
 window.isFolga = function (data) {
     const ctx = getContext();
@@ -31,6 +31,5 @@ window.getEventos = function (data) {
     return eventosDoDia(data, getContext());
 };
 
-window.getEventoPrincipal = function (data) {
-    return resolverEvento(window.getEventos(data));
-};
+// Sinaliza que o módulo terminou de carregar
+window.dispatchEvent(new CustomEvent("cyclecal:ready"));

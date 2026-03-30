@@ -68,7 +68,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "1.9.2",
+                version: "1.9.3",
                 debug: false,
             };
 
@@ -94,6 +94,7 @@
             let userModifiedScale = false;
             let isApplyingPreset = false;
             let feriasFormAberto = false;
+            let calendar = { year: null, month: null, days: [] };
 
             document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("app-version").textContent = `v${config.version}`;
@@ -262,7 +263,7 @@
                 vacations = user.vacations || [];
             }
 
-            document.addEventListener("DOMContentLoaded", function () {
+            window.addEventListener("cyclecal:ready", function () {
                 initUser();
 
                 baseFolgaDomingo = getBaseDate();
@@ -667,6 +668,19 @@
                     calendario.appendChild(document.createElement("div"));
                 }
 
+                // Monta estrutura de dados do mês antes de renderizar
+                calendar = {
+                    year: ano,
+                    month: mes,
+                    days: Array.from({ length: diasNoMes }, (_, i) => {
+                        const data = new Date(ano, mes, i + 1);
+                        const dateStr = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(i + 1).padStart(2, "0")}`;
+                        const eventos = getEventos(data);
+                        const layers  = buildLayers(eventos);
+                        return { date: dateStr, layers };
+                    }),
+                };
+
                 for (let dia = 1; dia <= diasNoMes; dia++) {
                     const data = new Date(ano, mes, dia);
                     const el = document.createElement("div");
@@ -676,15 +690,19 @@
                     span.innerText = dia;
                     el.appendChild(span);
 
-                    const eventos = getEventos(data);
-                    const principal = getEventoPrincipal(data);
+                    const { layers } = calendar.days[dia - 1];
+                    const top        = getTopLayer(layers);
 
-                    if (principal) {
-                        el.classList.add(principal);
+                    if (top) {
+                        el.classList.add(top.type);
                     }
 
-                    if (eventos.includes("birthday")) {
+                    if (layers.some((l) => l.type === "birthday")) {
                         el.classList.add("birthday");
+                    }
+
+                    if (layers.length) {
+                        el.dataset.layers = JSON.stringify(layers);
                     }
 
                     if (dia === agora.getDate() && mes === agora.getMonth() && ano === agora.getFullYear()) {

@@ -2,6 +2,42 @@ import { ehFolga } from "./folgas.js";
 import { ehFeriado } from "./holidays.js";
 import { ehFerias } from "./vacations.js";
 
+// ==============================
+// CycleCal — Prioridades de Layer
+// ==============================
+
+const LAYER_PRIORITY = {
+    vacation: 50,
+    folga:    20,
+    holiday:  10,
+    cultural:  8,
+    birthday:  5,
+};
+
+// ==============================
+// Monta array de layers a partir dos eventos do dia
+// ==============================
+
+export function buildLayers(eventos) {
+    return eventos.map((type) => ({
+        type,
+        priority: LAYER_PRIORITY[type] ?? 0,
+    }));
+}
+
+// ==============================
+// Retorna a layer de maior prioridade
+// ==============================
+
+export function getTopLayer(layers) {
+    if (!layers.length) return null;
+    return [...layers].sort((a, b) => b.priority - a.priority)[0];
+}
+
+// ==============================
+// Retorna todos os eventos do dia como array de strings
+// ==============================
+
 export function eventosDoDia(data, context) {
     const eventos = [];
 
@@ -32,7 +68,3 @@ export function eventosDoDia(data, context) {
     return eventos;
 }
 
-export function resolverEvento(eventos) {
-    const prioridade = ["vacation", "folga", "holiday", "cultural", "birthday"];
-    return prioridade.find((tipo) => eventos.includes(tipo)) || null;
-}

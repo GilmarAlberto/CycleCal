@@ -78,7 +78,7 @@ Garantir que o CycleCal tenha uma base técnica escalável.
 
 - [x] v1.9.0 — Separar motor de regras do calendário
 - [x] v1.9.2 — Criar objeto central `config`
-- [ ] v1.9.3 — Implementar sistema de camadas (layers)
+- [x] v1.9.3 — Implementar sistema de camadas (layers)
 - [ ] v1.9.4 — Definir modelo de dados baseado em parâmetros
 
 ---
