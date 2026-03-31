@@ -68,7 +68,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "1.9.3",
+                version: "1.9.4",
                 debug: false,
             };
 
@@ -1039,10 +1039,28 @@
 
                 const partes = [];
 
-                // 📅 BASE
+                // 📅 PRÓXIMA FOLGA DOMINGO
                 if (user.settings.base_date) {
-                    const [y, m, d] = user.settings.base_date.split("-");
-                    partes.push(`Folga Domingo: ${d}/${m}/${y}`);
+                    const hoje = new Date();
+                    hoje.setHours(0, 0, 0, 0);
+
+                    const [by, bm, bd] = user.settings.base_date.split("-").map(Number);
+                    const base = new Date(by, bm - 1, bd);
+                    base.setHours(0, 0, 0, 0);
+
+                    const proxima = new Date(base);
+                    while (proxima < hoje) {
+                        proxima.setDate(proxima.getDate() + 21);
+                    }
+
+                    const d = String(proxima.getDate()).padStart(2, "0");
+                    const m = String(proxima.getMonth() + 1).padStart(2, "0");
+                    const y = proxima.getFullYear();
+
+                    const diff = Math.round((proxima - hoje) / 86400000);
+                    const label = diff === 0 ? "hoje!" : `em ${diff} dia${diff === 1 ? "" : "s"}`;
+
+                    partes.push(`🌙 Folga Dom: ${d}/${m}/${y} (${label})`);
                 }
 
                 // 📆 DSR
