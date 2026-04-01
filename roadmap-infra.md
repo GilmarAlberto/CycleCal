@@ -95,9 +95,9 @@ Exemplo:
 Jan → 24x72  
 Fev → 24x96
 
-- [ ] Registrar mudanças de escala
-- [ ] Permitir alteração da base da escala sem alterar o histórico passado
-- [ ] Permitir consulta histórica
+- [x] Registrar mudanças de escala
+- [x] Permitir alteração da base da escala sem alterar o histórico passado
+- [x] Permitir consulta histórica
 
 ## Histórico de Plantões
 
@@ -106,19 +106,19 @@ Exemplo:
 15/02 – Plantão  
 16/02 – Folga
 
-- [ ] Registrar histórico diário
-- [ ] Permitir consulta mensal
+- [x] Registrar histórico diário
+- [x] Permitir consulta mensal
 
 ---
 
-# 💾 Persistência de Dados (v1.9.5 – v1.9.8)
+# 💾 Persistência de Dados (v1.9.6 – v1.9.8)
 
 Objetivo:
 Permitir que o usuário mantenha suas escalas e configurações.
 
 ## Estrutura de Persistência
 
-- [ ] v1.9.5 — Criar camada de persistência abstrata (`storage`)
+- [ ] v1.9.6 — Criar camada de persistência abstrata (`storage`)
 - [ ] v1.9.7 — Implementar adapter LocalStorage
 - [ ] v1.9.8 — Implementar adapter IndexedDB
 

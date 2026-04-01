@@ -51,6 +51,7 @@
 
             <div style="margin-top: 15px; text-align: center">
                 <button id="btnSetup">Setup ⚙</button>
+                <button id="btnHistorico">Histórico 📜</button>
             </div>
 
             <div class="footer">
@@ -68,7 +69,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "1.9.4",
+                version: "1.9.5",
                 debug: false,
             };
 
@@ -108,8 +109,9 @@
                 const stored = localStorage.getItem("cyclecal_user");
 
                 if (!stored) {
+                    // Usuário novo — cria com scale_history já presente
                     const user = {
-                        version: 1,
+                        version: 2,
                         updated_at: "",
                         profile: {
                             user_id: crypto.randomUUID(),
@@ -124,10 +126,32 @@
                             scale_pattern: "",
                             dsr: 0,
                         },
+                        scale_history: [],
                         vacations: [],
                     };
 
                     localStorage.setItem("cyclecal_user", JSON.stringify(user));
+                } else {
+                    // Usuário existente — migra para version 2 se necessário
+                    try {
+                        const user = JSON.parse(stored);
+                        if (!user.version || user.version < 2) {
+                            user.version = 2;
+                            user.scale_history = [];
+                            if (user.settings.scale_pattern && user.settings.base_date) {
+                                user.scale_history.push({
+                                    pattern:   user.settings.scale_pattern,
+                                    type:      user.settings.scale_type || "",
+                                    base_date: user.settings.base_date,
+                                    since:     user.settings.base_date,
+                                });
+                            }
+                            localStorage.setItem("cyclecal_user", JSON.stringify(user));
+                        }
+                    } catch {
+                        localStorage.removeItem("cyclecal_user");
+                        initUser();
+                    }
                 }
             }
 
@@ -261,6 +285,15 @@
                 }
 
                 vacations = user.vacations || [];
+            }
+
+            // Controla visibilidade do botão Adicionar período com base nas férias futuras
+            function atualizarBtnAdicionarFerias() {
+                if (feriasFormAberto) return;
+                const hoje = new Date().toISOString().slice(0, 10);
+                const jaTemFutura = vacations.some((v) => v.end >= hoje);
+                const btn = document.getElementById("setupSalvarFeriasBtn");
+                if (btn) btn.style.display = jaTemFutura ? "none" : "";
             }
 
             window.addEventListener("cyclecal:ready", function () {
@@ -421,6 +454,13 @@
 
                     user.settings.dsr = Number(document.getElementById("setupDSR").value);
 
+                    registrarEscalaNoHistorico(
+                        user,
+                        user.settings.base_date,
+                        user.settings.scale_pattern,
+                        user.settings.scale_type
+                    );
+
                     aplicarSetup(user);
 
                     showToast("Salvo com sucesso!", "success");
@@ -430,6 +470,14 @@
                 };
 
                 document.getElementById("setupSalvarFeriasBtn").addEventListener("click", function () {
+                    // Bloqueia se já existe uma férias futura pendente
+                    const hoje = new Date().toISOString().slice(0, 10);
+                    const jaTemFutura = vacations.some((v) => v.end >= hoje);
+                    if (jaTemFutura) {
+                        showToast("Já há um período de férias agendado.", "error");
+                        return;
+                    }
+
                     const form = document.getElementById("feriasForm");
 
                     form.classList.add("active");
@@ -463,6 +511,14 @@
                         return;
                     }
 
+                    // Defesa dupla: garante que não há outra futura além da que está sendo adicionada
+                    const hojeStr = new Date().toISOString().slice(0, 10);
+                    const jaTemFutura = vacations.some((v) => v.end >= hojeStr);
+                    if (jaTemFutura) {
+                        showToast("Já há um período de férias agendado.", "error");
+                        return;
+                    }
+
                     vacations.push({ start: inicio, end: fim });
 
                     salvarFerias();
@@ -481,7 +537,7 @@
                     document.getElementById("setupFeriasInicio").value = "";
                     document.getElementById("setupFeriasFim").value = "";
 
-                    document.getElementById("setupSalvarFeriasBtn").style.display = "";
+                    atualizarBtnAdicionarFerias();
                     document.querySelector(".setup-footer").style.display = "flex";
                 });
 
@@ -498,7 +554,7 @@
 
                     feriasFormAberto = false;
 
-                    document.getElementById("setupSalvarFeriasBtn").style.display = "";
+                    atualizarBtnAdicionarFerias();
                     document.querySelector(".setup-footer").style.display = "flex";
 
                     // limpa inputs
@@ -966,7 +1022,23 @@
 
                 container.innerHTML = "";
 
-                vacations.forEach((v, index) => {
+                const hoje = new Date().toISOString().slice(0, 10);
+
+                // Mostra apenas férias futuras (end >= hoje) — passadas ficam só no Histórico
+                const futuras = vacations
+                    .map((v, originalIndex) => ({ v, originalIndex }))
+                    .filter(({ v }) => v.end >= hoje);
+
+                if (futuras.length === 0) {
+                    const vazio = document.createElement("p");
+                    vazio.style.cssText = "color:var(--text-muted,#888);font-size:0.9em;margin:4px 0";
+                    vazio.textContent = "Nenhum período futuro agendado.";
+                    container.appendChild(vazio);
+                }
+
+                atualizarBtnAdicionarFerias();
+
+                futuras.forEach(({ v, originalIndex }) => {
                     const item = document.createElement("div");
                     item.className = "ferias-item";
 
@@ -978,7 +1050,7 @@
                     btn.className = "btn-remover";
 
                     btn.onclick = () => {
-                        vacations.splice(index, 1);
+                        vacations.splice(originalIndex, 1);
                         salvarFerias();
                         ativarSalvar();
                         renderListaFeriasSetup();
@@ -990,6 +1062,8 @@
 
                     container.appendChild(item);
                 });
+
+                atualizarBtnAdicionarFerias();
             }
 
             function verificarPerfil() {
@@ -1225,6 +1299,45 @@
                 }, msAteMeiaNoite);
             }
 
+            // ==============================
+            // registrarEscalaNoHistorico()
+            // Chamado antes de salvar — compara escala nova com a última
+            // entrada do histórico e só registra se houve mudança real.
+            // ==============================
+            function registrarEscalaNoHistorico(user, novaBaseDate, novoPattern, novoType) {
+                if (!novaBaseDate || !novoPattern) return;
+
+                if (!Array.isArray(user.scale_history)) {
+                    user.scale_history = [];
+                }
+
+                const ultima = user.scale_history[user.scale_history.length - 1];
+
+                const mudou =
+                    !ultima ||
+                    ultima.pattern   !== novoPattern   ||
+                    ultima.type      !== novoType      ||
+                    ultima.base_date !== novaBaseDate;
+
+                if (mudou) {
+                    // "since" = hoje (data em que a nova escala entra em vigor)
+                    const hoje = new Date();
+                    const since =
+                        hoje.getFullYear() +
+                        "-" +
+                        String(hoje.getMonth() + 1).padStart(2, "0") +
+                        "-" +
+                        String(hoje.getDate()).padStart(2, "0");
+
+                    user.scale_history.push({
+                        pattern:   novoPattern,
+                        type:      novoType,
+                        base_date: novaBaseDate,
+                        since,
+                    });
+                }
+            }
+
             function aplicarSetup(user) {
                 saveUser(user);
 
@@ -1267,6 +1380,179 @@
 
                 return dias;
             }
+
+            // ==============================
+            // HISTÓRICO — abrir/fechar modal
+            // ==============================
+
+            function abrirHistorico() {
+                renderHistoricoEscalas();
+                renderHistoricoFerias();
+                document.getElementById("historicoModal").style.display = "flex";
+                document.body.style.overflow = "hidden";
+            }
+
+            function fecharHistorico() {
+                document.getElementById("historicoModal").style.display = "none";
+                document.body.style.overflow = "";
+            }
+
+            function renderHistoricoFerias() {
+                const user = getUser();
+                const lista = document.getElementById("historicoFeriasList");
+
+                const vacList = user.vacations || [];
+
+                if (vacList.length === 0) {
+                    lista.innerHTML = "<p style=\"color:var(--text-muted, #888);font-size:0.9em\">Nenhum período de férias registrado.</p>";
+                    return;
+                }
+
+                // Ordena do mais recente para o mais antigo
+                const sorted = [...vacList].sort((a, b) => (a.start > b.start ? -1 : 1));
+
+                lista.innerHTML = sorted.map((v) => {
+                    const inicio = v.start.split("-").reverse().join("/");
+                    const fim    = v.end.split("-").reverse().join("/");
+
+                    // Calcula duração em dias
+                    const ms = new Date(v.end) - new Date(v.start);
+                    const dias = Math.round(ms / 86400000) + 1;
+
+                    const hoje = new Date().toISOString().slice(0, 10);
+                    const passado = v.end < hoje;
+                    const cor = passado ? "var(--text-muted,#888)" : "var(--accent,#4a90d9)";
+
+                    return `
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border,#e0e0e0)">
+                            <div>
+                                <span style="color:${cor};font-weight:500">${inicio} → ${fim}</span>
+                                <div style="font-size:0.8em;color:var(--text-muted,#888)">${dias} dia${dias !== 1 ? "s" : ""}</div>
+                            </div>
+                            ${passado ? '<span style="font-size:0.75em;color:var(--text-muted,#aaa)">concluído</span>' : '<span style="font-size:0.75em;color:var(--accent,#4a90d9)">futuro</span>'}
+                        </div>`;
+                }).join("");
+            }
+
+            function renderHistoricoEscalas() {
+                const user = getUser();
+                const lista = document.getElementById("historicoEscalasList");
+
+                if (!user.scale_history || user.scale_history.length === 0) {
+                    lista.innerHTML = "<p style=\"color:var(--text-muted, #888);font-size:0.9em\">Nenhuma escala registrada ainda.</p>";
+                    return;
+                }
+
+                // Ordena do mais recente para o mais antigo
+                const sorted = [...user.scale_history].sort((a, b) => (a.since > b.since ? -1 : 1));
+
+                lista.innerHTML = sorted.map((entry, i) => {
+                    const sinceLabel = entry.since
+                        ? entry.since.split("-").reverse().join("/")
+                        : "—";
+                    const badge = i === 0 ? " <span style=\"font-size:0.75em;color:var(--accent,#4a90d9)\">atual</span>" : "";
+                    return `
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border,#e0e0e0)">
+                            <div>
+                                <strong>${entry.pattern}</strong>${badge}
+                                <div style="font-size:0.8em;color:var(--text-muted,#888)">${entry.type || ""}</div>
+                            </div>
+                            <div style="font-size:0.85em;color:var(--text-muted,#888)">desde ${sinceLabel}</div>
+                        </div>`;
+                }).join("");
+            }
+
+            function renderHistoricoPlantoes(anoMes) {
+                // anoMes no formato "YYYY-MM"
+                const user = getUser();
+                const lista = document.getElementById("historicoPlantoesLista");
+
+                if (!anoMes) {
+                    lista.innerHTML = "";
+                    return;
+                }
+
+                const [ano, mes] = anoMes.split("-").map(Number);
+                const diasNoMes = new Date(ano, mes, 0).getDate();
+
+                const AREAS_SEM_DSR = window.AREAS_WITHOUT_DSR || ["seguranca", "hospital"];
+                const area = user.profile.area || "outros";
+                const ehPlantao = AREAS_SEM_DSR.includes(area);
+
+                const mesesNomes = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+                const diasSemana = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+
+                let linhas = [];
+
+                for (let d = 1; d <= diasNoMes; d++) {
+                    const data = new Date(ano, mes - 1, d);
+                    const ctx = window.getContext(ano);
+
+                    // Importa ehFolga via isFolga exposto em main.js
+                    const folga = window.isFolga(data);
+                    const tipo = folga ? "Folga" : (ehPlantao ? "Plantão" : "Trabalho");
+                    const cor  = folga ? "var(--text-muted,#888)" : "var(--accent,#4a90d9)";
+
+                    const diaStr = String(d).padStart(2, "0");
+                    const semana = diasSemana[data.getDay()];
+
+                    linhas.push(`
+                        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border,#eee);font-size:0.88em">
+                            <span>${diaStr}/${String(mes).padStart(2,"0")} <span style="color:var(--text-muted,#aaa)">${semana}</span></span>
+                            <span style="color:${cor};font-weight:500">${tipo}</span>
+                        </div>`);
+                }
+
+                lista.innerHTML = linhas.join("") ||
+                    "<p style=\"color:var(--text-muted,#888)\">Nenhum dado encontrado.</p>";
+            }
+
+            // Wiring do modal de histórico
+            function wireHistorico() {
+                const btnH = document.getElementById("btnHistorico");
+                if (!btnH || btnH._historicoWired) return;
+                btnH._historicoWired = true;
+
+                // Preenche selects de mês e ano
+                const mesesNomes = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                                    "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+                const selMes = document.getElementById("historicoMesSelect");
+                const selAno = document.getElementById("historicoAnoSelect");
+
+                mesesNomes.forEach((nome, i) => {
+                    const opt = document.createElement("option");
+                    opt.value = String(i + 1).padStart(2, "0");
+                    opt.textContent = nome;
+                    selMes.appendChild(opt);
+                });
+
+                const anoBase = new Date().getFullYear();
+                for (let a = anoBase - 3; a <= anoBase + 1; a++) {
+                    const opt = document.createElement("option");
+                    opt.value = a;
+                    opt.textContent = a;
+                    selAno.appendChild(opt);
+                }
+
+                // Pré-seleciona mês/ano atual
+                const hoje = new Date();
+                selMes.value = String(hoje.getMonth() + 1).padStart(2, "0");
+                selAno.value = hoje.getFullYear();
+
+                btnH.addEventListener("click", abrirHistorico);
+                document.getElementById("historicoFechar").addEventListener("click", fecharHistorico);
+
+                document.getElementById("historicoMesBuscar").addEventListener("click", () => {
+                    const mes = document.getElementById("historicoMesSelect").value;
+                    const ano = document.getElementById("historicoAnoSelect").value;
+                    renderHistoricoPlantoes(`${ano}-${mes}`);
+                });
+            }
+
+            // Dispara pelo evento do módulo ou pelo DOMContentLoaded (fallback)
+            window.addEventListener("cyclecal:ready", wireHistorico);
+            document.addEventListener("DOMContentLoaded", wireHistorico);
+
         </script>
 
         <!-- Bottom Sheet Overlay -->
@@ -1355,6 +1641,44 @@
                 </div>
             </div>
         </div>
+        <!-- Modal Histórico -->
+        <div id="historicoModal" class="setup-modal" style="display:none">
+            <div class="setup-box">
+                <div class="setup-content">
+                    <div class="setup-title">
+                        <h3>📜 Histórico</h3>
+                    </div>
+
+                    <!-- Histórico de Escalas -->
+                    <div class="setup-section">
+                        <h4>Escalas</h4>
+                        <div id="historicoEscalasList"></div>
+                    </div>
+
+                    <!-- Histórico de Férias -->
+                    <div class="setup-section">
+                        <h4>Férias</h4>
+                        <div id="historicoFeriasList"></div>
+                    </div>
+
+                    <!-- Histórico de Plantões -->
+                    <div class="setup-section">
+                        <h4>Plantões</h4>
+                        <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px">
+                            <select id="historicoMesSelect" style="flex:1; min-width:130px"></select>
+                            <select id="historicoAnoSelect" style="width:90px"></select>
+                            <button id="historicoMesBuscar">Ver</button>
+                        </div>
+                        <div id="historicoPlantoesLista"></div>
+                    </div>
+                </div>
+
+                <div class="setup-footer">
+                    <button id="historicoFechar">Fechar</button>
+                </div>
+            </div>
+        </div>
+
         <script type="module" src="js/main.js"></script>
     </body>
 </html>
