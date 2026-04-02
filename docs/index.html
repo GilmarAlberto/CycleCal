@@ -98,6 +98,52 @@
             let feriasFormAberto = false;
             let calendar = { year: null, month: null, days: [] };
 
+            function getCycleDay(date, config) {
+                const { startDate, cycle, offset = 0 } = config;
+
+                const base = new Date(startDate);
+                const current = new Date(date);
+
+                base.setHours(0, 0, 0, 0);
+                current.setHours(0, 0, 0, 0);
+
+                const diffDays = Math.floor((current - base) / (1000 * 60 * 60 * 24));
+
+                const index = (diffDays + offset) % cycle.length;
+                const safeIndex = (index + cycle.length) % cycle.length;
+
+                return cycle[safeIndex];
+            }
+
+            function parsePattern(pattern) {
+                // suporta "4x2", "5x1", "2x2", etc
+                const match = pattern.match(/^(\d+)x(\d+)$/);
+
+                if (!match) return ["T", "F"]; // fallback simples
+
+                const work = Number(match[1]);
+                const rest = Number(match[2]);
+
+                return [...Array(work).fill("T"), ...Array(rest).fill("F")];
+            }
+
+            function generateMonth(year, month, config) {
+                const days = [];
+
+                const totalDays = new Date(year, month + 1, 0).getDate();
+
+                for (let day = 1; day <= totalDays; day++) {
+                    const date = new Date(year, month, day);
+
+                    days.push({
+                        date: new Date(date),
+                        type: getCycleDay(date, config),
+                    });
+                }
+
+                return days;
+            }
+
             document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("app-version").textContent = `v${config.version}`;
             });
@@ -126,6 +172,7 @@
                             scale_type: "",
                             scale_pattern: "",
                             dsr: 0,
+			    offset: 0,
                         },
                         scale_history: [],
                         vacations: [],
@@ -141,10 +188,10 @@
                             user.scale_history = [];
                             if (user.settings.scale_pattern && user.settings.base_date) {
                                 user.scale_history.push({
-                                    pattern:   user.settings.scale_pattern,
-                                    type:      user.settings.scale_type || "",
+                                    pattern: user.settings.scale_pattern,
+                                    type: user.settings.scale_type || "",
                                     base_date: user.settings.base_date,
-                                    since:     user.settings.base_date,
+                                    since: user.settings.base_date,
                                 });
                             }
                             localStorage.setItem("cyclecal_user", JSON.stringify(user));
@@ -279,7 +326,10 @@
 
             function carregarShiftSwaps() {
                 const user = getUser();
-                if (!user) { shiftSwaps = []; return; }
+                if (!user) {
+                    shiftSwaps = [];
+                    return;
+                }
                 shiftSwaps = user.shift_swaps || [];
                 window._shiftSwaps = shiftSwaps;
             }
@@ -474,7 +524,7 @@
                         user,
                         user.settings.base_date,
                         user.settings.scale_pattern,
-                        user.settings.scale_type
+                        user.settings.scale_type,
                     );
 
                     aplicarSetup(user);
@@ -667,7 +717,7 @@
             // As funções abaixo são expostas pelo main.js via window para compatibilidade
             // com o código legado de gerarCalendario() no index.html
 
-            const prioridadeEventos = ["vacation", "folga", "holiday", "cultural", "birthday"];
+            const prioridadeEventos = ["vacation", "folga", "holiday", "cultural", "birthday", "trabalho"];
 
             function listarFeriadosDoMes(ano, mes, lista) {
                 const listaDiv = document.getElementById("listaFeriados");
@@ -748,8 +798,37 @@
                     days: Array.from({ length: diasNoMes }, (_, i) => {
                         const data = new Date(ano, mes, i + 1);
                         const dateStr = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(i + 1).padStart(2, "0")}`;
+
                         const eventos = getEventos(data);
-                        const layers  = buildLayers(eventos);
+
+                        // 🔥 garante base sempre
+                        eventos.push({
+                            type: "trabalho",
+                            source: "base",
+                        });
+
+                        // 🔥 NOVO: aplicar ciclo
+                        const user = getUser();
+
+                        if (user?.settings?.base_date && user?.settings?.scale_pattern) {
+                            const pattern = user.settings.scale_pattern;
+
+                            // exemplo simples: "4x2" → ["T","T","T","T","F","F"]
+                            const cycle = parsePattern(pattern);
+
+                            const tipo = getCycleDay(data, {
+                                startDate: user.settings.base_date,
+                                cycle,
+                                offset: user.settings.offset || 0,
+                            });
+
+                            eventos.push({
+                                type: tipo === "T" ? "trabalho" : "folga",
+                                source: "cycle",
+                            });
+                        }
+
+                        const layers = buildLayers(eventos);
                         return { date: dateStr, layers };
                     }),
                 };
@@ -764,10 +843,10 @@
                     el.appendChild(span);
 
                     const { layers } = calendar.days[dia - 1];
-                    const top        = getTopLayer(layers);
+                    const top = getTopLayer(layers);
 
-                    if (top) {
-                        el.classList.add(top.type);
+                    if (top?.type && typeof top.type === "string") {
+                        el.classList.add(top.type.replace(/\s+/g, "-"));
                     }
 
                     if (layers.some((l) => l.type === "birthday")) {
@@ -1340,8 +1419,8 @@
 
                 const mudou =
                     !ultima ||
-                    ultima.pattern   !== novoPattern   ||
-                    ultima.type      !== novoType      ||
+                    ultima.pattern !== novoPattern ||
+                    ultima.type !== novoType ||
                     ultima.base_date !== novaBaseDate;
 
                 if (mudou) {
@@ -1355,8 +1434,8 @@
                         String(hoje.getDate()).padStart(2, "0");
 
                     user.scale_history.push({
-                        pattern:   novoPattern,
-                        type:      novoType,
+                        pattern: novoPattern,
+                        type: novoType,
                         base_date: novaBaseDate,
                         since,
                     });
@@ -1436,26 +1515,28 @@
                 const vacList = user.vacations || [];
 
                 if (vacList.length === 0) {
-                    lista.innerHTML = "<p style=\"color:var(--text-muted, #888);font-size:0.9em\">Nenhum período de férias registrado.</p>";
+                    lista.innerHTML =
+                        '<p style="color:var(--text-muted, #888);font-size:0.9em">Nenhum período de férias registrado.</p>';
                     return;
                 }
 
                 // Ordena do mais recente para o mais antigo
                 const sorted = [...vacList].sort((a, b) => (a.start > b.start ? -1 : 1));
 
-                lista.innerHTML = sorted.map((v) => {
-                    const inicio = v.start.split("-").reverse().join("/");
-                    const fim    = v.end.split("-").reverse().join("/");
+                lista.innerHTML = sorted
+                    .map((v) => {
+                        const inicio = v.start.split("-").reverse().join("/");
+                        const fim = v.end.split("-").reverse().join("/");
 
-                    // Calcula duração em dias
-                    const ms = new Date(v.end) - new Date(v.start);
-                    const dias = Math.round(ms / 86400000) + 1;
+                        // Calcula duração em dias
+                        const ms = new Date(v.end) - new Date(v.start);
+                        const dias = Math.round(ms / 86400000) + 1;
 
-                    const hoje = new Date().toISOString().slice(0, 10);
-                    const passado = v.end < hoje;
-                    const cor = passado ? "var(--text-muted,#888)" : "var(--accent,#4a90d9)";
+                        const hoje = new Date().toISOString().slice(0, 10);
+                        const passado = v.end < hoje;
+                        const cor = passado ? "var(--text-muted,#888)" : "var(--accent,#4a90d9)";
 
-                    return `
+                        return `
                         <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border,#e0e0e0)">
                             <div>
                                 <span style="color:${cor};font-weight:500">${inicio} → ${fim}</span>
@@ -1463,7 +1544,8 @@
                             </div>
                             ${passado ? '<span style="font-size:0.75em;color:var(--text-muted,#aaa)">concluído</span>' : '<span style="font-size:0.75em;color:var(--accent,#4a90d9)">futuro</span>'}
                         </div>`;
-                }).join("");
+                    })
+                    .join("");
             }
 
             function renderHistoricoEscalas() {
@@ -1471,19 +1553,20 @@
                 const lista = document.getElementById("historicoEscalasList");
 
                 if (!user.scale_history || user.scale_history.length === 0) {
-                    lista.innerHTML = "<p style=\"color:var(--text-muted, #888);font-size:0.9em\">Nenhuma escala registrada ainda.</p>";
+                    lista.innerHTML =
+                        '<p style="color:var(--text-muted, #888);font-size:0.9em">Nenhuma escala registrada ainda.</p>';
                     return;
                 }
 
                 // Ordena do mais recente para o mais antigo
                 const sorted = [...user.scale_history].sort((a, b) => (a.since > b.since ? -1 : 1));
 
-                lista.innerHTML = sorted.map((entry, i) => {
-                    const sinceLabel = entry.since
-                        ? entry.since.split("-").reverse().join("/")
-                        : "—";
-                    const badge = i === 0 ? " <span style=\"font-size:0.75em;color:var(--accent,#4a90d9)\">atual</span>" : "";
-                    return `
+                lista.innerHTML = sorted
+                    .map((entry, i) => {
+                        const sinceLabel = entry.since ? entry.since.split("-").reverse().join("/") : "—";
+                        const badge =
+                            i === 0 ? ' <span style="font-size:0.75em;color:var(--accent,#4a90d9)">atual</span>' : "";
+                        return `
                         <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border,#e0e0e0)">
                             <div>
                                 <strong>${entry.pattern}</strong>${badge}
@@ -1491,7 +1574,8 @@
                             </div>
                             <div style="font-size:0.85em;color:var(--text-muted,#888)">desde ${sinceLabel}</div>
                         </div>`;
-                }).join("");
+                    })
+                    .join("");
             }
 
             function renderHistoricoPlantoes(anoMes) {
@@ -1511,8 +1595,8 @@
                 const area = user.profile.area || "outros";
                 const ehPlantao = AREAS_SEM_DSR.includes(area);
 
-                const mesesNomes = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
-                const diasSemana = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+                const mesesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+                const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
                 let linhas = [];
 
@@ -1522,21 +1606,21 @@
 
                     // Importa ehFolga via isFolga exposto em main.js
                     const folga = window.isFolga(data);
-                    const tipo = folga ? "Folga" : (ehPlantao ? "Plantão" : "Trabalho");
-                    const cor  = folga ? "var(--text-muted,#888)" : "var(--accent,#4a90d9)";
+                    const tipo = folga ? "Folga" : ehPlantao ? "Plantão" : "Trabalho";
+                    const cor = folga ? "var(--text-muted,#888)" : "var(--accent,#4a90d9)";
 
                     const diaStr = String(d).padStart(2, "0");
                     const semana = diasSemana[data.getDay()];
 
                     linhas.push(`
                         <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border,#eee);font-size:0.88em">
-                            <span>${diaStr}/${String(mes).padStart(2,"0")} <span style="color:var(--text-muted,#aaa)">${semana}</span></span>
+                            <span>${diaStr}/${String(mes).padStart(2, "0")} <span style="color:var(--text-muted,#aaa)">${semana}</span></span>
                             <span style="color:${cor};font-weight:500">${tipo}</span>
                         </div>`);
                 }
 
-                lista.innerHTML = linhas.join("") ||
-                    "<p style=\"color:var(--text-muted,#888)\">Nenhum dado encontrado.</p>";
+                lista.innerHTML =
+                    linhas.join("") || '<p style="color:var(--text-muted,#888)">Nenhum dado encontrado.</p>';
             }
 
             function renderHistoricoSwaps() {
@@ -1544,18 +1628,22 @@
                 if (!lista) return;
 
                 if (shiftSwaps.length === 0) {
-                    lista.innerHTML = "<p style=\"color:var(--text-muted,#888);font-size:0.9em\">Nenhuma troca registrada.</p>";
+                    lista.innerHTML =
+                        '<p style="color:var(--text-muted,#888);font-size:0.9em">Nenhuma troca registrada.</p>';
                     return;
                 }
 
                 const sorted = [...shiftSwaps].sort((a, b) => (a.from > b.from ? -1 : 1));
 
-                lista.innerHTML = sorted.map((s, i) => {
-                    const fromLabel = s.from.split("-").reverse().join("/");
-                    const toLabel   = s.to.split("-").reverse().join("/");
-                    const nota      = s.note ? `<div style="font-size:0.8em;color:var(--text-muted,#888)">${s.note}</div>` : "";
+                lista.innerHTML = sorted
+                    .map((s, i) => {
+                        const fromLabel = s.from.split("-").reverse().join("/");
+                        const toLabel = s.to.split("-").reverse().join("/");
+                        const nota = s.note
+                            ? `<div style="font-size:0.8em;color:var(--text-muted,#888)">${s.note}</div>`
+                            : "";
 
-                    return `
+                        return `
                         <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border,#e0e0e0)">
                             <div>
                                 <span style="color:var(--accent,#f59e0b);font-weight:500">${fromLabel} ↔ ${toLabel}</span>
@@ -1563,7 +1651,8 @@
                             </div>
                             <button class="btn-remover" data-swap-id="${s.id}" type="button">Remover</button>
                         </div>`;
-                }).join("");
+                    })
+                    .join("");
 
                 lista.querySelectorAll(".btn-remover[data-swap-id]").forEach((btn) => {
                     btn.addEventListener("click", () => {
@@ -1584,7 +1673,7 @@
 
                 btn.addEventListener("click", () => {
                     const from = document.getElementById("swapFrom").value;
-                    const to   = document.getElementById("swapTo").value;
+                    const to = document.getElementById("swapTo").value;
                     const note = document.getElementById("swapNote").value.trim();
 
                     if (!from || !to) {
@@ -1616,7 +1705,7 @@
                     renderHistoricoSwaps();
 
                     document.getElementById("swapFrom").value = "";
-                    document.getElementById("swapTo").value   = "";
+                    document.getElementById("swapTo").value = "";
                     document.getElementById("swapNote").value = "";
 
                     showToast("Troca registrada!", "success");
@@ -1630,8 +1719,20 @@
                 btnH._historicoWired = true;
 
                 // Preenche selects de mês e ano
-                const mesesNomes = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                                    "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+                const mesesNomes = [
+                    "Janeiro",
+                    "Fevereiro",
+                    "Março",
+                    "Abril",
+                    "Maio",
+                    "Junho",
+                    "Julho",
+                    "Agosto",
+                    "Setembro",
+                    "Outubro",
+                    "Novembro",
+                    "Dezembro",
+                ];
                 const selMes = document.getElementById("historicoMesSelect");
                 const selAno = document.getElementById("historicoAnoSelect");
 
@@ -1668,7 +1769,6 @@
             // Dispara pelo evento do módulo ou pelo DOMContentLoaded (fallback)
             window.addEventListener("cyclecal:ready", wireHistorico);
             document.addEventListener("DOMContentLoaded", wireHistorico);
-
         </script>
 
         <!-- Bottom Sheet Overlay -->
@@ -1759,7 +1859,7 @@
             </div>
         </div>
         <!-- Modal Histórico -->
-        <div id="historicoModal" class="setup-modal" style="display:none">
+        <div id="historicoModal" class="setup-modal" style="display: none">
             <div class="setup-box">
                 <div class="setup-content">
                     <div class="setup-title">
@@ -1781,9 +1881,9 @@
                     <!-- Histórico de Plantões -->
                     <div class="setup-section">
                         <h4>Plantões</h4>
-                        <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px">
-                            <select id="historicoMesSelect" style="flex:1; min-width:130px"></select>
-                            <select id="historicoAnoSelect" style="width:90px"></select>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px">
+                            <select id="historicoMesSelect" style="flex: 1; min-width: 130px"></select>
+                            <select id="historicoAnoSelect" style="width: 90px"></select>
                             <button id="historicoMesBuscar">Ver</button>
                         </div>
                         <div id="historicoPlantoesLista"></div>
@@ -1793,7 +1893,7 @@
                     <div class="setup-section">
                         <h4>Trocas de Turno</h4>
 
-                        <div id="swapForm" style="margin-bottom:12px">
+                        <div id="swapForm" style="margin-bottom: 12px">
                             <div class="ferias-row">
                                 <div>
                                     <label>De (data cedida)</label>
@@ -1804,7 +1904,12 @@
                                     <input type="date" id="swapTo" />
                                 </div>
                             </div>
-                            <input type="text" id="swapNote" placeholder="Observação (opcional)" style="margin-top:8px" />
+                            <input
+                                type="text"
+                                id="swapNote"
+                                placeholder="Observação (opcional)"
+                                style="margin-top: 8px"
+                            />
                             <div class="ferias-actions">
                                 <button id="btnConfirmarSwap" type="button">Registrar troca</button>
                             </div>

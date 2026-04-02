@@ -644,3 +644,7 @@ button {
     overflow-y: auto;
     flex: 1;
 }
+
+.day.trabalho {
+  border: 1px solid #cfe3ff;
+}

@@ -1,9 +1,10 @@
 # CycleCal — Infraestrutura da Plataforma
 
+Status: 🟢 v1.9.6  
+Base: v1.9.5  
+Branch: main  
 
-Status: 🟢 v1.9.2
-Base: v1.9.1
-Branch: main
+---
 
 # Papel deste documento
 
@@ -12,416 +13,181 @@ da plataforma CycleCal.
 
 Ele suporta todas as linhas de produto:
 
-v1.x — Core
-v2.x — Comércio
-v3.x — Segurança
-v4.x — Saúde
+- v1.x — Core  
+- v2.x — Comércio  
+- v3.x — Segurança  
+- v4.x — Saúde  
 
 ---
 
-# 🧩 Modularização do Frontend (v1.9.x)
+# 🧱 Fase 1 — Fundação Arquitetural (v1.9.0 → v1.9.4)
 
-Objetivo:  
-Reduzir complexidade do `index.html` e preparar o CycleCal
-para crescimento modular e manutenção mais fácil.
+## Arquitetura
 
-## Estrutura de Código
+- [x] v1.9.0 — Separar motor de regras do calendário  
+- [x] v1.9.2 — Criar objeto central `config`  
+- [x] v1.9.3 — Implementar sistema de camadas (layers)  
+- [x] v1.9.4 — Definir modelo de dados baseado em parâmetros  
 
-- [x] Separar CSS do HTML (1.9.0.3)
-- [x] Criar pasta `/css`
-- [x] Criar arquivo `styles.css`
+## Modularização Frontend
 
-- [x] Criar pasta `/js` (1.9.0.2)
-- [x] Separar lógica do calendário
-- [x] Separar regras de eventos
-- [x] Separar lógica de feriados
-- [x] Separar lógica de férias
+- [x] Separar CSS do HTML  
+- [x] Criar pasta `/css`  
+- [x] Criar arquivo `styles.css`  
 
-## Organização de Arquivos
-
-Estrutura alvo:
-
-├── js/
-│   ├── main.js
-│   └── logic/
-│       ├── calendario.js
-│       ├── events.js
-│       ├── folgas.js
-│       ├── holidays.js
-│       └── vacations.js
-
-## Critério de Conclusão
-
-- Lógica principal extraída para módulos JS
-- CSS separado em arquivo dedicado
-- `index.html` focado em estrutura e renderização
+- [x] Criar pasta `/js`  
+- [x] Separar lógica do calendário  
+- [x] Separar regras de eventos  
+- [x] Separar lógica de feriados  
+- [x] Separar lógica de férias  
 
 ---
 
+# 🎯 Fase 2 — Core Funcional (v1.9.1)
 
-# 🧱 Arquitetura do Sistema (v1.9.0 – v1.9.3)
-
-Objetivo:
-Garantir que o CycleCal tenha uma base técnica escalável.
-
-
-# 🎯 Features do Core (v1.9.x)
-
-## v1.9.1 (patch)
-
-- [x] Contador de dias restantes para férias no rodapé (quando aplicável)
+- [x] Contador de dias restantes para férias  
 
 ---
 
-## Estrutura
-
-
-- [x] v1.9.0 — Separar motor de regras do calendário
-- [x] v1.9.2 — Criar objeto central `config`
-- [x] v1.9.3 — Implementar sistema de camadas (layers)
-- [x] v1.9.4 — Definir modelo de dados baseado em parâmetros
-
----
-
-# 📜 Histórico de Dados
-
-Objetivo:
-Permitir ao usuário consultar histórico de escalas e eventos.
+# 📜 Fase 3 — Histórico de Dados
 
 ## Histórico de Escalas
 
-Exemplo:
-
-Jan → 24x72  
-Fev → 24x96
-
-- [x] Registrar mudanças de escala
-- [x] Permitir alteração da base da escala sem alterar o histórico passado
-- [x] Permitir consulta histórica
+- [x] Registrar mudanças de escala  
+- [x] Permitir alteração da base da escala sem alterar o histórico passado  
+- [x] Permitir consulta histórica  
 
 ## Histórico de Plantões
 
-Exemplo:
-
-15/02 – Plantão  
-16/02 – Folga
-
-- [x] Registrar histórico diário
-- [x] Permitir consulta mensal
+- [x] Registrar histórico diário  
+- [x] Permitir consulta mensal  
 
 ---
 
-# 💾 Persistência de Dados (v1.9.6 – v1.9.8)
-
-Objetivo:
-Permitir que o usuário mantenha suas escalas e configurações.
-
-## Estrutura de Persistência
-
-- [ ] v1.9.6 — Criar camada de persistência abstrata (`storage`)
-- [ ] v1.9.7 — Implementar adapter LocalStorage
-- [ ] v1.9.8 — Implementar adapter IndexedDB
-
-Tecnologias possíveis:
-
-- localStorage
-- IndexedDB
-
----
-
-# 🔄 Motor de Regras Configuráveis (v1.9.5 – v1.9.6)
-
-Objetivo:
-Permitir múltiplos tipos de escala no sistema e garantir alinhamento correto
-dos ciclos de trabalho no calendário.
-
----
+# ⚙️ Fase 4 — Motor de Regras (v1.9.5 → v1.9.6)
 
 ## v1.9.5 — Estrutura de Parâmetros da Escala
 
-- [ ] Definir modelo de dados da escala
-- [ ] Representar ciclos de trabalho como sequência de estados
-- [ ] Permitir padrões como `24x72`, `12x36`, `6x1`, `5x2`
-- [ ] Implementar parâmetro **offset** para alinhamento do ciclo
-- [ ] Garantir compatibilidade com `base_date`
-- [ ] Validar cálculo correto do ciclo ao navegar entre meses
-
----
+- [x] Definir modelo de dados da escala  
+- [x] Representar ciclos de trabalho como sequência de estados  
+- [x] Permitir padrões como `24x72`, `12x36`, `6x1`, `5x2`  
+- [x] Implementar parâmetro `offset`  
+- [x] Garantir compatibilidade com `base_date`  
+- [x] Validar cálculo correto ao navegar entre meses  
 
 ## v1.9.6 — Geração Dinâmica do Calendário
 
-- [ ] Gerar calendário a partir dos parâmetros da escala
-- [ ] Aplicar `offset` para determinar posição inicial do ciclo
-- [ ] Garantir consistência ao mudar mês ou ano
-- [ ] Permitir recalcular calendário após alteração da escala
+- [ ] Gerar calendário a partir dos parâmetros da escala  
+- [ ] Aplicar `offset`  
+- [ ] Garantir consistência ao mudar mês ou ano  
+- [ ] Permitir recalcular após alteração da escala  
+
+## v1.9.6 — Features já entregues
+
+- [x] Folgas destacadas no calendário  
+- [x] Troca de turnos  
+- [x] Histórico de trocas  
+- [x] Rodapé mais informativo  
 
 ---
 
-## 📐 Estrutura de Parâmetros da Escala
+# 💾 Fase 5 — Persistência de Dados (v1.9.7 → v1.9.9)
 
-Modelo conceitual esperado:
-
-```json
-{
-  "scale": {
-    "type": "cycle",
-    "pattern": [1,0,0,0],
-    "base_date": "2026-01-01",
-    "offset": 2
-  }
-}
-```
+- [ ] v1.9.7 — Criar camada de persistência (`storage`)  
+- [ ] v1.9.8 — Implementar LocalStorage  
+- [ ] v1.9.9 — Implementar IndexedDB  
 
 ---
 
-# 🔄 Estratégia Offline-First (v1.9.9 – v1.9.11)
+# 🔄 Fase 6 — Offline-First (v1.9.10 → v1.9.12)
 
-Objetivo:
-Permitir que o CycleCal funcione offline como PWA,
-mas sincronize automaticamente quando houver conexão.
-
-- [ ] v1.9.9 — Implementar adapter API remoto
-- [ ] v1.9.10 — Implementar sincronização automática
-- [ ] v1.9.11 — Resolver conflitos de sincronização
+- [ ] v1.9.10 — Adapter de API remoto  
+- [ ] v1.9.11 — Sincronização automática  
+- [ ] v1.9.12 — Resolução de conflitos  
 
 ---
 
-# ☁ Infraestrutura Online (v1.9.12)
+# ☁️ Fase 7 — Backend & Sincronização (v1.9.13 → v1.9.15)
 
-Objetivo:
-Permitir sincronização e backend online.
+## Backend
 
-Possíveis serviços:
+- [ ] v1.9.13 — Backend SaaS  
+- [ ] Armazenamento de dados dos usuários  
+- [ ] Sincronização entre dispositivos  
 
-- Supabase
-- Firebase
-- Render
-- Railway
+## Conta & Backup
 
-- [ ] v1.9.12 — Implementar backend SaaS
-- [ ] Armazenar dados dos usuários
-- [ ] Permitir sincronização entre dispositivos
+- [ ] v1.9.14 — Autenticação de usuários  
+- [ ] v1.9.15 — Backup automático  
 
 ---
 
-# ☁ Backup Automático (v1.9.13 – v1.9.14)
+# 💬 Fase 8 — Produto (v1.9.16 → v1.9.17)
 
-Fluxo esperado:
-
-Usuário cria conta  
-→ dados sincronizam com servidor  
-→ troca de celular  
-→ login  
-→ dados restaurados
-
-- [ ] v1.9.13 — Implementar autenticação de usuários
-- [ ] v1.9.14 — Implementar backup automático
-- [ ] Sincronizar dados do calendário
-- [ ] Restaurar dados automaticamente
+- [ ] v1.9.16 — Canal de feedback  
+- [ ] v1.9.17 — Monetização leve  
 
 ---
 
-# 💬 Comunicação com Usuários
+# 📊 Fase 9 — Métricas (v1.9.18 → v1.9.19)
 
-- [ ] Criar canal de feedback no aplicativo
-- [ ] Coletar sugestões
-- [ ] Registrar problemas relatados
-
----
-
-# 💰 Monetização
-
-Modelo preferido:
-
-- anúncio ao abrir aplicativo
-
-ou
-
-- banner discreto no rodapé
-
-Princípios:
-
-- [ ] não interromper o uso
-- [ ] não poluir a interface
-- [ ] manter experiência limpa
+- [ ] Registrar DAU / MAU  
+- [ ] Métricas de uso  
+- [ ] v1.9.19 — Dashboard interno  
 
 ---
 
-# 📦 Organização do Projeto
+# 🔐 Fase 10 — Segurança (v1.9.20 → v1.9.21)
 
-- [ ] Criar `CHANGELOG.md`
-- [ ] Organizar releases no GitHub
-- [ ] Melhorar estratégia de atualização da PWA
-- [ ] Implementar log estruturado
-
----
-
-# 🌐 Distribuição
-
-## PWA
-
-- [ ] Distribuição via GitHub Pages
-- [ ] Instalação direta no navegador
-
-## Android
-
-- [ ] Avaliar publicação na Google Play
-- [ ] Possível uso de Trusted Web App (TWA)
-
-## iPhone
-
-- [ ] Testar instalação via Safari
-- [ ] Garantir compatibilidade PWA no iOS
+- [ ] Controle de acesso à API  
+- [ ] Autenticação segura  
+- [ ] Criptografia de dados  
+- [ ] Rate limiting  
 
 ---
 
-# 📊 Evolução da Plataforma
+# 🧩 Fase 11 — Sistema de Eventos (v1.9.22)
 
-- [ ] Estatísticas de uso
-- [ ] Exportação de dados (JSON / PDF)
-- [ ] Integração com calendários externos
-
----
-
-# 📊 Métricas da Plataforma (v1.9.15 – v1.9.16)
-
-Objetivo:
-Permitir acompanhar crescimento e uso do CycleCal.
-
-## Métricas de Usuários
-
-- [ ] Registrar quantidade total de usuários
-- [ ] Registrar usuários ativos (últimos 30 dias)
-- [ ] v1.9.15 — Registrar usuários ativos diários (DAU)
-- [ ] v1.9.15 — Registrar usuários ativos mensais (MAU)
-
-## Métricas de Uso
-
-- [ ] Contar número de acessos por usuário
-- [ ] Registrar criação de escalas
-- [ ] Registrar uso de funcionalidades principais
-
-## Métricas por Área
-
-- [ ] Quantidade de usuários por setor
-  - comércio
-  - segurança
-  - saúde
-  - geral
-
-## Dashboard
-
-- [ ] v1.9.16 — Criar painel interno de métricas
-- [ ] Visualizar crescimento de usuários
-- [ ] Visualizar retenção de usuários
+- [ ] Estrutura genérica de eventos  
+- [ ] Modelo com `id`, `type`, `start`, `end`  
 
 ---
 
-# 🔐 Segurança e Controle de Acesso (v1.9.17 – v1.9.18)
+# 📦 Fase 12 — Organização do Projeto (v1.9.23)
 
-Objetivo:
-Garantir proteção dos dados dos usuários e acesso seguro ao sistema.
-
-## Autenticação
-
-- [ ] Implementar login seguro
-- [ ] Suporte a login por email
-- [ ] Avaliar login social (Google / Apple)
-
-## Controle de Acesso
-
-- [ ] v1.9.17 — Implementar controle de acesso à API
-- [ ] Garantir que cada usuário acesse apenas seus próprios dados
-- [ ] Validar permissões no backend
-- [ ] Proteger endpoints da API
-
-## Proteção de Dados
-
-- [ ] Criptografar dados sensíveis
-- [ ] Implementar HTTPS obrigatório
-- [ ] Garantir armazenamento seguro das credenciais
-
-## Proteção contra abuso
-
-- [ ] v1.9.18 — Implementar rate limiting na API
-- [ ] Detectar uso excessivo ou comportamento suspeito
+- [ ] Criar `CHANGELOG.md`  
+- [ ] Organizar releases  
+- [ ] Logs estruturados  
 
 ---
 
-# 🧩 Sistema de Eventos de Calendário
+# 🌐 Fase 13 — Distribuição (v1.9.24)
 
-
-## 🎯 Objetivo
-
-Criar uma estrutura genérica para representar eventos associados a dias do calendário.
-
-Essa estrutura permitirá que diferentes tipos de eventos sejam tratados de forma uniforme
-pelo motor do calendário.
+- [ ] GitHub Pages (PWA)  
+- [ ] Avaliar TWA (Android)  
+- [ ] Compatibilidade iOS  
 
 ---
 
-## Tipos de eventos previstos
+# 📈 Fase 14 — Evolução (v1.9.25)
 
-- folga
-- feriado
-- férias
-- eventos futuros
+- [ ] Exportação de dados  
+- [ ] Integração com calendários externos  
 
 ---
 
-## Estrutura conceitual
+# 🧪 Fase 15 — Estabilização (v1.9.26)
 
-Cada evento deverá possuir:
-
-- id
-- tipo
-- data inicial
-- data final
-- metadados opcionais
-
-Exemplo conceitual:
-
-```json
-{
-  id: "evt_001",
-  type: "vacation",
-  start: "2026-07-01",
-  end: "2026-07-30",
-  meta: {}
-}
-```
+- [ ] Revisão geral da arquitetura  
+- [ ] Testes de sincronização  
+- [ ] Testes de segurança  
+- [ ] Validação offline-first  
+- [ ] Preparação para v2.0  
 
 ---
 
-## Benefícios
+# 🌍 Fase 16 — Timezone e Localização (v1.9.27)
 
-- evitar múltiplas estruturas paralelas no código
-- simplificar renderização do calendário
-- permitir novas funcionalidades sem refatoração
-- facilitar sincronização futura
-
----
-
-## Status
-
-Planejado
-
----
-
-# 🧪 Estabilização da Infraestrutura (v1.9.20)
-
-Objetivo:
-Garantir que toda a infraestrutura esteja estável
-antes da liberação da versão v2.0.
-
-- [ ] Revisão geral da arquitetura
-- [ ] Testes de sincronização
-- [ ] Testes de segurança
-- [ ] Validação da estratégia offline-first
-- [ ] Preparação para release v2.0
-
-## 🌍 Timezone e Localização (Infra v1.9.30)
-
-- [ ] Detectar timezone automaticamente
-- [ ] Salvar timezone no perfil do usuário
-- [ ] Utilizar timezone para cálculos de data
+- [ ] Detectar timezone automaticamente  
+- [ ] Salvar timezone no perfil  
+- [ ] Usar timezone nos cálculos  
