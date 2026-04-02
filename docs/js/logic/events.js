@@ -9,6 +9,7 @@ import { ehFerias } from "./vacations.js";
 const LAYER_PRIORITY = {
     vacation: 50,
     folga:    20,
+    swap:     15,   // troca de turno (anotação, não altera escala oficial)
     holiday:  10,
     cultural:  8,
     birthday:  5,
@@ -65,6 +66,21 @@ export function eventosDoDia(data, context) {
         eventos.push("birthday");
     }
 
+    // Trocas de turno — verificadas via context.shiftSwaps
+    if (context.shiftSwaps && context.shiftSwaps.length > 0) {
+        const dateStr =
+            data.getFullYear() +
+            "-" +
+            String(data.getMonth() + 1).padStart(2, "0") +
+            "-" +
+            String(data.getDate()).padStart(2, "0");
+
+        const isSwap = context.shiftSwaps.some(
+            (s) => s.from === dateStr || s.to === dateStr
+        );
+
+        if (isSwap) eventos.push("swap");
+    }
+
     return eventos;
 }
-

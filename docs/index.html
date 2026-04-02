@@ -69,7 +69,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "1.9.5",
+                version: "1.9.6",
                 debug: false,
             };
 
@@ -92,6 +92,7 @@
             let mesAtual;
             let yearBlockStart;
             let vacations = [];
+            let shiftSwaps = [];
             let userModifiedScale = false;
             let isApplyingPreset = false;
             let feriasFormAberto = false;
@@ -276,6 +277,20 @@
                 saveUser(user);
             }
 
+            function carregarShiftSwaps() {
+                const user = getUser();
+                if (!user) { shiftSwaps = []; return; }
+                shiftSwaps = user.shift_swaps || [];
+                window._shiftSwaps = shiftSwaps;
+            }
+
+            function salvarShiftSwaps() {
+                const user = getUser();
+                user.shift_swaps = shiftSwaps;
+                saveUser(user);
+                window._shiftSwaps = shiftSwaps;
+            }
+
             function carregarFerias() {
                 const user = getUser();
 
@@ -302,6 +317,7 @@
                 baseFolgaDomingo = getBaseDate();
 
                 carregarFerias();
+                carregarShiftSwaps();
 
                 preencherSetup();
                 verificarPerfil();
@@ -717,6 +733,7 @@
                 const diasNoMes = new Date(ano, mes + 1, 0).getDate();
 
                 const ctx = getContext(ano);
+                ctx.shiftSwaps = shiftSwaps;
                 const todosFeriados = ctx.todosFeriados;
                 const carnaval = ctx.carnaval;
 
@@ -1110,46 +1127,54 @@
             function atualizarFooterBase() {
                 const el = document.getElementById("footerBase");
                 const user = getUser();
+                const area = normalizeArea(user.profile.area);
+                const isPlantao = AREAS_WITHOUT_DSR.includes(area);
 
                 const partes = [];
 
-                // 📅 PRÓXIMA FOLGA DOMINGO
-                if (user.settings.base_date) {
-                    const hoje = new Date();
-                    hoje.setHours(0, 0, 0, 0);
+                if (isPlantao) {
+                    // Áreas de plantão: infoEscala já mostra "Escala: 24x72 • Hoje: ..."
+                    // footerBase não repete essa info
+                } else {
+                    // Áreas semanais: mantém lógica original
 
-                    const [by, bm, bd] = user.settings.base_date.split("-").map(Number);
-                    const base = new Date(by, bm - 1, bd);
-                    base.setHours(0, 0, 0, 0);
+                    // 📅 PRÓXIMA FOLGA DOMINGO
+                    if (user.settings.base_date) {
+                        const hoje = new Date();
+                        hoje.setHours(0, 0, 0, 0);
 
-                    const proxima = new Date(base);
-                    while (proxima < hoje) {
-                        proxima.setDate(proxima.getDate() + 21);
+                        const [by, bm, bd] = user.settings.base_date.split("-").map(Number);
+                        const base = new Date(by, bm - 1, bd);
+                        base.setHours(0, 0, 0, 0);
+
+                        const proxima = new Date(base);
+                        while (proxima < hoje) {
+                            proxima.setDate(proxima.getDate() + 21);
+                        }
+
+                        const d = String(proxima.getDate()).padStart(2, "0");
+                        const m = String(proxima.getMonth() + 1).padStart(2, "0");
+                        const y = proxima.getFullYear();
+
+                        const diff = Math.round((proxima - hoje) / 86400000);
+                        const label = diff === 0 ? "hoje!" : `em ${diff} dia${diff === 1 ? "" : "s"}`;
+
+                        partes.push(`🌙 Folga Dom: ${d}/${m}/${y} (${label})`);
                     }
 
-                    const d = String(proxima.getDate()).padStart(2, "0");
-                    const m = String(proxima.getMonth() + 1).padStart(2, "0");
-                    const y = proxima.getFullYear();
-
-                    const diff = Math.round((proxima - hoje) / 86400000);
-                    const label = diff === 0 ? "hoje!" : `em ${diff} dia${diff === 1 ? "" : "s"}`;
-
-                    partes.push(`🌙 Folga Dom: ${d}/${m}/${y} (${label})`);
+                    // 📆 DSR
+                    const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+                    const dsr = Number(user.settings.dsr ?? 0);
+                    partes.push(`DSR: ${diasSemana[dsr]}`);
                 }
 
-                // 📆 DSR
-                const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-
-                const dsr = Number(user.settings.dsr ?? 0);
-                partes.push(`DSR: ${diasSemana[dsr]}`);
-
-                // 🎂 ANIVERSÁRIO
+                // 🎂 ANIVERSÁRIO (todas as áreas)
                 if (user.profile.birthday) {
                     const [y, m, d] = user.profile.birthday.split("-");
                     partes.push(`🎂 ${d}/${m}`);
                 }
 
-                // 🏖️ DIAS PARA AS FÉRIAS
+                // 🏖️ DIAS PARA AS FÉRIAS (todas as áreas)
                 if (window.getProximaFerias) {
                     const proxima = window.getProximaFerias(vacations);
                     if (proxima) {
@@ -1162,7 +1187,7 @@
                     }
                 }
 
-                // 📆 DIA DO ANO
+                // 📆 DIA DO ANO (todas as áreas)
                 const hoje = new Date();
                 const inicioAno = new Date(hoje.getFullYear(), 0, 1);
                 const fimAno = new Date(hoje.getFullYear(), 11, 31);
@@ -1354,6 +1379,7 @@
 
                 const area = normalizeArea(user.profile.area);
                 const config = getAreaConfig(area);
+                const isPlantao = AREAS_WITHOUT_DSR.includes(area);
 
                 if (!user.settings.scale_pattern) {
                     el.innerText = "";
@@ -1364,7 +1390,11 @@
                 const isFolgaHoje = isFolga(hoje);
                 const status = isFolgaHoje ? config.folgaLabel : config.escala;
 
-                el.innerText = `${config.escala}: ${user.settings.scale_pattern} • Hoje: ${status}`;
+                // Plantão: mostra "Escala: 24x72 • Hoje: Descanso/Plantão"
+                // Semanal: mostra "Turno: 6x1 • Hoje: Folga/Turno"
+                const label = isPlantao ? "Escala" : config.escala;
+
+                el.innerText = `${label}: ${user.settings.scale_pattern} • Hoje: ${status}`;
             }
 
             function calcularDiasRestantes(dataInicio) {
@@ -1388,6 +1418,8 @@
             function abrirHistorico() {
                 renderHistoricoEscalas();
                 renderHistoricoFerias();
+                renderHistoricoSwaps();
+                wireSwap();
                 document.getElementById("historicoModal").style.display = "flex";
                 document.body.style.overflow = "hidden";
             }
@@ -1507,6 +1539,90 @@
                     "<p style=\"color:var(--text-muted,#888)\">Nenhum dado encontrado.</p>";
             }
 
+            function renderHistoricoSwaps() {
+                const lista = document.getElementById("historicoSwapList");
+                if (!lista) return;
+
+                if (shiftSwaps.length === 0) {
+                    lista.innerHTML = "<p style=\"color:var(--text-muted,#888);font-size:0.9em\">Nenhuma troca registrada.</p>";
+                    return;
+                }
+
+                const sorted = [...shiftSwaps].sort((a, b) => (a.from > b.from ? -1 : 1));
+
+                lista.innerHTML = sorted.map((s, i) => {
+                    const fromLabel = s.from.split("-").reverse().join("/");
+                    const toLabel   = s.to.split("-").reverse().join("/");
+                    const nota      = s.note ? `<div style="font-size:0.8em;color:var(--text-muted,#888)">${s.note}</div>` : "";
+
+                    return `
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border,#e0e0e0)">
+                            <div>
+                                <span style="color:var(--accent,#f59e0b);font-weight:500">${fromLabel} ↔ ${toLabel}</span>
+                                ${nota}
+                            </div>
+                            <button class="btn-remover" data-swap-id="${s.id}" type="button">Remover</button>
+                        </div>`;
+                }).join("");
+
+                lista.querySelectorAll(".btn-remover[data-swap-id]").forEach((btn) => {
+                    btn.addEventListener("click", () => {
+                        const id = btn.dataset.swapId;
+                        shiftSwaps = shiftSwaps.filter((s) => s.id !== id);
+                        salvarShiftSwaps();
+                        gerarCalendario(anoAtual, mesAtual);
+                        renderHistoricoSwaps();
+                    });
+                });
+            }
+
+            // Wiring do formulário de trocas
+            function wireSwap() {
+                const btn = document.getElementById("btnConfirmarSwap");
+                if (!btn || btn._swapWired) return;
+                btn._swapWired = true;
+
+                btn.addEventListener("click", () => {
+                    const from = document.getElementById("swapFrom").value;
+                    const to   = document.getElementById("swapTo").value;
+                    const note = document.getElementById("swapNote").value.trim();
+
+                    if (!from || !to) {
+                        showToast("Informe as duas datas.", "error");
+                        return;
+                    }
+
+                    if (from === to) {
+                        showToast("As datas precisam ser diferentes.", "error");
+                        return;
+                    }
+
+                    const existe = shiftSwaps.some((s) => s.from === from && s.to === to);
+                    if (existe) {
+                        showToast("Troca já registrada.", "error");
+                        return;
+                    }
+
+                    shiftSwaps.push({
+                        id: crypto.randomUUID(),
+                        from,
+                        to,
+                        note,
+                        created_at: new Date().toISOString(),
+                    });
+
+                    salvarShiftSwaps();
+                    gerarCalendario(anoAtual, mesAtual);
+                    renderHistoricoSwaps();
+
+                    document.getElementById("swapFrom").value = "";
+                    document.getElementById("swapTo").value   = "";
+                    document.getElementById("swapNote").value = "";
+
+                    showToast("Troca registrada!", "success");
+                });
+            }
+
             // Wiring do modal de histórico
             function wireHistorico() {
                 const btnH = document.getElementById("btnHistorico");
@@ -1581,9 +1697,6 @@
                     <div class="setup-section">
                         <h4>Escala</h4>
 
-                        <label>Data base da escala</label>
-                        <input type="date" id="setupBaseDate" />
-
                         <label for="areaSelect">Área de atuação</label>
                         <select id="areaSelect"></select>
 
@@ -1592,6 +1705,7 @@
 
                         <label>Padrão da escala</label>
                         <input type="text" id="setupScalePattern" />
+
                         <div id="dsrWrapper">
                             <label>Descanso semanal (DSR)</label>
                             <select id="setupDSR">
@@ -1604,6 +1718,9 @@
                                 <option value="6">Sábado</option>
                             </select>
                         </div>
+
+                        <label>Data base da escala</label>
+                        <input type="date" id="setupBaseDate" />
                     </div>
 
                     <div class="setup-section">
@@ -1670,6 +1787,30 @@
                             <button id="historicoMesBuscar">Ver</button>
                         </div>
                         <div id="historicoPlantoesLista"></div>
+                    </div>
+
+                    <!-- Trocas de Turno -->
+                    <div class="setup-section">
+                        <h4>Trocas de Turno</h4>
+
+                        <div id="swapForm" style="margin-bottom:12px">
+                            <div class="ferias-row">
+                                <div>
+                                    <label>De (data cedida)</label>
+                                    <input type="date" id="swapFrom" />
+                                </div>
+                                <div>
+                                    <label>Por (data recebida)</label>
+                                    <input type="date" id="swapTo" />
+                                </div>
+                            </div>
+                            <input type="text" id="swapNote" placeholder="Observação (opcional)" style="margin-top:8px" />
+                            <div class="ferias-actions">
+                                <button id="btnConfirmarSwap" type="button">Registrar troca</button>
+                            </div>
+                        </div>
+
+                        <div id="historicoSwapList"></div>
                     </div>
                 </div>
 
