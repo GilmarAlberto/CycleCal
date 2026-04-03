@@ -5,6 +5,7 @@ import { getContext } from "./logic/context.js";
 import { ajustarAniversario, formatarData, isValidDate } from "./logic/utils.js";
 import { AREAS, AREA_PRESETS, AREAS_WITHOUT_DSR, normalizeArea, getAreaConfig } from "./logic/areas.js";
 import { getProximaFerias } from "./logic/vacations.js";
+import { initStorage, loadUser, saveUser, clearUser, userExists } from "./logic/storage.js";
 
 // Expõe para o index.html
 window.getContext         = getContext;
@@ -17,6 +18,13 @@ window.AREAS_WITHOUT_DSR  = AREAS_WITHOUT_DSR;
 window.AREAS              = AREAS;
 window.AREA_PRESETS       = AREA_PRESETS;
 window.getProximaFerias   = getProximaFerias;
+
+// 💾 Storage — camada de persistência centralizada
+window.initStorage = initStorage;
+window.loadUser    = loadUser;
+window.saveUser    = saveUser;
+window.clearUser   = clearUser;
+window.userExists  = userExists;
 
 // 🆕 Sistema de layers
 window.buildLayers  = buildLayers;
