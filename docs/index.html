@@ -801,31 +801,9 @@
 
                         const eventos = getEventos(data);
 
-                        // 🔥 garante base sempre
-                        eventos.push({
-                            type: "trabalho",
-                            source: "base",
-                        });
-
-                        // 🔥 NOVO: aplicar ciclo
-                        const user = getUser();
-
-                        if (user?.settings?.base_date && user?.settings?.scale_pattern) {
-                            const pattern = user.settings.scale_pattern;
-
-                            // exemplo simples: "4x2" → ["T","T","T","T","F","F"]
-                            const cycle = parsePattern(pattern);
-
-                            const tipo = getCycleDay(data, {
-                                startDate: user.settings.base_date,
-                                cycle,
-                                offset: user.settings.offset || 0,
-                            });
-
-                            eventos.push({
-                                type: tipo === "T" ? "trabalho" : "folga",
-                                source: "cycle",
-                            });
+                        // Garante que sempre há pelo menos o layer base de trabalho
+                        if (eventos.length === 0) {
+                            eventos.push("trabalho");
                         }
 
                         const layers = buildLayers(eventos);
@@ -1819,7 +1797,7 @@
                             </select>
                         </div>
 
-                        <label>Data base da escala</label>
+                        <label>Informe um dia que você trabalhou</label>
                         <input type="date" id="setupBaseDate" />
                     </div>
 

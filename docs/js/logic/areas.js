@@ -6,7 +6,7 @@ export const AREAS = [
     { value: "supermercado", label: "Supermercado / Varejo" },
     { value: "seguranca",    label: "Segurança Pública" },
     { value: "hospital",     label: "Hospital / Saúde" },
-    { value: "industria",    label: "Indústria" },
+    // { value: "industria",    label: "Indústria" },
     { value: "outros",       label: "Outros" },
 ];
 
@@ -14,7 +14,7 @@ export const AREA_PRESETS = {
     seguranca:    { scale_type: "plantao", scale_pattern: "24x72" },
     hospital:     { scale_type: "plantao", scale_pattern: "12x36" },
     supermercado: { scale_type: "semanal", scale_pattern: "6x1"   },
-    industria:    { scale_type: "turno",   scale_pattern: "5x1"   },
+    // industria:    { scale_type: "turno",   scale_pattern: "5x1"   },
 };
 
 export const AREAS_WITHOUT_DSR = ["seguranca", "hospital"];

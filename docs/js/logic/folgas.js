@@ -25,7 +25,8 @@ export function getDayType(date, model) {
     const cp = cyclePatterns[pattern];
     if (!cp) return null;
 
-    const base = new Date(baseDate);
+    const [by, bm, bd] = baseDate.split("-").map(Number);
+    const base = new Date(by, bm - 1, bd);
     base.setHours(0, 0, 0, 0);
 
     const target = new Date(date);
