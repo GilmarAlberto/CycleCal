@@ -6,6 +6,7 @@ import { ajustarAniversario, formatarData, isValidDate } from "./logic/utils.js"
 import { AREAS, AREA_PRESETS, AREAS_WITHOUT_DSR, normalizeArea, getAreaConfig } from "./logic/areas.js";
 import { getProximaFerias } from "./logic/vacations.js";
 import { initStorage, loadUser, saveUser, clearUser, userExists, loadVacations, saveVacations, loadShiftSwaps, saveShiftSwaps, migrateToIndexedDB } from "./logic/storage.js";
+import { EVENT_TYPES, EVENT_PRIORITY, createEvent, isValidEvent, getEventPriority, sortByPriority, filterByDate } from "./logic/events_model.js";
 
 // Expõe para o index.html
 window.getContext         = getContext;
@@ -30,6 +31,15 @@ window.saveVacations   = saveVacations;
 window.loadShiftSwaps  = loadShiftSwaps;
 window.saveShiftSwaps  = saveShiftSwaps;
 window.migrateToIndexedDB = migrateToIndexedDB;
+
+// 🧩 Modelo genérico de eventos (v1.9.10)
+window.EVENT_TYPES       = EVENT_TYPES;
+window.EVENT_PRIORITY    = EVENT_PRIORITY;
+window.createEvent       = createEvent;
+window.isValidEvent      = isValidEvent;
+window.getEventPriority  = getEventPriority;
+window.sortByPriority    = sortByPriority;
+window.filterByDate      = filterByDate;
 
 // 🆕 Sistema de layers
 window.buildLayers  = buildLayers;

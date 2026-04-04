@@ -2,7 +2,7 @@
 // CycleCal Service Worker
 // ==============================
 
-const VERSION = "1.9.9b";
+const VERSION = "1.9.10a";
 const CACHE_NAME = `cyclecal-${VERSION}`;
 
 const ASSETS = [
@@ -21,6 +21,7 @@ const ASSETS = [
   "./js/logic/utils.js",
   "./js/logic/areas.js",
   "./js/logic/storage.js",
+  "./js/logic/events_model.js",
 ];
 
 self.addEventListener("install", (event) => {
