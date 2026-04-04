@@ -151,3 +151,116 @@ export function initStorage() {
     saveUser(migrated);
     return migrated;
 }
+
+// ==============================
+// IndexedDB — v1.9.9
+// ==============================
+// Stores: "vacations" e "shift_swaps"
+// Chave DB: cyclecal_db, versão 1
+//
+// API pública:
+//   loadVacations()           → Promise<Array>
+//   saveVacations(arr)        → Promise<void>
+//   loadShiftSwaps()          → Promise<Array>
+//   saveShiftSwaps(arr)       → Promise<void>
+//   migrateToIndexedDB()      → Promise<void>  (chamada no boot)
+// ==============================
+
+const IDB_NAME    = "cyclecal_db";
+const IDB_VERSION = 1;
+
+// ── Abre (ou cria) o banco ────────────────────────────────────────────────────
+function openDB() {
+    return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+
+        req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains("vacations")) {
+                db.createObjectStore("vacations", { keyPath: "start" });
+            }
+            if (!db.objectStoreNames.contains("shift_swaps")) {
+                db.createObjectStore("shift_swaps", { keyPath: "id" });
+            }
+        };
+
+        req.onsuccess = (e) => resolve(e.target.result);
+        req.onerror   = (e) => reject(e.target.error);
+    });
+}
+
+// ── Helpers genéricos ─────────────────────────────────────────────────────────
+function idbGetAll(storeName) {
+    return openDB().then((db) => new Promise((resolve, reject) => {
+        const tx  = db.transaction(storeName, "readonly");
+        const req = tx.objectStore(storeName).getAll();
+        req.onsuccess = (e) => resolve(e.target.result);
+        req.onerror   = (e) => reject(e.target.error);
+    }));
+}
+
+function idbPutAll(storeName, items) {
+    return openDB().then((db) => new Promise((resolve, reject) => {
+        const tx    = db.transaction(storeName, "readwrite");
+        const store = tx.objectStore(storeName);
+        store.clear();
+        for (const item of items) store.put(item);
+        tx.oncomplete = () => resolve();
+        tx.onerror    = (e) => reject(e.target.error);
+    }));
+}
+
+// ── API pública ───────────────────────────────────────────────────────────────
+
+export async function loadVacations() {
+    try {
+        return await idbGetAll("vacations");
+    } catch {
+        // Fallback: retorna do user no LocalStorage
+        const user = loadUser();
+        return user?.vacations || [];
+    }
+}
+
+export async function saveVacations(arr) {
+    await idbPutAll("vacations", arr);
+}
+
+export async function loadShiftSwaps() {
+    try {
+        return await idbGetAll("shift_swaps");
+    } catch {
+        const user = loadUser();
+        return user?.shift_swaps || [];
+    }
+}
+
+export async function saveShiftSwaps(arr) {
+    await idbPutAll("shift_swaps", arr);
+}
+
+// ── Migração única do LocalStorage → IndexedDB ────────────────────────────────
+// Chamada no boot (initStorage). Só migra se o IDB estiver vazio.
+export async function migrateToIndexedDB() {
+    try {
+        const user = loadUser();
+        if (!user) return;
+
+        const [existingVac, existingSwaps] = await Promise.all([
+            idbGetAll("vacations"),
+            idbGetAll("shift_swaps"),
+        ]);
+
+        // Migra vacations se IDB estiver vazio e LocalStorage tiver dados
+        if (existingVac.length === 0 && user.vacations?.length > 0) {
+            await idbPutAll("vacations", user.vacations);
+        }
+
+        // Migra shift_swaps se IDB estiver vazio e LocalStorage tiver dados
+        if (existingSwaps.length === 0 && user.shift_swaps?.length > 0) {
+            await idbPutAll("shift_swaps", user.shift_swaps);
+        }
+    } catch (err) {
+        console.warn("[storage] migrateToIndexedDB falhou:", err);
+    }
+}

@@ -69,7 +69,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "1.9.7",
+                version: "1.9.9b",
                 debug: false,
             };
 
@@ -152,69 +152,9 @@
                 return document.getElementById("setupModal");
             }
 
-            function initUser() {
-                const stored = localStorage.getItem("cyclecal_user");
-
-                if (!stored) {
-                    // Usuário novo — cria com scale_history já presente
-                    const user = {
-                        version: 2,
-                        updated_at: "",
-                        profile: {
-                            user_id: crypto.randomUUID(),
-                            name: "",
-                            area: "",
-                            birthday: "",
-                            created_at: new Date().toISOString(),
-                        },
-                        settings: {
-                            base_date: "",
-                            scale_type: "",
-                            scale_pattern: "",
-                            dsr: 0,
-			    offset: 0,
-                        },
-                        scale_history: [],
-                        vacations: [],
-                    };
-
-                    localStorage.setItem("cyclecal_user", JSON.stringify(user));
-                } else {
-                    // Usuário existente — migra para version 2 se necessário
-                    try {
-                        const user = JSON.parse(stored);
-                        if (!user.version || user.version < 2) {
-                            user.version = 2;
-                            user.scale_history = [];
-                            if (user.settings.scale_pattern && user.settings.base_date) {
-                                user.scale_history.push({
-                                    pattern: user.settings.scale_pattern,
-                                    type: user.settings.scale_type || "",
-                                    base_date: user.settings.base_date,
-                                    since: user.settings.base_date,
-                                });
-                            }
-                            localStorage.setItem("cyclecal_user", JSON.stringify(user));
-                        }
-                    } catch {
-                        localStorage.removeItem("cyclecal_user");
-                        initUser();
-                    }
-                }
-            }
-
-            function getUser() {
-                try {
-                    return JSON.parse(localStorage.getItem("cyclecal_user"));
-                } catch {
-                    return null;
-                }
-            }
-
-            function saveUser(user) {
-                user.updated_at = new Date().toISOString();
-                localStorage.setItem("cyclecal_user", JSON.stringify(user));
-            }
+            // 💾 v1.9.8 — Persistência via storage.js
+            // initUser(), getUser() e saveUser() foram removidos.
+            // Use: window.initStorage() | window.loadUser() | window.saveUser(user) | window.clearUser()
 
             function renderAreaSelect() {
                 const select = document.getElementById("areaSelect");
@@ -230,7 +170,7 @@
                     select.appendChild(option);
                 });
 
-                const user = getUser();
+                const user = window.loadUser();
                 select.value = user.profile.area || "outros";
             }
 
@@ -246,17 +186,17 @@
                 document.getElementById("setupScalePattern").value = preset.scale_pattern;
 
                 // 🔥 SALVAR NO USER
-                const user = getUser();
+                const user = window.loadUser();
                 user.settings.scale_type = preset.scale_type;
                 user.settings.scale_pattern = preset.scale_pattern;
-                //saveUser(user);
+                //window.saveUser(user);
                 //showToast("Salvo com sucesso!", "success");
 
                 isApplyingPreset = false;
             }
 
             function getBaseDate() {
-                const user = getUser();
+                const user = window.loadUser();
 
                 if (user.settings.base_date) {
                     return new Date(user.settings.base_date);
@@ -267,11 +207,11 @@
             }
 
             function setBaseDate(dateStr) {
-                const user = getUser();
+                const user = window.loadUser();
 
                 user.settings.base_date = dateStr;
 
-                saveUser(user);
+                window.saveUser(user);
 
                 baseFolgaDomingo = new Date(dateStr);
 
@@ -287,11 +227,11 @@
             }
 
             function setScaleType(type) {
-                const user = getUser();
+                const user = window.loadUser();
 
                 user.settings.scale_type = type;
 
-                saveUser(user);
+                window.saveUser(user);
             }
 
             function alterarTipoEscala() {
@@ -303,11 +243,11 @@
             }
 
             function setScalePattern(pattern) {
-                const user = getUser();
+                const user = window.loadUser();
 
                 user.settings.scale_pattern = pattern;
 
-                saveUser(user);
+                window.saveUser(user);
             }
 
             function alterarPadraoEscala() {
@@ -318,38 +258,22 @@
                 setScalePattern(pattern);
             }
 
-            function salvarFerias() {
-                const user = getUser();
-                user.vacations = vacations;
-                saveUser(user);
+            async function salvarFerias() {
+                await window.saveVacations(vacations);
             }
 
-            function carregarShiftSwaps() {
-                const user = getUser();
-                if (!user) {
-                    shiftSwaps = [];
-                    return;
-                }
-                shiftSwaps = user.shift_swaps || [];
+            async function carregarShiftSwaps() {
+                shiftSwaps = await window.loadShiftSwaps();
                 window._shiftSwaps = shiftSwaps;
             }
 
-            function salvarShiftSwaps() {
-                const user = getUser();
-                user.shift_swaps = shiftSwaps;
-                saveUser(user);
+            async function salvarShiftSwaps() {
+                await window.saveShiftSwaps(shiftSwaps);
                 window._shiftSwaps = shiftSwaps;
             }
 
-            function carregarFerias() {
-                const user = getUser();
-
-                if (!user) {
-                    vacations = [];
-                    return;
-                }
-
-                vacations = user.vacations || [];
+            async function carregarFerias() {
+                vacations = await window.loadVacations();
             }
 
             // Controla visibilidade do botão Adicionar período com base nas férias futuras
@@ -361,13 +285,14 @@
                 if (btn) btn.style.display = jaTemFutura ? "none" : "";
             }
 
-            window.addEventListener("cyclecal:ready", function () {
-                initUser();
+            window.addEventListener("cyclecal:ready", async function () {
+                window.initStorage();
+                await window.migrateToIndexedDB();
 
                 baseFolgaDomingo = getBaseDate();
 
-                carregarFerias();
-                carregarShiftSwaps();
+                await carregarFerias();
+                await carregarShiftSwaps();
 
                 preencherSetup();
                 verificarPerfil();
@@ -386,11 +311,11 @@
                 document.getElementById("areaSelect").addEventListener("change", ativarSalvar);
                 document.getElementById("setupDSR").addEventListener("change", ativarSalvar);
 
-                const user = getUser();
+                const user = window.loadUser();
 
                 if (!user.profile.area) {
                     user.profile.area = "outros";
-                    saveUser(user);
+                    window.saveUser(user);
                 }
 
                 renderAreaSelect();
@@ -398,11 +323,11 @@
                 const areaSelect = document.getElementById("areaSelect");
 
                 areaSelect.addEventListener("change", (e) => {
-                    const user = getUser();
+                    const user = window.loadUser();
                     const oldArea = user.profile.area;
                     const newArea = e.target.value;
                     user.profile.area = newArea;
-                    //saveUser(user);
+                    //window.saveUser(user);
 
                     //userModifiedScale = false;
                     if (oldArea !== newArea) {
@@ -506,7 +431,7 @@
                         return;
                     }
 
-                    const user = getUser();
+                    const user = window.loadUser();
                     user.profile.name = userName;
                     user.profile.birthday = birthday;
 
@@ -535,7 +460,7 @@
                     document.body.style.overflow = "";
                 };
 
-                document.getElementById("setupSalvarFeriasBtn").addEventListener("click", function () {
+                document.getElementById("setupSalvarFeriasBtn").addEventListener("click", async function () {
                     // Bloqueia se já existe uma férias futura pendente
                     const hoje = new Date().toISOString().slice(0, 10);
                     const jaTemFutura = vacations.some((v) => v.end >= hoje);
@@ -557,7 +482,7 @@
                     }, 200);
                 });
 
-                document.getElementById("btnConfirmarFerias").addEventListener("click", function () {
+                document.getElementById("btnConfirmarFerias").addEventListener("click", async function () {
                     const inicio = document.getElementById("setupFeriasInicio").value;
                     const fim = document.getElementById("setupFeriasFim").value;
 
@@ -587,7 +512,7 @@
 
                     vacations.push({ start: inicio, end: fim });
 
-                    salvarFerias();
+                    await salvarFerias();
                     ativarSalvar();
                     gerarCalendario(anoAtual, mesAtual);
                     renderListaFeriasSetup();
@@ -1123,9 +1048,9 @@
                     btn.textContent = "Remover";
                     btn.className = "btn-remover";
 
-                    btn.onclick = () => {
+                    btn.onclick = async () => {
                         vacations.splice(originalIndex, 1);
-                        salvarFerias();
+                        await salvarFerias();
                         ativarSalvar();
                         renderListaFeriasSetup();
                         gerarCalendario(anoAtual, mesAtual);
@@ -1141,7 +1066,7 @@
             }
 
             function verificarPerfil() {
-                const user = getUser();
+                const user = window.loadUser();
 
                 if (!user || !user.profile || !user.settings || !user.settings.base_date) {
                     setTimeout(() => mostrarSetup(), 0);
@@ -1149,7 +1074,7 @@
             }
 
             function atualizarSaudacao() {
-                const user = getUser();
+                const user = window.loadUser();
                 const el = document.getElementById("userGreeting");
 
                 if (!user.profile.name) return;
@@ -1183,7 +1108,7 @@
 
             function atualizarFooterBase() {
                 const el = document.getElementById("footerBase");
-                const user = getUser();
+                const user = window.loadUser();
                 const area = normalizeArea(user.profile.area);
                 const isPlantao = AREAS_WITHOUT_DSR.includes(area);
 
@@ -1257,7 +1182,7 @@
             }
 
             function preencherSetup() {
-                const user = getUser();
+                const user = window.loadUser();
 
                 document.getElementById("setupUserName").value = user.profile.name || "";
 
@@ -1421,7 +1346,7 @@
             }
 
             function aplicarSetup(user) {
-                saveUser(user);
+                window.saveUser(user);
 
                 baseFolgaDomingo = getBaseDate();
 
@@ -1432,7 +1357,7 @@
 
             function atualizarInfoEscala() {
                 const el = document.getElementById("infoEscala");
-                const user = getUser();
+                const user = window.loadUser();
 
                 const area = normalizeArea(user.profile.area);
                 const config = getAreaConfig(area);
@@ -1487,7 +1412,7 @@
             }
 
             function renderHistoricoFerias() {
-                const user = getUser();
+                const user = window.loadUser();
                 const lista = document.getElementById("historicoFeriasList");
 
                 const vacList = user.vacations || [];
@@ -1527,7 +1452,7 @@
             }
 
             function renderHistoricoEscalas() {
-                const user = getUser();
+                const user = window.loadUser();
                 const lista = document.getElementById("historicoEscalasList");
 
                 if (!user.scale_history || user.scale_history.length === 0) {
@@ -1558,7 +1483,7 @@
 
             function renderHistoricoPlantoes(anoMes) {
                 // anoMes no formato "YYYY-MM"
-                const user = getUser();
+                const user = window.loadUser();
                 const lista = document.getElementById("historicoPlantoesLista");
 
                 if (!anoMes) {
@@ -1633,10 +1558,10 @@
                     .join("");
 
                 lista.querySelectorAll(".btn-remover[data-swap-id]").forEach((btn) => {
-                    btn.addEventListener("click", () => {
+                    btn.addEventListener("click", async () => {
                         const id = btn.dataset.swapId;
                         shiftSwaps = shiftSwaps.filter((s) => s.id !== id);
-                        salvarShiftSwaps();
+                        await salvarShiftSwaps();
                         gerarCalendario(anoAtual, mesAtual);
                         renderHistoricoSwaps();
                     });
@@ -1649,7 +1574,7 @@
                 if (!btn || btn._swapWired) return;
                 btn._swapWired = true;
 
-                btn.addEventListener("click", () => {
+                btn.addEventListener("click", async () => {
                     const from = document.getElementById("swapFrom").value;
                     const to = document.getElementById("swapTo").value;
                     const note = document.getElementById("swapNote").value.trim();
@@ -1678,7 +1603,7 @@
                         created_at: new Date().toISOString(),
                     });
 
-                    salvarShiftSwaps();
+                    await salvarShiftSwaps();
                     gerarCalendario(anoAtual, mesAtual);
                     renderHistoricoSwaps();
 

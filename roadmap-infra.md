@@ -1,6 +1,6 @@
 # CycleCal — Infraestrutura da Plataforma
 
-Status: 🟢 v1.9.6  
+Status: 🟢 v1.9.9  
 Base: v1.9.5  
 Branch: main
 
@@ -93,9 +93,9 @@ Ele suporta todas as linhas de produto:
 
 # 💾 Fase 5 — Persistência de Dados (v1.9.7 → v1.9.9)
 
-- [ ] v1.9.7 — Criar camada de persistência (`storage`)
-- [ ] v1.9.8 — Implementar LocalStorage
-- [ ] v1.9.9 — Implementar IndexedDB
+- [x] v1.9.7 — Criar camada de persistência (`storage.js`)
+- [x] v1.9.8 — Migrar `index.html` para usar `storage.js` (remover `localStorage` direto)
+- [x] v1.9.9 — Implementar IndexedDB para `vacations` e `shift_swaps`
 
 ---
 

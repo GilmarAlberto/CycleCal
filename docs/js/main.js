@@ -5,7 +5,7 @@ import { getContext } from "./logic/context.js";
 import { ajustarAniversario, formatarData, isValidDate } from "./logic/utils.js";
 import { AREAS, AREA_PRESETS, AREAS_WITHOUT_DSR, normalizeArea, getAreaConfig } from "./logic/areas.js";
 import { getProximaFerias } from "./logic/vacations.js";
-import { initStorage, loadUser, saveUser, clearUser, userExists } from "./logic/storage.js";
+import { initStorage, loadUser, saveUser, clearUser, userExists, loadVacations, saveVacations, loadShiftSwaps, saveShiftSwaps, migrateToIndexedDB } from "./logic/storage.js";
 
 // Expõe para o index.html
 window.getContext         = getContext;
@@ -25,6 +25,11 @@ window.loadUser    = loadUser;
 window.saveUser    = saveUser;
 window.clearUser   = clearUser;
 window.userExists  = userExists;
+window.loadVacations   = loadVacations;
+window.saveVacations   = saveVacations;
+window.loadShiftSwaps  = loadShiftSwaps;
+window.saveShiftSwaps  = saveShiftSwaps;
+window.migrateToIndexedDB = migrateToIndexedDB;
 
 // 🆕 Sistema de layers
 window.buildLayers  = buildLayers;
