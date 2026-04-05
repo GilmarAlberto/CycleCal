@@ -2,7 +2,7 @@
 // CycleCal Service Worker
 // ==============================
 
-const VERSION = "1.9.11";
+const VERSION = "1.9.12";
 const CACHE_NAME = `cyclecal-${VERSION}`;
 
 const ASSETS = [
@@ -55,6 +55,13 @@ self.addEventListener("activate", (event) => {
         })
       )
     ).then(() => self.clients.claim())
+      .then(() => {
+        self.clients.matchAll({ type: "window" }).then((clients) => {
+          clients.forEach((client) =>
+            client.postMessage({ type: "SW_UPDATED", version: VERSION })
+          );
+        });
+      })
   );
 });
 

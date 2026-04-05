@@ -69,7 +69,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "1.9.11",
+                version: "1.9.12",
                 debug: false,
             };
 
@@ -1071,6 +1071,12 @@
                             }
                         });
                     });
+                });
+
+                navigator.serviceWorker.addEventListener("message", (event) => {
+                    if (event.data?.type === "SW_UPDATED") {
+                        showToast(`✅ CycleCal atualizado para v${event.data.version}`, "success");
+                    }
                 });
             }
 
