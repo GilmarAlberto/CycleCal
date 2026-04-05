@@ -1,6 +1,6 @@
 // ==============================
 // CycleCal — Camada de Persistência
-// v1.9.7
+// v1.9.11
 // ==============================
 // Centraliza todos os acessos ao localStorage.
 // O index.html e demais módulos NÃO devem chamar
@@ -9,10 +9,10 @@
 // Chave principal: "cyclecal_user"
 // Estrutura do objeto user:
 // {
-//   version: 2,
+//   version: 3,
 //   updated_at: "",
 //   profile: { user_id, name, area, birthday, created_at },
-//   settings: { base_date, scale_type, scale_pattern, dsr, offset },
+//   settings: { base_date, scale_type, scale_pattern, dsr, offset, timezone },
 //   scale_history: [],
 //   vacations: [],
 //   shift_swaps: [],
@@ -20,6 +20,8 @@
 // ==============================
 
 const STORAGE_KEY = "cyclecal_user";
+
+import { getLocalTimezone } from "./utils.js";
 
 // ==============================
 // loadUser()
@@ -69,7 +71,7 @@ export function userExists() {
 // ==============================
 export function createDefaultUser() {
     return {
-        version: 2,
+        version: 3,
         updated_at: "",
         profile: {
             user_id: crypto.randomUUID(),
@@ -84,6 +86,7 @@ export function createDefaultUser() {
             scale_pattern: "",
             dsr: 0,
             offset: 0,
+            timezone: getLocalTimezone(),
         },
         scale_history: [],
         vacations: [],
@@ -112,11 +115,40 @@ export function migrateUser(user) {
         }
     }
 
+    // v1.9.11 — migração v2 → v3: adiciona timezone se ausente
+    if (user.version < 3) {
+        user.version = 3;
+        if (!user.settings.timezone) {
+            user.settings.timezone = getLocalTimezone();
+        }
+    }
+
     // Garante campos ausentes em versões antigas
     user.shift_swaps = user.shift_swaps || [];
     user.vacations   = user.vacations   || [];
 
     return user;
+}
+
+// ==============================
+// getTimezone()
+// Retorna o timezone salvo no perfil do usuário.
+// Fallback: detecta automaticamente via Intl.
+// ==============================
+export function getTimezone() {
+    const user = loadUser();
+    return user?.settings?.timezone || getLocalTimezone();
+}
+
+// ==============================
+// saveTimezone(tz)
+// Persiste o timezone no settings do usuário.
+// ==============================
+export function saveTimezone(tz) {
+    const user = loadUser();
+    if (!user) return;
+    user.settings.timezone = tz;
+    saveUser(user);
 }
 
 // ==============================

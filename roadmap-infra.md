@@ -1,7 +1,7 @@
 # CycleCal — Infraestrutura da Plataforma
 
-Status: 🟢 v1.9.9  
-Base: v1.9.5  
+Status: 🟢 v1.9.11  
+Base: v1.9.10
 Branch: main
 
 ---
@@ -99,22 +99,24 @@ Ele suporta todas as linhas de produto:
 
 ---
 
-# 🧩 Fase 6 — Sistema de Eventos (v1.9.10) ⬅️ próxima
+# 🧩 Fase 6 — Sistema de Eventos (v1.9.10) ✅
 
-- [ ] v1.9.10 — Estrutura genérica de eventos
-- [ ] Modelo com `id`, `type`, `start`, `end`
-
----
-
-# 🌍 Fase 7 — Timezone e Localização (v1.9.11)
-
-- [ ] v1.9.11 — Detectar timezone automaticamente
-- [ ] Salvar timezone no perfil
-- [ ] Usar timezone nos cálculos
+- [x] v1.9.10 — Estrutura genérica de eventos
+- [x] Modelo com `id`, `type`, `start`, `end`, `label`, `meta`
+- [x] `EVENT_TYPES` e `EVENT_PRIORITY` definidos
+- [x] Funções: `createEvent()`, `isValidEvent()`, `filterByDate()`, `sortByPriority()'
 
 ---
 
-# 📦 Fase 8 — Organização do Projeto (v1.9.12)
+# 🌍 Fase 7 — Timezone e Localização (v1.9.11) ✅
+
+- [x] v1.9.11 — Detectar timezone automaticamente
+- [x] Salvar timezone no perfil
+- [x] Usar timezone nos cálculos
+
+---
+
+# 📦 Fase 8 — Organização do Projeto (v1.9.12) ⬅️ próxima
 
 - [ ] v1.9.12 — Criar `CHANGELOG.md`
 - [ ] Organizar releases

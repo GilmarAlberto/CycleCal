@@ -1,9 +1,10 @@
 // ==============================
 // CycleCal — Módulo de Folgas
-// v1.9.4
+// v1.9.11
 // ==============================
 
 import { cyclePatterns } from "./model.js";
+import { toLocalDate } from "./utils.js";
 
 // ==============================
 // getDayType()
@@ -25,12 +26,14 @@ export function getDayType(date, model) {
     const cp = cyclePatterns[pattern];
     if (!cp) return null;
 
-    const [by, bm, bd] = baseDate.split("-").map(Number);
-    const base = new Date(by, bm - 1, bd);
-    base.setHours(0, 0, 0, 0);
-
-    const target = new Date(date);
-    target.setHours(0, 0, 0, 0);
+    // toLocalDate() garante que strings "YYYY-MM-DD" não sejam
+    // interpretadas como UTC (bug UTC-3 que desloca o dia).
+    const base   = toLocalDate(baseDate);
+    const target = typeof date === "string" ? toLocalDate(date) : (() => {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        return d;
+    })();
 
     const diffDays = Math.round((target - base) / 86400000);
     const cycleLen = cp.work.length + cp.off.length;

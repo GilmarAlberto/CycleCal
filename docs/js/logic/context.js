@@ -1,11 +1,13 @@
 // ==============================
 // CycleCal — Módulo de Contexto
+// v1.9.11
 // ==============================
 // Centraliza a montagem do objeto context usado por eventosDoDia()
 // Depende de globals do index.html: window.loadUser, vacations,
 // baseFolgaDomingo, AREAS_WITHOUT_DSR, anoAtual
 
 import { feriadosFixos, gerarFeriadosMoveis, gerarCarnaval } from "./feriados.js";
+import { getTimezone } from "./storage.js";
 
 export function getContext(ano) {
     const user = window.loadUser();
@@ -24,6 +26,7 @@ export function getContext(ano) {
     const feriadosMoveis = gerarFeriadosMoveis(anoRef);
     const carnaval = gerarCarnaval(anoRef);
     const todosFeriados = [...feriadosFixos, ...feriadosMoveis];
+    const timezone = getTimezone();
 
     return {
         user,
@@ -33,5 +36,6 @@ export function getContext(ano) {
         aniversario,
         todosFeriados,
         carnaval,
+        timezone,
     };
 }
