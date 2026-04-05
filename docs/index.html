@@ -69,7 +69,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "1.9.10a",
+                version: "1.9.10b",
                 debug: false,
             };
 
@@ -156,6 +156,46 @@
             // initUser(), getUser() e saveUser() foram removidos.
             // Use: window.initStorage() | window.loadUser() | window.saveUser(user) | window.clearUser()
 
+            function atualizarLabelBaseDate(area) {
+                const label = document.getElementById("labelBaseDate");
+                const outrosWrapper = document.getElementById("outrosScaleTypeWrapper");
+                const scaleFieldsWrapper = document.getElementById("scaleFieldsWrapper");
+                if (!label) return;
+
+                const setupScaleType = document.getElementById("setupScaleType");
+
+                if (area === "outros") {
+                    if (outrosWrapper) outrosWrapper.style.display = "";
+                    if (scaleFieldsWrapper) scaleFieldsWrapper.style.display = "";
+                    if (setupScaleType) { setupScaleType.removeAttribute("readonly"); setupScaleType.style.display = "none"; }
+                    const scaleTypeLabel = setupScaleType?.previousElementSibling;
+                    if (scaleTypeLabel && scaleTypeLabel.tagName === "LABEL") scaleTypeLabel.style.display = "none";
+                    const scaleType = document.getElementById("outrosScaleType")?.value;
+                    const dsrField = document.getElementById("dsrWrapper");
+                    if (dsrField) dsrField.style.display = scaleType === "semanal" ? "" : "none";
+                    const patternInput = document.getElementById("setupScalePattern");
+                    if (patternInput && !patternInput.value) {
+                        patternInput.placeholder = scaleType === "semanal" ? "ex: 6x1" : "ex: 12x36";
+                    }
+                    if (scaleType === "semanal") {
+                        label.textContent = "Informe o último domingo de folga";
+                    } else {
+                        label.textContent = "Informe o último dia trabalhado";
+                    }
+                } else {
+                    if (outrosWrapper) outrosWrapper.style.display = "none";
+                    if (scaleFieldsWrapper) scaleFieldsWrapper.style.display = "";
+                    if (setupScaleType) { setupScaleType.setAttribute("readonly", true); setupScaleType.style.display = ""; }
+                    const scaleTypeLabel = setupScaleType?.previousElementSibling;
+                    if (scaleTypeLabel && scaleTypeLabel.tagName === "LABEL") scaleTypeLabel.style.display = "";
+                    if (area === "supermercado") {
+                        label.textContent = "Informe o último domingo de folga";
+                    } else {
+                        label.textContent = "Informe o último dia trabalhado";
+                    }
+                }
+            }
+
             function renderAreaSelect() {
                 const select = document.getElementById("areaSelect");
 
@@ -175,7 +215,8 @@
             }
 
             function applyAreaPreset(area) {
-                if (userModifiedScale) return;
+                // Áreas fixas sempre aplicam o preset; só respeita userModifiedScale em "outros"
+                if (userModifiedScale && area === "outros") return;
 
                 const preset = AREA_PRESETS[area];
                 if (!preset) return;
@@ -329,30 +370,49 @@
                     user.profile.area = newArea;
                     //window.saveUser(user);
 
-                    //userModifiedScale = false;
-                    if (oldArea !== newArea) {
+                    if (newArea !== "outros") {
                         userModifiedScale = false;
+                    }
+                    if (oldArea !== newArea || newArea !== "outros") {
                         applyAreaPreset(e.target.value);
                     }
+                    if (newArea === "outros") {
+                        document.getElementById("setupScalePattern").value = "";
+                    }
+
+                    atualizarLabelBaseDate(e.target.value);
 
                     const dsrField = document.getElementById("dsrWrapper");
 
                     if (AREAS_WITHOUT_DSR.includes(e.target.value)) {
                         dsrField.style.display = "none";
                         document.getElementById("setupDSR").value = "0";
-                    } else {
+                    } else if (e.target.value !== "outros") {
                         dsrField.style.display = "";
                     }
+                    // para "outros", o dsrWrapper é controlado pelo outrosScaleType
                 });
 
                 document.getElementById("setupScaleType").addEventListener("input", () => {
                     if (isApplyingPreset) return;
                     userModifiedScale = true;
+                    const area = document.getElementById("areaSelect")?.value;
+                    if (area === "outros") atualizarLabelBaseDate("outros");
                 });
 
                 document.getElementById("setupScalePattern").addEventListener("input", () => {
                     if (isApplyingPreset) return;
                     userModifiedScale = true;
+                });
+
+                document.getElementById("outrosScaleType").addEventListener("change", () => {
+                    atualizarLabelBaseDate("outros");
+                    const scaleType = document.getElementById("outrosScaleType")?.value;
+                    const dsrField = document.getElementById("dsrWrapper");
+                    if (dsrField) dsrField.style.display = scaleType === "semanal" ? "" : "none";
+                    const patternInput = document.getElementById("setupScalePattern");
+                    patternInput.value = "";
+                    patternInput.placeholder = scaleType === "semanal" ? "ex: 6x1" : "ex: 12x36";
                 });
 
                 const birthdayInput = document.getElementById("setupBirthday");
@@ -1206,6 +1266,8 @@
 
                 document.getElementById("areaSelect").value = user.profile.area || "outros";
 
+                atualizarLabelBaseDate(user.profile.area || "outros");
+
                 const area = user.profile.area;
 
                 const dsrField = document.getElementById("dsrWrapper");
@@ -1217,18 +1279,18 @@
                     dsrField.style.display = "";
                 }
 
-                document.getElementById("setupScaleType").value = user.settings.scale_type || "";
-                document.getElementById("setupScalePattern").value = user.settings.scale_pattern || "";
-
                 if (!AREAS_WITHOUT_DSR.includes(area)) {
                     document.getElementById("setupDSR").value = String(user.settings.dsr ?? 0);
                 }
 
-                // aplica preset
-                //applyAreaPreset(user.profile.area);
-
-                if (!user.settings.scale_type && !user.settings.scale_pattern && !userModifiedScale) {
-                    applyAreaPreset(user.profile.area);
+                // áreas fixas: sempre aplica o preset (ignora o que está salvo)
+                // outros: preenche com o que está salvo
+                if (area !== "outros") {
+                    applyAreaPreset(area);
+                } else {
+                    document.getElementById("setupScaleType").value = user.settings.scale_type || "";
+                    // para outros, não preenche o padrão — o placeholder já orienta
+                    document.getElementById("setupScalePattern").value = "";
                 }
             }
 
@@ -1703,11 +1765,21 @@
                         <label for="areaSelect">Área de atuação</label>
                         <select id="areaSelect"></select>
 
-                        <label>Tipo de escala</label>
-                        <input type="text" id="setupScaleType" />
+                        <div id="outrosScaleTypeWrapper" style="display:none;">
+                            <label>Tipo de escala</label>
+                            <select id="outrosScaleType">
+                                <option value="plantao">Plantão</option>
+                                <option value="semanal">Semanal</option>
+                            </select>
+                        </div>
 
-                        <label>Padrão da escala</label>
-                        <input type="text" id="setupScalePattern" />
+                        <div id="scaleFieldsWrapper">
+                            <label>Tipo de escala</label>
+                            <input type="text" id="setupScaleType" readonly />
+
+                            <label>Padrão da escala</label>
+                            <input type="text" id="setupScalePattern" placeholder="ex: 12x36" />
+                        </div>
 
                         <div id="dsrWrapper">
                             <label>Descanso semanal (DSR)</label>
@@ -1722,7 +1794,7 @@
                             </select>
                         </div>
 
-                        <label>Informe um dia que você trabalhou</label>
+                        <label id="labelBaseDate">Informe o último dia trabalhado</label>
                         <input type="date" id="setupBaseDate" />
                     </div>
 

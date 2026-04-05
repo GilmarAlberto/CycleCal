@@ -2,7 +2,7 @@
 // CycleCal Service Worker
 // ==============================
 
-const VERSION = "1.9.10a";
+const VERSION = "1.9.10b";
 const CACHE_NAME = `cyclecal-${VERSION}`;
 
 const ASSETS = [

@@ -99,86 +99,47 @@ Ele suporta todas as linhas de produto:
 
 ---
 
-# 🔄 Fase 6 — Offline-First (v1.9.10 → v1.9.12)
+# 🧩 Fase 6 — Sistema de Eventos (v1.9.10) ⬅️ próxima
 
-- [ ] v1.9.10 — Adapter de API remoto
-- [ ] v1.9.11 — Sincronização automática
-- [ ] v1.9.12 — Resolução de conflitos
-
----
-
-# ☁️ Fase 7 — Backend & Sincronização (v1.9.13 → v1.9.15)
-
-## Backend
-
-- [ ] v1.9.13 — Backend SaaS
-- [ ] Armazenamento de dados dos usuários
-- [ ] Sincronização entre dispositivos
-
-## Conta & Backup
-
-- [ ] v1.9.14 — Autenticação de usuários
-- [ ] v1.9.15 — Backup automático
-
----
-
-# 💬 Fase 8 — Produto (v1.9.16 → v1.9.17)
-
-- [ ] v1.9.16 — Canal de feedback
-- [ ] v1.9.17 — Monetização leve
-
----
-
-# 📊 Fase 9 — Métricas (v1.9.18 → v1.9.19)
-
-- [ ] Registrar DAU / MAU
-- [ ] Métricas de uso
-- [ ] v1.9.19 — Dashboard interno
-
----
-
-# 🔐 Fase 10 — Segurança (v1.9.20 → v1.9.21)
-
-- [ ] Controle de acesso à API
-- [ ] Autenticação segura
-- [ ] Criptografia de dados
-- [ ] Rate limiting
-
----
-
-# 🧩 Fase 11 — Sistema de Eventos (v1.9.22)
-
-- [ ] Estrutura genérica de eventos
+- [ ] v1.9.10 — Estrutura genérica de eventos
 - [ ] Modelo com `id`, `type`, `start`, `end`
 
 ---
 
-# 📦 Fase 12 — Organização do Projeto (v1.9.23)
+# 🌍 Fase 7 — Timezone e Localização (v1.9.11)
 
-- [ ] Criar `CHANGELOG.md`
+- [ ] v1.9.11 — Detectar timezone automaticamente
+- [ ] Salvar timezone no perfil
+- [ ] Usar timezone nos cálculos
+
+---
+
+# 📦 Fase 8 — Organização do Projeto (v1.9.12)
+
+- [ ] v1.9.12 — Criar `CHANGELOG.md`
 - [ ] Organizar releases
 - [ ] Logs estruturados
 
 ---
 
-# 🌐 Fase 13 — Distribuição (v1.9.24)
+# 🌐 Fase 9 — Distribuição (v1.9.13)
 
-- [ ] GitHub Pages (PWA)
+- [ ] v1.9.13 — GitHub Pages (PWA)
 - [ ] Avaliar TWA (Android)
 - [ ] Compatibilidade iOS
 
 ---
 
-# 📈 Fase 14 — Evolução (v1.9.25)
+# 📈 Fase 10 — Evolução (v1.9.14)
 
-- [ ] Exportação de dados
+- [ ] v1.9.14 — Exportação de dados
 - [ ] Integração com calendários externos
 
 ---
 
-# 🧪 Fase 15 — Estabilização (v1.9.26)
+# 🧪 Fase 11 — Estabilização (v1.9.15)
 
-- [ ] Revisão geral da arquitetura
+- [ ] v1.9.15 — Revisão geral da arquitetura
 - [ ] Testes de sincronização
 - [ ] Testes de segurança
 - [ ] Validação offline-first
@@ -186,8 +147,52 @@ Ele suporta todas as linhas de produto:
 
 ---
 
-# 🌍 Fase 16 — Timezone e Localização (v1.9.27)
+# 🔄 Fase 12 — Offline-First (v1.9.16 → v1.9.18)
 
-- [ ] Detectar timezone automaticamente
-- [ ] Salvar timezone no perfil
-- [ ] Usar timezone nos cálculos
+> Requer backend (Fase 13) concluído.
+
+- [ ] v1.9.16 — Adapter de API remoto
+- [ ] v1.9.17 — Sincronização automática
+- [ ] v1.9.18 — Resolução de conflitos
+
+---
+
+# ☁️ Fase 13 — Backend & Sincronização (v1.9.19 → v1.9.21)
+
+## Backend
+
+- [ ] v1.9.19 — Backend SaaS
+- [ ] Armazenamento de dados dos usuários
+- [ ] Sincronização entre dispositivos
+
+## Conta & Backup
+
+- [ ] v1.9.20 — Autenticação de usuários
+- [ ] v1.9.21 — Backup automático
+
+---
+
+# 💬 Fase 14 — Produto (v1.9.22 → v1.9.23)
+
+> Requer backend (Fase 13) concluído.
+
+- [ ] v1.9.22 — Canal de feedback
+- [ ] v1.9.23 — Monetização leve
+
+---
+
+# 📊 Fase 15 — Métricas (v1.9.24 → v1.9.25)
+
+> Requer backend (Fase 13) concluído.
+
+- [ ] v1.9.24 — Registrar DAU / MAU e métricas de uso
+- [ ] v1.9.25 — Dashboard interno de métricas
+
+---
+
+# 🔐 Fase 16 — Segurança (v1.9.26 → v1.9.27)
+
+> Requer backend (Fase 13) concluído.
+
+- [ ] v1.9.26 — Controle de acesso à API e rate limiting
+- [ ] v1.9.27 — Autenticação segura e criptografia de dados
