@@ -94,6 +94,7 @@
             let vacations = [];
             let shiftSwaps = [];
             let userModifiedScale = false;
+            let userModifiedPattern = false;
             let isApplyingPreset = false;
             let feriasFormAberto = false;
             let calendar = { year: null, month: null, days: [] };
@@ -188,10 +189,13 @@
                     if (setupScaleType) { setupScaleType.setAttribute("readonly", true); setupScaleType.style.display = ""; }
                     const scaleTypeLabel = setupScaleType?.previousElementSibling;
                     if (scaleTypeLabel && scaleTypeLabel.tagName === "LABEL") scaleTypeLabel.style.display = "";
+                    const patternInput = document.getElementById("setupScalePattern");
                     if (area === "supermercado") {
                         label.textContent = "Informe o último domingo de folga";
+                        if (patternInput) patternInput.placeholder = "ex: 6x1";
                     } else {
                         label.textContent = "Informe o último dia trabalhado";
+                        if (patternInput) patternInput.placeholder = "ex: 12x36";
                     }
                 }
             }
@@ -224,12 +228,16 @@
                 isApplyingPreset = true;
 
                 document.getElementById("setupScaleType").value = preset.scale_type;
-                document.getElementById("setupScalePattern").value = preset.scale_pattern;
+                if (!userModifiedPattern) {
+                    document.getElementById("setupScalePattern").value = preset.scale_pattern;
+                }
 
                 // 🔥 SALVAR NO USER
                 const user = window.loadUser();
                 user.settings.scale_type = preset.scale_type;
-                user.settings.scale_pattern = preset.scale_pattern;
+                if (!userModifiedPattern) {
+                    user.settings.scale_pattern = preset.scale_pattern;
+                }
                 //window.saveUser(user);
                 //showToast("Salvo com sucesso!", "success");
 
@@ -373,6 +381,7 @@
                     if (newArea !== "outros") {
                         userModifiedScale = false;
                     }
+                    userModifiedPattern = false;
                     if (oldArea !== newArea || newArea !== "outros") {
                         applyAreaPreset(e.target.value);
                     }
@@ -403,6 +412,7 @@
                 document.getElementById("setupScalePattern").addEventListener("input", () => {
                     if (isApplyingPreset) return;
                     userModifiedScale = true;
+                    userModifiedPattern = true;
                 });
 
                 document.getElementById("outrosScaleType").addEventListener("change", () => {
