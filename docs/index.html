@@ -1399,10 +1399,10 @@
                 const secEnabled = document.getElementById("secondaryScaleEnabled");
 
                 if (secSection) {
-                    const ehPlantao = AREAS_WITHOUT_DSR.includes(area);
-                    secSection.style.display = ehPlantao ? "" : "none";
+                    const exibeSegundaEscala = AREAS_WITHOUT_DSR.includes(area) || area === "outros";
+                    secSection.style.display = exibeSegundaEscala ? "" : "none";
 
-                    if (ehPlantao && user.secondary_scale) {
+                    if (exibeSegundaEscala && user.secondary_scale) {
                         secEnabled.checked = true;
                         secFields.style.display = "";
                         document.getElementById("secondaryInstitution").value = user.secondary_scale.institution || "";
