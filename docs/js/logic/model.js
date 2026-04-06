@@ -1,6 +1,6 @@
 // ==============================
 // CycleCal — Modelo de Dados Centralizado
-// v1.9.5
+// v1.9.12.b
 // ==============================
 
 // Padrões de ciclo de plantão.
@@ -99,5 +99,38 @@ export function buildModel(user, date = null) {
             area: user.profile.area        || "outros",
             dsr:  Number(user.settings.dsr ?? 0),
         },
+    };
+}
+
+// ==============================
+// buildSecondaryModel()
+// Constrói o model para a escala secundária (segunda instituição).
+//
+// Parâmetros:
+//   user — objeto user vindo do localStorage
+//
+// Retorna o model da escala secundária | null se não configurada.
+//
+// A escala secundária não tem histórico — usa sempre os dados
+// atuais de user.secondary_scale.
+// ==============================
+
+export function buildSecondaryModel(user) {
+    const sec = user?.secondary_scale;
+
+    if (!sec || !sec.pattern || !sec.base_date) return null;
+
+    return {
+        cycle: {
+            pattern:  sec.pattern,
+            type:     "plantao",
+            baseDate: sec.base_date,
+        },
+        profile: {
+            area: user.profile.area || "outros",
+            dsr:  0,
+        },
+        institution: sec.institution || "",
+        color:        sec.color       || "#e67e22",
     };
 }

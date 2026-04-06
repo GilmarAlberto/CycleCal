@@ -648,3 +648,51 @@ button {
 .day.trabalho {
   border: 1px solid #cfe3ff;
 }
+
+/* ==============================
+   Multi-escala — v1.9.12.b
+   Diagonal split para dois plantões no mesmo dia
+   ============================== */
+
+/* Escala principal usa inst_color via CSS var injetada inline no .day */
+.day.trabalho-principal {
+    background: var(--inst-a-color, #3b82f6);
+    border: 1px solid color-mix(in srgb, var(--inst-a-color, #3b82f6) 70%, #000);
+    color: #fff;
+}
+
+/* Escala secundária — só ela trabalhando */
+.day.trabalho-secundario {
+    background: var(--inst-b-color, #e67e22);
+    border: 1px solid color-mix(in srgb, var(--inst-b-color, #e67e22) 70%, #000);
+    color: #fff;
+}
+
+/* Ambas trabalhando — diagonal split */
+.day.trabalho-ambos {
+    background: linear-gradient(
+        135deg,
+        var(--inst-a-color, #3b82f6) 50%,
+        var(--inst-b-color, #e67e22) 50%
+    );
+    border: 1px solid #888;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+/* Badge de instituição dentro da célula (tooltip/label) */
+.day .inst-badge {
+    display: flex;
+    gap: 2px;
+    position: absolute;
+    bottom: 2px;
+    left: 3px;
+}
+
+.day .inst-badge span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.6);
+}

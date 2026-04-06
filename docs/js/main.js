@@ -1,5 +1,6 @@
 import { eventosDoDia, buildLayers, getTopLayer } from "./logic/events.js";
-import { ehFolga } from "./logic/folgas.js";
+import { ehFolga, getDayTypeSecondary } from "./logic/folgas.js";
+import { buildSecondaryModel } from "./logic/model.js";
 import { feriadosFixos, gerarFeriadosMoveis, gerarCarnaval } from "./logic/feriados.js";
 import { getContext } from "./logic/context.js";
 import { ajustarAniversario, formatarData, isValidDate } from "./logic/utils.js";
@@ -44,6 +45,19 @@ window.filterByDate      = filterByDate;
 // 🆕 Sistema de layers
 window.buildLayers  = buildLayers;
 window.getTopLayer  = getTopLayer;
+
+// 🆕 Multi-escala — v1.9.12.b
+window.getDayTypeSecondary = function (data) {
+    const user = window.loadUser();
+    if (!user) return null;
+    return getDayTypeSecondary(data, user);
+};
+
+window.buildSecondaryModel = function () {
+    const user = window.loadUser();
+    if (!user) return null;
+    return buildSecondaryModel(user);
+};
 
 window.isFolga = function (data) {
     const ctx = getContext();

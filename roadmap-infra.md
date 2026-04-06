@@ -1,7 +1,7 @@
 # CycleCal — Infraestrutura da Plataforma
 
-Status: 🟢 v1.9.11  
-Base: v1.9.10
+Status: 🟢 v1.9.12a  
+Base: v1.9.12a
 Branch: main
 
 ---
@@ -116,32 +116,41 @@ Ele suporta todas as linhas de produto:
 
 ---
 
-# 📦 Fase 8 — Organização do Projeto (v1.9.12) ⬅️ próxima
+# 📦 Fase 8 — Organização do Projeto ~~(v1.9.12)~~ — descartada
 
-- [ ] v1.9.12 — Criar `CHANGELOG.md`
-- [ ] Organizar releases
-- [ ] Logs estruturados
-
----
-
-# 🌐 Fase 9 — Distribuição (v1.9.13)
-
-- [ ] v1.9.13 — GitHub Pages (PWA)
-- [ ] Avaliar TWA (Android)
-- [ ] Compatibilidade iOS
+- ~~CHANGELOG.md~~ — descartado (roadmap + git log já cobrem)
+- ~~Organizar releases~~ — descartado
+- ~~Logs estruturados~~ — descartado
 
 ---
 
-# 📈 Fase 10 — Evolução (v1.9.14)
+# 🌐 Fase 9 — Distribuição (v1.9.12) ✅
 
-- [ ] v1.9.14 — Exportação de dados
+- [x] v1.9.12 — Toast de atualização automática (GitHub Pages PWA)
+- ~~Avaliar TWA (Android)~~ — adiado para quando o SaaS estiver no ar
+- ~~Compatibilidade iOS~~ — adiado para quando o SaaS estiver no ar
+
+---
+
+## v1.9.12a — Correção de labels de escala na UI ✅
+
+- [x] Footer exibia `"Escala"` hardcoded para áreas de plantão — substituído por `config.escala`
+- [x] Campo "Tipo de escala" no Setup exibia valor raw (`plantao`) — agora exibe label amigável (`Plantão`)
+- [x] Corrigido para todas as áreas: segurança, saúde, supermercado e outros
+- [x] Save continua gravando valor raw no storage via mapa inverso `SCALE_TYPE_RAW`
+
+---
+
+# 📈 Fase 10 — Evolução (v1.9.13) ⬅️ próxima
+
+- [ ] v1.9.13 — Exportação de dados
 - [ ] Integração com calendários externos
 
 ---
 
-# 🧪 Fase 11 — Estabilização (v1.9.15)
+# 🧪 Fase 11 — Estabilização (v1.9.14)
 
-- [ ] v1.9.15 — Revisão geral da arquitetura
+- [ ] v1.9.14 — Revisão geral da arquitetura
 - [ ] Testes de sincronização
 - [ ] Testes de segurança
 - [ ] Validação offline-first
@@ -149,52 +158,55 @@ Ele suporta todas as linhas de produto:
 
 ---
 
-# 🔄 Fase 12 — Offline-First (v1.9.16 → v1.9.18)
+# 🔄 Fase 12 — Offline-First (v1.9.15 → v1.9.17)
 
 > Requer backend (Fase 13) concluído.
 
-- [ ] v1.9.16 — Adapter de API remoto
-- [ ] v1.9.17 — Sincronização automática
-- [ ] v1.9.18 — Resolução de conflitos
+- [ ] v1.9.15 — Adapter de API remoto
+- [ ] v1.9.16 — Sincronização automática
+- [ ] v1.9.17 — Resolução de conflitos
 
 ---
 
-# ☁️ Fase 13 — Backend & Sincronização (v1.9.19 → v1.9.21)
+# ☁️ Fase 13 — Backend & Sincronização (v1.9.18 → v1.9.20)
 
 ## Backend
 
-- [ ] v1.9.19 — Backend SaaS
+- [ ] v1.9.18 — Backend SaaS
 - [ ] Armazenamento de dados dos usuários
 - [ ] Sincronização entre dispositivos
 
 ## Conta & Backup
 
-- [ ] v1.9.20 — Autenticação de usuários
-- [ ] v1.9.21 — Backup automático
+- [ ] v1.9.19 — Autenticação de usuários
+- [ ] v1.9.20 — Backup automático
 
 ---
 
-# 💬 Fase 14 — Produto (v1.9.22 → v1.9.23)
+# 💬 Fase 14 — Produto (v1.9.21 → v1.9.22)
 
 > Requer backend (Fase 13) concluído.
 
-- [ ] v1.9.22 — Canal de feedback
-- [ ] v1.9.23 — Monetização leve
+- [ ] v1.9.21 — Canal de feedback
+- [ ] v1.9.22 — Monetização via Google AdMob (app gratuito)
+  - Banner fixo no rodapé
+  - Interstitial na entrada do app
+  - Interstitial no loading
 
 ---
 
-# 📊 Fase 15 — Métricas (v1.9.24 → v1.9.25)
+# 📊 Fase 15 — Métricas (v1.9.23 → v1.9.24)
 
 > Requer backend (Fase 13) concluído.
 
-- [ ] v1.9.24 — Registrar DAU / MAU e métricas de uso
-- [ ] v1.9.25 — Dashboard interno de métricas
+- [ ] v1.9.23 — Registrar DAU / MAU e métricas de uso
+- [ ] v1.9.24 — Dashboard interno de métricas
 
 ---
 
-# 🔐 Fase 16 — Segurança (v1.9.26 → v1.9.27)
+# 🔐 Fase 16 — Segurança (v1.9.25 → v1.9.26)
 
 > Requer backend (Fase 13) concluído.
 
-- [ ] v1.9.26 — Controle de acesso à API e rate limiting
-- [ ] v1.9.27 — Autenticação segura e criptografia de dados
+- [ ] v1.9.25 — Controle de acesso à API e rate limiting
+- [ ] v1.9.26 — Autenticação segura e criptografia de dados

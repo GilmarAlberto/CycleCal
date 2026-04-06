@@ -1,9 +1,9 @@
 // ==============================
 // CycleCal — Módulo de Folgas
-// v1.9.11
+// v1.9.12.b
 // ==============================
 
-import { cyclePatterns } from "./model.js";
+import { cyclePatterns, buildSecondaryModel } from "./model.js";
 import { toLocalDate } from "./utils.js";
 
 // ==============================
@@ -88,4 +88,22 @@ export function ehFolga(data, user, baseFolgaDomingo, AREAS_WITHOUT_DSR) {
     }
 
     return false;
+}
+
+// ==============================
+// getDayTypeSecondary()
+// Calcula o tipo do dia para a escala secundária do usuário.
+//
+// Parâmetros:
+//   date — objeto Date ou string "YYYY-MM-DD"
+//   user — objeto user vindo do localStorage
+//
+// Retorna: 'work' | 'off' | null
+//   null = escala secundária não configurada
+// ==============================
+
+export function getDayTypeSecondary(date, user) {
+    const model = buildSecondaryModel(user);
+    if (!model) return null;
+    return getDayType(date, model);
 }

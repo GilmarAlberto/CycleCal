@@ -1,6 +1,6 @@
 // ==============================
 // CycleCal — Camada de Persistência
-// v1.9.11
+// v1.9.12.b
 // ==============================
 // Centraliza todos os acessos ao localStorage.
 // O index.html e demais módulos NÃO devem chamar
@@ -9,13 +9,19 @@
 // Chave principal: "cyclecal_user"
 // Estrutura do objeto user:
 // {
-//   version: 3,
+//   version: 4,
 //   updated_at: "",
 //   profile: { user_id, name, area, birthday, created_at },
-//   settings: { base_date, scale_type, scale_pattern, dsr, offset, timezone },
+//   settings: { base_date, scale_type, scale_pattern, dsr, offset, timezone, inst_color },
 //   scale_history: [],
 //   vacations: [],
 //   shift_swaps: [],
+//   secondary_scale: null | {
+//     institution: string,   // nome livre da instituição
+//     color: string,         // cor hex escolhida pelo usuário
+//     pattern: string,       // cyclePattern (ex: "12x36", "24x72")
+//     base_date: string,     // "YYYY-MM-DD" — data base do ciclo
+//   },
 // }
 // ==============================
 
@@ -87,10 +93,12 @@ export function createDefaultUser() {
             dsr: 0,
             offset: 0,
             timezone: getLocalTimezone(),
+            inst_color: "#3b82f6",  // cor da escala principal (padrão azul)
         },
         scale_history: [],
         vacations: [],
         shift_swaps: [],
+        secondary_scale: null,
     };
 }
 
@@ -121,6 +129,13 @@ export function migrateUser(user) {
         if (!user.settings.timezone) {
             user.settings.timezone = getLocalTimezone();
         }
+    }
+
+    // v1.9.12.b — migração v3 → v4: adiciona secondary_scale e inst_color
+    if (user.version < 4) {
+        user.version = 4;
+        user.secondary_scale = user.secondary_scale ?? null;
+        user.settings.inst_color = user.settings.inst_color ?? "#3b82f6";
     }
 
     // Garante campos ausentes em versões antigas

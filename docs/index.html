@@ -69,7 +69,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "1.9.12",
+                version: "1.9.12b",
                 debug: false,
             };
 
@@ -218,6 +218,9 @@
                 select.value = user.profile.area || "outros";
             }
 
+            // Mapa de labels amigáveis para o campo "Tipo de escala" no Setup
+            const SCALE_TYPE_LABELS = { plantao: "Plantão", semanal: "Semanal", turno: "Turno" };
+
             function applyAreaPreset(area) {
                 // Áreas fixas sempre aplicam o preset; só respeita userModifiedScale em "outros"
                 if (userModifiedScale && area === "outros") return;
@@ -227,7 +230,8 @@
 
                 isApplyingPreset = true;
 
-                document.getElementById("setupScaleType").value = preset.scale_type;
+                document.getElementById("setupScaleType").value =
+                    SCALE_TYPE_LABELS[preset.scale_type] || preset.scale_type;
                 if (!userModifiedPattern) {
                     document.getElementById("setupScalePattern").value = preset.scale_pattern;
                 }
@@ -359,6 +363,13 @@
 
                 document.getElementById("areaSelect").addEventListener("change", ativarSalvar);
                 document.getElementById("setupDSR").addEventListener("change", ativarSalvar);
+
+                // 🆕 Listeners da 2ª instituição
+                document.getElementById("secondaryScaleEnabled").addEventListener("change", ativarSalvar);
+                document.getElementById("secondaryInstitution").addEventListener("input", ativarSalvar);
+                document.getElementById("secondaryPattern").addEventListener("input", ativarSalvar);
+                document.getElementById("secondaryBaseDate").addEventListener("input", ativarSalvar);
+                document.getElementById("secondaryColor").addEventListener("input", ativarSalvar);
 
                 const user = window.loadUser();
 
@@ -509,7 +520,12 @@
 
                     user.settings.base_date = baseDate;
 
-                    user.settings.scale_type = document.getElementById("setupScaleType").value;
+                    const scaleTypeDisplayed = document.getElementById("setupScaleType").value;
+                    // Converte label amigável de volta para o valor raw (ex: "Plantão" → "plantao")
+                    const SCALE_TYPE_RAW = Object.fromEntries(
+                        Object.entries(SCALE_TYPE_LABELS).map(([k, v]) => [v, k])
+                    );
+                    user.settings.scale_type = SCALE_TYPE_RAW[scaleTypeDisplayed] || scaleTypeDisplayed;
 
                     user.settings.scale_pattern = document.getElementById("setupScalePattern").value;
 
@@ -521,6 +537,32 @@
                         user.settings.scale_pattern,
                         user.settings.scale_type,
                     );
+
+                    // 🆕 Salva cor da escala principal
+                    user.settings.inst_color = user.settings.inst_color || "#3b82f6";
+
+                    // 🆕 Salva escala secundária
+                    const secEnabled = document.getElementById("secondaryScaleEnabled")?.checked;
+                    if (secEnabled) {
+                        const secPattern  = document.getElementById("secondaryPattern")?.value?.trim();
+                        const secBaseDate = document.getElementById("secondaryBaseDate")?.value;
+                        const secInst     = document.getElementById("secondaryInstitution")?.value?.trim();
+                        const secColor    = document.getElementById("secondaryColor")?.value || "#e67e22";
+
+                        if (!secPattern || !secBaseDate) {
+                            showToast("Informe o padrão e a data base da 2ª instituição.", "error");
+                            return;
+                        }
+
+                        user.secondary_scale = {
+                            institution: secInst || "2ª Instituição",
+                            color:        secColor,
+                            pattern:      secPattern,
+                            base_date:    secBaseDate,
+                        };
+                    } else {
+                        user.secondary_scale = null;
+                    }
 
                     aplicarSetup(user);
 
@@ -782,6 +824,14 @@
                 const todosFeriados = ctx.todosFeriados;
                 const carnaval = ctx.carnaval;
 
+                // 🆕 Multi-escala — cores das instituições injetadas no calendário
+                const _userForScale = window.loadUser();
+                const _instAColor   = _userForScale?.settings?.inst_color   || "#3b82f6";
+                const _secScale     = _userForScale?.secondary_scale;
+                const _instBColor   = _secScale?.color || "#e67e22";
+                calendario.style.setProperty("--inst-a-color", _instAColor);
+                calendario.style.setProperty("--inst-b-color", _instBColor);
+
                 for (let i = 0; i < inicio; i++) {
                     calendario.appendChild(document.createElement("div"));
                 }
@@ -820,6 +870,38 @@
 
                     if (top?.type && typeof top.type === "string") {
                         el.classList.add(top.type.replace(/\s+/g, "-"));
+                    }
+
+                    // 🆕 Multi-escala — aplica classes de diagonal split
+                    if (_secScale) {
+                        const dateObj = new Date(ano, mes, dia);
+                        const tipoA = window.isFolga(dateObj) ? "off" : "work";
+                        const tipoB = window.getDayTypeSecondary ? window.getDayTypeSecondary(dateObj) : null;
+
+                        if (tipoA === "work" && tipoB === "work") {
+                            el.classList.add("trabalho-ambos");
+                        } else if (tipoA === "work" && tipoB !== "work") {
+                            el.classList.add("trabalho-principal");
+                        } else if (tipoA !== "work" && tipoB === "work") {
+                            el.classList.add("trabalho-secundario");
+                        }
+
+                        // Badge de bolinhas coloridas
+                        if (tipoA === "work" || tipoB === "work") {
+                            const badge = document.createElement("div");
+                            badge.className = "inst-badge";
+                            if (tipoA === "work") {
+                                const dot = document.createElement("span");
+                                dot.style.background = _instAColor;
+                                badge.appendChild(dot);
+                            }
+                            if (tipoB === "work") {
+                                const dot = document.createElement("span");
+                                dot.style.background = _instBColor;
+                                badge.appendChild(dot);
+                            }
+                            el.appendChild(badge);
+                        }
                     }
 
                     if (layers.some((l) => l.type === "birthday")) {
@@ -1304,9 +1386,38 @@
                 if (area !== "outros") {
                     applyAreaPreset(area);
                 } else {
-                    document.getElementById("setupScaleType").value = user.settings.scale_type || "";
+                    const scaleTypeRaw = user.settings.scale_type || "";
+                    document.getElementById("setupScaleType").value =
+                        SCALE_TYPE_LABELS[scaleTypeRaw] || scaleTypeRaw;
                     // para outros, não preenche o padrão — o placeholder já orienta
                     document.getElementById("setupScalePattern").value = "";
+                }
+
+                // 🆕 Seção de 2ª instituição — só exibe para áreas de plantão
+                const secSection = document.getElementById("secondaryScaleSection");
+                const secFields  = document.getElementById("secondaryScaleFields");
+                const secEnabled = document.getElementById("secondaryScaleEnabled");
+
+                if (secSection) {
+                    const ehPlantao = AREAS_WITHOUT_DSR.includes(area);
+                    secSection.style.display = ehPlantao ? "" : "none";
+
+                    if (ehPlantao && user.secondary_scale) {
+                        secEnabled.checked = true;
+                        secFields.style.display = "";
+                        document.getElementById("secondaryInstitution").value = user.secondary_scale.institution || "";
+                        document.getElementById("secondaryPattern").value     = user.secondary_scale.pattern     || "";
+                        document.getElementById("secondaryBaseDate").value    = user.secondary_scale.base_date   || "";
+                        document.getElementById("secondaryColor").value       = user.secondary_scale.color       || "#e67e22";
+                    } else {
+                        secEnabled.checked = false;
+                        secFields.style.display = "none";
+                    }
+
+                    // Toggle dos campos ao marcar/desmarcar
+                    secEnabled.onchange = function () {
+                        secFields.style.display = this.checked ? "" : "none";
+                    };
                 }
             }
 
@@ -1450,11 +1561,9 @@
                 const isFolgaHoje = isFolga(hoje);
                 const status = isFolgaHoje ? config.folgaLabel : config.escala;
 
-                // Plantão: mostra "Escala: 24x72 • Hoje: Descanso/Plantão"
-                // Semanal: mostra "Turno: 6x1 • Hoje: Folga/Turno"
-                const label = isPlantao ? "Escala" : config.escala;
-
-                el.innerText = `${label}: ${user.settings.scale_pattern} • Hoje: ${status}`;
+                // Usa config.escala que já tem o label correto por área
+                // seguranca/hospital → "Plantão", supermercado → "Turno"
+                el.innerText = `${config.escala}: ${user.settings.scale_pattern} • Hoje: ${status}`;
             }
 
             function calcularDiasRestantes(dataInicio) {
@@ -1812,6 +1921,32 @@
 
                         <label id="labelBaseDate">Informe o último dia trabalhado</label>
                         <input type="date" id="setupBaseDate" />
+                    </div>
+
+                    <div class="setup-section" id="secondaryScaleSection" style="display:none;">
+                        <h4>2ª Instituição</h4>
+
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                            <input type="checkbox" id="secondaryScaleEnabled" style="width:auto;margin:0;"/>
+                            <label for="secondaryScaleEnabled" style="margin:0;">Trabalho em outra instituição</label>
+                        </div>
+
+                        <div id="secondaryScaleFields" style="display:none;">
+                            <label>Nome da instituição</label>
+                            <input type="text" id="secondaryInstitution" placeholder="ex: Hospital B" />
+
+                            <label>Padrão da escala</label>
+                            <input type="text" id="secondaryPattern" placeholder="ex: 12x36, 24x72" />
+
+                            <label>Data base do ciclo</label>
+                            <input type="date" id="secondaryBaseDate" />
+
+                            <label>Cor no calendário</label>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <input type="color" id="secondaryColor" value="#e67e22" style="width:44px;height:36px;padding:2px;border-radius:6px;cursor:pointer;"/>
+                                <span style="font-size:0.85em;color:var(--text-muted,#888);">Cor para os dias desta instituição</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="setup-section">
