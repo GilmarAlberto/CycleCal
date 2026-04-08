@@ -13,10 +13,12 @@
 //    com as áreas de segurança e saúde (v1.9.x futura).
 
 export const cyclePatterns = {
-    "12x36": { work: [0],    off: [1]             }, // 12h trabalho / 36h folga  → ciclo de 2 dias
-    "24x72": { work: [0],    off: [1, 2, 3]       }, // 24h trabalho / 72h folga  → ciclo de 4 dias
-    "24x96": { work: [0],    off: [1, 2, 3, 4]    }, // 24h trabalho / 96h folga  → ciclo de 5 dias
-    "12x60": { work: [0],    off: [1, 2, 3, 4, 5] }, // 12h trabalho / 60h folga  → ciclo de 6 dias
+    "12x36": { work: [0],          off: [1]          }, // 12h trabalho / 36h folga  → ciclo de 2 dias
+    "24x72": { work: [0],          off: [1, 2, 3]    }, // 24h trabalho / 72h folga  → ciclo de 4 dias
+    "24x96": { work: [0],          off: [1, 2, 3, 4] }, // 24h trabalho / 96h folga  → ciclo de 5 dias
+    "12x60": { work: [0],          off: [1, 2, 3, 4, 5] }, // 12h trabalho / 60h folga → ciclo de 6 dias
+    "5x2":   { work: [0,1,2,3,4], off: [5, 6]       }, // 5 dias trabalho / 2 folga → ciclo de 7 dias
+    "6x1":   { work: [0,1,2,3,4,5], off: [6]        }, // 6 dias trabalho / 1 folga → ciclo de 7 dias
 };
 
 // ==============================

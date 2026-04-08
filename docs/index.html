@@ -69,7 +69,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "1.9.12b",
+                version: "1.9.12c",
                 debug: false,
             };
 
@@ -512,6 +512,19 @@
                         return;
                     }
 
+                    const scalePatternVal = document.getElementById("setupScalePattern").value.trim();
+                    const scaleTypeVal = (() => {
+                        const area = document.getElementById("areaSelect").value || "outros";
+                        if (area === "outros") return document.getElementById("outrosScaleType")?.value || "plantao";
+                        return "plantao"; // áreas fixas sempre são plantão
+                    })();
+                    const areaVal = document.getElementById("areaSelect").value || "outros";
+                    const needsPattern = AREAS_WITHOUT_DSR.includes(areaVal) || scaleTypeVal === "plantao";
+                    if (needsPattern && !scalePatternVal) {
+                        showToast("Informe o padrão da escala (ex: 12x36).", "error");
+                        return;
+                    }
+
                     const user = window.loadUser();
                     user.profile.name = userName;
                     user.profile.birthday = birthday;
@@ -520,12 +533,19 @@
 
                     user.settings.base_date = baseDate;
 
-                    const scaleTypeDisplayed = document.getElementById("setupScaleType").value;
-                    // Converte label amigável de volta para o valor raw (ex: "Plantão" → "plantao")
-                    const SCALE_TYPE_RAW = Object.fromEntries(
-                        Object.entries(SCALE_TYPE_LABELS).map(([k, v]) => [v, k])
-                    );
-                    user.settings.scale_type = SCALE_TYPE_RAW[scaleTypeDisplayed] || scaleTypeDisplayed;
+                    // Para "outros", o tipo vem do select dedicado (outrosScaleType)
+                    // Para demais áreas, vem do campo readonly setupScaleType
+                    let scaleTypeRaw;
+                    if (user.profile.area === "outros") {
+                        scaleTypeRaw = document.getElementById("outrosScaleType")?.value || "plantao";
+                    } else {
+                        const scaleTypeDisplayed = document.getElementById("setupScaleType").value;
+                        const SCALE_TYPE_RAW = Object.fromEntries(
+                            Object.entries(SCALE_TYPE_LABELS).map(([k, v]) => [v, k])
+                        );
+                        scaleTypeRaw = SCALE_TYPE_RAW[scaleTypeDisplayed] || scaleTypeDisplayed;
+                    }
+                    user.settings.scale_type = scaleTypeRaw;
 
                     user.settings.scale_pattern = document.getElementById("setupScalePattern").value;
 
@@ -1370,14 +1390,14 @@
 
                 const dsrField = document.getElementById("dsrWrapper");
 
-                if (AREAS_WITHOUT_DSR.includes(area)) {
+                const scaleTypeForDsr = user.settings.scale_type || "";
+                const hideDsr = AREAS_WITHOUT_DSR.includes(area) || scaleTypeForDsr === "plantao";
+
+                if (hideDsr) {
                     dsrField.style.display = "none";
                     document.getElementById("setupDSR").value = "0";
                 } else {
                     dsrField.style.display = "";
-                }
-
-                if (!AREAS_WITHOUT_DSR.includes(area)) {
                     document.getElementById("setupDSR").value = String(user.settings.dsr ?? 0);
                 }
 
@@ -1389,8 +1409,8 @@
                     const scaleTypeRaw = user.settings.scale_type || "";
                     document.getElementById("setupScaleType").value =
                         SCALE_TYPE_LABELS[scaleTypeRaw] || scaleTypeRaw;
-                    // para outros, não preenche o padrão — o placeholder já orienta
-                    document.getElementById("setupScalePattern").value = "";
+                    // preenche o padrão salvo (se houver)
+                    document.getElementById("setupScalePattern").value = user.settings.scale_pattern || "";
                 }
 
                 // 🆕 Seção de 2ª instituição — só exibe para áreas de plantão

@@ -54,10 +54,11 @@ export function getDayType(date, model) {
 // ==============================
 
 export function ehFolga(data, user, baseFolgaDomingo, AREAS_WITHOUT_DSR) {
-    const area = user.profile.area;
+    const area      = user.profile.area;
+    const scaleType = user.settings.scale_type || "";
 
-    // --- Plantão (segurança, hospital etc.) ---
-    if (AREAS_WITHOUT_DSR.includes(area)) {
+    // --- Plantão: áreas fixas (segurança, hospital) OU qualquer área com type=plantao ---
+    if (AREAS_WITHOUT_DSR.includes(area) || scaleType === "plantao") {
         const model = {
             cycle: {
                 pattern:  user.settings.scale_pattern || "",
@@ -68,7 +69,7 @@ export function ehFolga(data, user, baseFolgaDomingo, AREAS_WITHOUT_DSR) {
         return getDayType(data, model) === "off";
     }
 
-    // --- Semanal (supermercado, indústria etc.) ---
+    // --- Semanal (supermercado, indústria, outros com semanal etc.) ---
     const dsr = Number(user.settings.dsr || 0);
 
     if (data.getDay() === dsr) return true;
