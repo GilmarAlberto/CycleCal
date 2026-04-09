@@ -69,7 +69,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "1.9.14a",
+                version: "2.0.0",
                 debug: false,
             };
 
@@ -360,7 +360,7 @@
             }
 
             // Mapa de labels amigáveis para o campo "Tipo de escala" no Setup
-            const SCALE_TYPE_LABELS = { plantao: "Plantão", semanal: "Semanal", turno: "Turno" };
+            const SCALE_TYPE_LABELS = { plantao: "Plantão", semanal: "Semanal", escala: "Escala" };
 
             function applyAreaPreset(area) {
                 // Áreas fixas sempre aplicam o preset; só respeita userModifiedScale em "outros"
@@ -1772,7 +1772,7 @@
                 const status = isFolgaHoje ? config.folgaLabel : config.escala;
 
                 // Usa config.escala que já tem o label correto por área
-                // seguranca/hospital → "Plantão", supermercado → "Turno"
+                // seguranca/hospital → "Plantão", supermercado/outros → "Escala"
                 el.innerText = `${config.escala}: ${user.settings.scale_pattern} • Hoje: ${status}`;
             }
 
@@ -2239,9 +2239,9 @@
                         <div id="historicoPlantoesLista"></div>
                     </div>
 
-                    <!-- Trocas de Turno -->
+                    <!-- Trocas de Escala -->
                     <div class="setup-section">
-                        <h4>Trocas de Turno</h4>
+                        <h4>Trocas de Escala</h4>
 
                         <div id="swapForm" style="margin-bottom: 12px">
                             <div class="ferias-row">

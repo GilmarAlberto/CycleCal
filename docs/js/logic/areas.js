@@ -14,7 +14,7 @@ export const AREA_PRESETS = {
     seguranca:    { scale_type: "plantao", scale_pattern: "24x72" },
     hospital:     { scale_type: "plantao", scale_pattern: "12x36" },
     supermercado: { scale_type: "semanal", scale_pattern: "6x1"   },
-    // industria:    { scale_type: "turno",   scale_pattern: "5x1"   },
+    // industria:    { scale_type: "escala",  scale_pattern: "5x1"   },
 };
 
 export const AREAS_WITHOUT_DSR = ["seguranca", "hospital"];
@@ -35,7 +35,7 @@ const AREA_CONFIG = {
     supermercado: {
         trabalho:   "Bom trabalho",
         folga:      "Boa folga",
-        escala:     "Turno",
+        escala:     "Escala",
         folgaLabel: "Folga",
     },
     industria: {},
@@ -51,7 +51,7 @@ export function getAreaConfig(area) {
     const base = {
         trabalho:   "Bom trabalho",
         folga:      "Bom descanso",
-        escala:     "Turno",
+        escala:     "Escala",
         folgaLabel: "Descanso",
     };
     return { ...base, ...(AREA_CONFIG[area] || {}) };

@@ -25,7 +25,7 @@ Adaptar o CycleCal para trabalhadores do comércio
 Escalas mais comuns nesse setor:
 
 - 6x1
-- 5x1
+- 5x2
 - turnos rotativos
 - domingos alternados
 
@@ -39,7 +39,7 @@ visualizem facilmente:
 
 ---
 
-# 🚀 v2.0 – Escala 6x1
+# 🚀 v2.0 – Escala 6x1 ✅
 
 Escala mais comum no comércio brasileiro.
 
@@ -50,29 +50,42 @@ Ciclo:
 
 Objetivos:
 
-- [ ] Implementar ciclo automático 6x1
-- [ ] Destacar folga semanal
-- [ ] Reiniciar ciclo automaticamente
-- [ ] Garantir continuidade entre meses
-- [ ] Testar múltiplos meses consecutivos
+- [x] Implementar ciclo automático 6x1
+- [x] Destacar folga semanal
+- [x] Reiniciar ciclo automaticamente
+- [x] Garantir continuidade entre meses
+- [x] Testar múltiplos meses consecutivos
+
+Notas:
+
+- Implementado via cyclePatterns em model.js
+- Setup com select de dia de folga (Domingo, Segunda, ..., Sábado)
+- base_date calculada automaticamente a partir da escolha
 
 ---
 
-# 🚀 v2.1 – Escala 5x1
+# 🚀 v2.1 – Escala 5x2 ✅
 
 Escala comum em shoppings e redes de varejo.
 
 Ciclo:
 
 5 dias de trabalho  
-1 dia de folga
+2 dias de folga consecutivos
 
 Objetivos:
 
-- [ ] Implementar ciclo 5x1
-- [ ] Garantir rotação correta de folgas
-- [ ] Validar continuidade entre meses
-- [ ] Testar múltiplos anos
+- [x] Implementar ciclo 5x2
+- [x] Garantir rotação correta de folgas
+- [x] Validar continuidade entre meses
+- [x] Testar múltiplos anos
+
+Notas:
+
+- Disponível na área "Outros" com tipo semanal + padrão 5x2
+- Setup com select de dias de folga (Sáb/Dom, Dom/Seg, ..., Sex/Sáb)
+- base_date calculada automaticamente a partir da escolha
+- Originalmente documentado como 5x1 — corrigido para 5x2
 
 ---
 
@@ -144,8 +157,8 @@ Objetivos:
 
 Critérios para considerar a linha v2.x funcional:
 
-- [ ] Escala 6x1 funcionando corretamente
-- [ ] Escala 5x1 funcionando corretamente
+- [x] Escala 6x1 funcionando corretamente
+- [x] Escala 5x2 funcionando corretamente
 - [ ] Turnos visíveis no calendário
 - [ ] Domingos trabalhados identificados
 - [ ] Testes completos em mobile

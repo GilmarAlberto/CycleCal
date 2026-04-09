@@ -1,10 +1,10 @@
 // ==============================
 // CycleCal — Modelo Genérico de Eventos
-// v1.9.10
+// v2.0.0
 // ==============================
 // Define a estrutura canônica de um evento no CycleCal.
 // Todos os tipos de evento (folga, férias, feriado, aniversário,
-// troca de turno, etc.) seguem este modelo.
+// troca de escala, etc.) seguem este modelo.
 //
 // Estrutura de um evento:
 // {
@@ -26,7 +26,7 @@ export const EVENT_TYPES = {
     HOLIDAY:  "holiday",    // feriado nacional/estadual/municipal
     CULTURAL: "cultural",   // feriado cultural (ex: carnaval)
     BIRTHDAY: "birthday",   // aniversário do usuário
-    SWAP:     "swap",       // troca de turno
+    SWAP:     "swap",       // troca de escala
 };
 
 // ==============================
