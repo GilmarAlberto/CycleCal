@@ -1,6 +1,6 @@
 // ==============================
 // CycleCal — Camada de Persistência
-// v1.9.12.b
+// v2.0.0
 // ==============================
 // Centraliza todos os acessos ao localStorage.
 // O index.html e demais módulos NÃO devem chamar
@@ -136,6 +136,19 @@ export function migrateUser(user) {
         user.version = 4;
         user.secondary_scale = user.secondary_scale ?? null;
         user.settings.inst_color = user.settings.inst_color ?? "#3b82f6";
+    }
+
+    // v2.0.0 — migração v4 → v5: renomeia scale_type "turno" → "escala"
+    if (user.version < 5) {
+        user.version = 5;
+        if (user.settings?.scale_type === "turno") {
+            user.settings.scale_type = "escala";
+        }
+        if (Array.isArray(user.scale_history)) {
+            user.scale_history = user.scale_history.map((entry) =>
+                entry.type === "turno" ? { ...entry, type: "escala" } : entry
+            );
+        }
     }
 
     // Garante campos ausentes em versões antigas
