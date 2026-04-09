@@ -69,7 +69,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "1.9.12c",
+                version: "1.9.14",
                 debug: false,
             };
 
@@ -156,6 +156,12 @@
             // 💾 v1.9.8 — Persistência via storage.js
             // initUser(), getUser() e saveUser() foram removidos.
             // Use: window.initStorage() | window.loadUser() | window.saveUser(user) | window.clearUser()
+
+            function atualizarSundayCycleVisibility() {
+                const dsrVisible = document.getElementById("dsrWrapper")?.style.display !== "none";
+                const wrapper = document.getElementById("sundayCycleWrapper");
+                if (wrapper) wrapper.style.display = dsrVisible ? "" : "none";
+            }
 
             function atualizarLabelBaseDate(area) {
                 const label = document.getElementById("labelBaseDate");
@@ -362,7 +368,11 @@
                 document.getElementById("setupScalePattern").addEventListener("input", ativarSalvar);
 
                 document.getElementById("areaSelect").addEventListener("change", ativarSalvar);
-                document.getElementById("setupDSR").addEventListener("change", ativarSalvar);
+                document.getElementById("setupDSR").addEventListener("change", () => {
+                    ativarSalvar();
+                    atualizarSundayCycleVisibility();
+                });
+                document.getElementById("setupSundayCycle").addEventListener("change", ativarSalvar);
 
                 // 🆕 Listeners da 2ª instituição
                 document.getElementById("secondaryScaleEnabled").addEventListener("change", ativarSalvar);
@@ -550,6 +560,7 @@
                     user.settings.scale_pattern = document.getElementById("setupScalePattern").value;
 
                     user.settings.dsr = Number(document.getElementById("setupDSR").value);
+                    user.settings.sunday_cycle = Number(document.getElementById("setupSundayCycle").value ?? 3);
 
                     registrarEscalaNoHistorico(
                         user,
@@ -1401,6 +1412,9 @@
                     document.getElementById("setupDSR").value = String(user.settings.dsr ?? 0);
                 }
 
+                // Ciclo de domingo
+                document.getElementById("setupSundayCycle").value = String(user.settings.sunday_cycle ?? 3);
+
                 // áreas fixas: sempre aplica o preset (ignora o que está salvo)
                 // outros: preenche com o que está salvo
                 if (area !== "outros") {
@@ -1412,6 +1426,9 @@
                     // preenche o padrão salvo (se houver)
                     document.getElementById("setupScalePattern").value = user.settings.scale_pattern || "";
                 }
+
+                // chamada após applyAreaPreset pq é ele que exibe o dsrWrapper
+                atualizarSundayCycleVisibility();
 
                 // 🆕 Seção de 2ª instituição — só exibe para áreas de plantão
                 const secSection = document.getElementById("secondaryScaleSection");
@@ -1936,6 +1953,16 @@
                                 <option value="4">Quinta</option>
                                 <option value="5">Sexta</option>
                                 <option value="6">Sábado</option>
+                            </select>
+                        </div>
+
+                        <div id="sundayCycleWrapper" style="display:none;">
+                            <label>Folga no domingo a cada</label>
+                            <select id="setupSundayCycle">
+                                <option value="1">1 semana (toda semana)</option>
+                                <option value="2">2 semanas</option>
+                                <option value="3" selected>3 semanas</option>
+                                <option value="4">4 semanas</option>
                             </select>
                         </div>
 

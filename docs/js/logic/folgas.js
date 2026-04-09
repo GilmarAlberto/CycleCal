@@ -1,6 +1,6 @@
 // ==============================
 // CycleCal — Módulo de Folgas
-// v1.9.12.b
+// v1.9.14
 // ==============================
 
 import { cyclePatterns, buildSecondaryModel } from "./model.js";
@@ -85,7 +85,8 @@ export function ehFolga(data, user, baseFolgaDomingo, AREAS_WITHOUT_DSR) {
                 86400000,
         );
 
-        return Math.floor(diff / 7) % 3 === 0;
+        const sundayCycle = Number(user.settings.sunday_cycle ?? 3);
+        return Math.floor(diff / 7) % sundayCycle === 0;
     }
 
     return false;
