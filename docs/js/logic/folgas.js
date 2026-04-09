@@ -1,6 +1,6 @@
 // ==============================
 // CycleCal — Módulo de Folgas
-// v1.9.14
+// v1.9.14a
 // ==============================
 
 import { cyclePatterns, buildSecondaryModel } from "./model.js";
@@ -50,7 +50,8 @@ export function getDayType(date, model) {
 // compatibilidade com events.js, main.js e index.html.
 //
 // Áreas de plantão (AREAS_WITHOUT_DSR): usa getDayType().
-// Áreas semanais: mantém DSR por dia da semana + domingo a cada 3 semanas.
+// Áreas semanais com cyclePatterns: usa getDayType() via cyclePatterns.
+// Áreas semanais sem cyclePatterns: DSR por dia da semana + domingo a cada N semanas (legado).
 // ==============================
 
 export function ehFolga(data, user, baseFolgaDomingo, AREAS_WITHOUT_DSR) {
@@ -69,7 +70,22 @@ export function ehFolga(data, user, baseFolgaDomingo, AREAS_WITHOUT_DSR) {
         return getDayType(data, model) === "off";
     }
 
-    // --- Semanal (supermercado, indústria, outros com semanal etc.) ---
+    // --- Semanal com cyclePatterns (ex: 6x1, 5x2) ---
+    // Se o padrão estiver definido em cyclePatterns, usa getDayType() diretamente.
+    // Isso garante cálculo correto para qualquer ciclo com múltiplos dias de folga.
+    const pattern = user.settings.scale_pattern || "";
+    if (pattern && cyclePatterns[pattern]) {
+        const model = {
+            cycle: {
+                pattern,
+                baseDate: user.settings.base_date || "",
+            },
+        };
+        return getDayType(data, model) === "off";
+    }
+
+    // --- Semanal legado: DSR fixo + domingo a cada N semanas ---
+    // Fallback para usuários sem scale_pattern definido em cyclePatterns.
     const dsr = Number(user.settings.dsr || 0);
 
     if (data.getDay() === dsr) return true;

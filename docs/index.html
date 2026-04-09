@@ -69,7 +69,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "1.9.14",
+                version: "1.9.14a",
                 debug: false,
             };
 
@@ -157,6 +157,144 @@
             // initUser(), getUser() e saveUser() foram removidos.
             // Use: window.initStorage() | window.loadUser() | window.saveUser(user) | window.clearUser()
 
+            // Atualiza visibilidade de DSR, sundayCycle e label da base_date
+            // para área "outros" com scale_type semanal.
+            // Se o padrão estiver em cyclePatterns (ex: 5x2, 6x1), esconde DSR/domingo
+            // e exibe label "Informe um dia trabalhado".
+            // Se não estiver (legado), exibe DSR/domingo e label "Último domingo de folga".
+            // Opções de folga por padrão de ciclo
+            // diaTrabalho = dia da semana do ÚLTIMO dia de trabalho antes da folga.
+            // primeiroDia = dia da semana do primeiro dia do ciclo (posição 0 = base_date).
+            // 5x2 [T,T,T,T,T,F,F]: Sáb/Dom → base=Seg(1), Dom/Seg → base=Ter(2), etc.
+            // 6x1 [T,T,T,T,T,T,F]: Domingo  → base=Seg(1), Segunda → base=Ter(2), etc.
+            const FOLGA_OPTIONS = {
+                "5x2": [
+                    { label: "Sáb / Dom", primeiroDia: 1 },
+                    { label: "Dom / Seg", primeiroDia: 2 },
+                    { label: "Seg / Ter", primeiroDia: 3 },
+                    { label: "Ter / Qua", primeiroDia: 4 },
+                    { label: "Qua / Qui", primeiroDia: 5 },
+                    { label: "Qui / Sex", primeiroDia: 6 },
+                    { label: "Sex / Sáb", primeiroDia: 0 },
+                ],
+                "6x1": [
+                    { label: "Domingo",   primeiroDia: 1 },
+                    { label: "Segunda",   primeiroDia: 2 },
+                    { label: "Terça",     primeiroDia: 3 },
+                    { label: "Quarta",    primeiroDia: 4 },
+                    { label: "Quinta",    primeiroDia: 5 },
+                    { label: "Sexta",     primeiroDia: 6 },
+                    { label: "Sábado",    primeiroDia: 0 },
+                ],
+            };
+
+            // Calcula a base_date a partir do primeiroDia (primeiro dia do ciclo de trabalho).
+            // Encontra o próximo dia >= hoje com esse dia da semana.
+            function calcularBaseDatePorFolga(pattern, primeiroDia) {
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+
+                const alvo = new Date(hoje);
+                while (alvo.getDay() !== primeiroDia) {
+                    alvo.setDate(alvo.getDate() + 1);
+                }
+
+                const y = alvo.getFullYear();
+                const m = String(alvo.getMonth() + 1).padStart(2, "0");
+                const d = String(alvo.getDate()).padStart(2, "0");
+                return `${y}-${m}-${d}`;
+            }
+
+            function atualizarSelectFolga(pattern) {
+                const wrapper = document.getElementById("folgaSelectWrapper");
+                const select  = document.getElementById("folgaSelect");
+                const dateInput = document.getElementById("setupBaseDate");
+                const labelBase = document.getElementById("labelBaseDate");
+
+                const options = FOLGA_OPTIONS[pattern];
+                if (!options) {
+                    // Pattern não tem select — mostra campo de data normal
+                    if (wrapper) wrapper.style.display = "none";
+                    if (dateInput) dateInput.style.display = "";
+                    if (labelBase) labelBase.style.display = "";
+                    return;
+                }
+
+                // Tem select — esconde campo de data, mostra select
+                if (dateInput) dateInput.style.display = "none";
+                if (labelBase) labelBase.style.display = "none";
+                if (wrapper) wrapper.style.display = "";
+
+                // Preenche opções
+                if (select) {
+                    select.innerHTML = options.map((o) =>
+                        `<option value="${o.primeiroDia}">${o.label}</option>`
+                    ).join("");
+
+                    // Seleção inicial: casa com o primeiroDia da base_date salva.
+                    // base_date = dia da semana do início do ciclo (posição 0).
+                    const savedBaseDate = dateInput?.value;
+                    let melhorIdx = 0;
+                    if (savedBaseDate) {
+                        const [sy, sm, sd] = savedBaseDate.split("-").map(Number);
+                        const savedDay = new Date(sy, sm - 1, sd).getDay();
+                        const idx = options.findIndex(o => o.primeiroDia === savedDay);
+                        if (idx >= 0) melhorIdx = idx;
+                    }
+                    select.selectedIndex = melhorIdx;
+
+                    // Recalcula base_date ao mudar seleção (não dispara ao carregar)
+                    select.onchange = () => {
+                        const pd = Number(select.value);
+                        const bd = calcularBaseDatePorFolga(pattern, pd);
+                        if (dateInput) dateInput.value = bd;
+                    };
+                }
+            }
+
+            function atualizarCamposSemanaisOutros() {
+                const scaleType   = document.getElementById("outrosScaleType")?.value;
+                const patternVal  = (document.getElementById("setupScalePattern")?.value || "").trim();
+                const label       = document.getElementById("labelBaseDate");
+                const dsrField    = document.getElementById("dsrWrapper");
+                const patternInput = document.getElementById("setupScalePattern");
+
+                if (scaleType !== "semanal") {
+                    if (dsrField) dsrField.style.display = "none";
+                    if (label) { label.textContent = "Informe o último dia trabalhado"; label.style.display = ""; }
+                    if (patternInput && !patternInput.value) patternInput.placeholder = "ex: 12x36";
+                    const folgaWrapper = document.getElementById("folgaSelectWrapper");
+                    if (folgaWrapper) folgaWrapper.style.display = "none";
+                    const dateInput = document.getElementById("setupBaseDate");
+                    if (dateInput) dateInput.style.display = "";
+                    atualizarSundayCycleVisibility();
+                    return;
+                }
+
+                if (patternInput && !patternInput.value) patternInput.placeholder = "ex: 6x1";
+
+                const usaCyclePattern = patternVal && window.cyclePatterns?.[patternVal];
+                if (usaCyclePattern) {
+                    if (dsrField) dsrField.style.display = "none";
+                    atualizarSelectFolga(patternVal);
+                } else {
+                    // Legado: DSR + domingo a cada N semanas
+                    if (dsrField) dsrField.style.display = "";
+                    if (label) { label.textContent = "Informe o último domingo de folga"; label.style.display = ""; }
+                    const folgaWrapper = document.getElementById("folgaSelectWrapper");
+                    if (folgaWrapper) folgaWrapper.style.display = "none";
+                    const dateInput = document.getElementById("setupBaseDate");
+                    if (dateInput) dateInput.style.display = "";
+                }
+                atualizarSundayCycleVisibility();
+            }
+
+            function atualizarCamposSemanal(scaleType, pattern) {
+                atualizarCamposSemanaisOutros();
+            }
+
+
+
             function atualizarSundayCycleVisibility() {
                 const dsrVisible = document.getElementById("dsrWrapper")?.style.display !== "none";
                 const wrapper = document.getElementById("sundayCycleWrapper");
@@ -177,18 +315,7 @@
                     if (setupScaleType) { setupScaleType.removeAttribute("readonly"); setupScaleType.style.display = "none"; }
                     const scaleTypeLabel = setupScaleType?.previousElementSibling;
                     if (scaleTypeLabel && scaleTypeLabel.tagName === "LABEL") scaleTypeLabel.style.display = "none";
-                    const scaleType = document.getElementById("outrosScaleType")?.value;
-                    const dsrField = document.getElementById("dsrWrapper");
-                    if (dsrField) dsrField.style.display = scaleType === "semanal" ? "" : "none";
-                    const patternInput = document.getElementById("setupScalePattern");
-                    if (patternInput && !patternInput.value) {
-                        patternInput.placeholder = scaleType === "semanal" ? "ex: 6x1" : "ex: 12x36";
-                    }
-                    if (scaleType === "semanal") {
-                        label.textContent = "Informe o último domingo de folga";
-                    } else {
-                        label.textContent = "Informe o último dia trabalhado";
-                    }
+                    atualizarCamposSemanaisOutros();
                 } else {
                     if (outrosWrapper) outrosWrapper.style.display = "none";
                     if (scaleFieldsWrapper) scaleFieldsWrapper.style.display = "";
@@ -196,10 +323,18 @@
                     const scaleTypeLabel = setupScaleType?.previousElementSibling;
                     if (scaleTypeLabel && scaleTypeLabel.tagName === "LABEL") scaleTypeLabel.style.display = "";
                     const patternInput = document.getElementById("setupScalePattern");
-                    if (area === "supermercado") {
-                        label.textContent = "Informe o último domingo de folga";
-                        if (patternInput) patternInput.placeholder = "ex: 6x1";
+                    // Áreas com cyclePatterns (supermercado=6x1): usa select de folga
+                    const presetPattern = window.AREA_PRESETS?.[area]?.scale_pattern || "";
+                    if (presetPattern && window.cyclePatterns?.[presetPattern]) {
+                        if (patternInput) patternInput.placeholder = `ex: ${presetPattern}`;
+                        atualizarSelectFolga(presetPattern);
                     } else {
+                        // Áreas de plantão: campo de data normal
+                        const folgaWrapper = document.getElementById("folgaSelectWrapper");
+                        if (folgaWrapper) folgaWrapper.style.display = "none";
+                        const dateInput = document.getElementById("setupBaseDate");
+                        if (dateInput) dateInput.style.display = "";
+                        label.style.display = "";
                         label.textContent = "Informe o último dia trabalhado";
                         if (patternInput) patternInput.placeholder = "ex: 12x36";
                     }
@@ -373,6 +508,7 @@
                     atualizarSundayCycleVisibility();
                 });
                 document.getElementById("setupSundayCycle").addEventListener("change", ativarSalvar);
+                document.getElementById("folgaSelect").addEventListener("change", ativarSalvar);
 
                 // 🆕 Listeners da 2ª instituição
                 document.getElementById("secondaryScaleEnabled").addEventListener("change", ativarSalvar);
@@ -434,16 +570,22 @@
                     if (isApplyingPreset) return;
                     userModifiedScale = true;
                     userModifiedPattern = true;
+                    // Atualiza visibilidade de DSR/domingo em tempo real conforme o padrão digitado
+                    const area = document.getElementById("areaSelect")?.value;
+                    const scaleType = area === "outros"
+                        ? (document.getElementById("outrosScaleType")?.value || "plantao")
+                        : (document.getElementById("setupScaleType")?.value || "");
+                    const pattern = document.getElementById("setupScalePattern")?.value.trim();
+                    atualizarCamposSemanal(scaleType, pattern);
                 });
 
                 document.getElementById("outrosScaleType").addEventListener("change", () => {
                     atualizarLabelBaseDate("outros");
                     const scaleType = document.getElementById("outrosScaleType")?.value;
-                    const dsrField = document.getElementById("dsrWrapper");
-                    if (dsrField) dsrField.style.display = scaleType === "semanal" ? "" : "none";
                     const patternInput = document.getElementById("setupScalePattern");
                     patternInput.value = "";
                     patternInput.placeholder = scaleType === "semanal" ? "ex: 6x1" : "ex: 12x36";
+                    atualizarCamposSemanal(scaleType, "");
                 });
 
                 const birthdayInput = document.getElementById("setupBirthday");
@@ -484,6 +626,15 @@
                 };
 
                 document.getElementById("setupSalvar").onclick = function () {
+                    // Se folgaSelectWrapper estiver visível, garante base_date calculada
+                    const folgaSelectEl = document.getElementById("folgaSelect");
+                    const folgaWrapperEl = document.getElementById("folgaSelectWrapper");
+                    if (folgaWrapperEl?.style.display !== "none" && folgaSelectEl?.value !== "") {
+                        const patternAtual = document.getElementById("setupScalePattern")?.value.trim();
+                        const pd = Number(folgaSelectEl.value);
+                        const bd = calcularBaseDatePorFolga(patternAtual, pd);
+                        if (bd) document.getElementById("setupBaseDate").value = bd;
+                    }
                     const baseDate = document.getElementById("setupBaseDate").value;
                     const userName = document.getElementById("setupUserName").value;
 
@@ -1308,9 +1459,17 @@
                     // footerBase não repete essa info
                 } else {
                     // Áreas semanais: mantém lógica original
+                    // Se o padrão está em cyclePatterns (ex: 6x1, 5x2), a folga é calculada
+                    // pelo ciclo — DSR e Folga Dom são irrelevantes e não devem aparecer.
+                    const patternRodape = user.settings.scale_pattern || "";
+                    const usaCyclePattern = patternRodape && window.cyclePatterns?.[patternRodape];
+
+                    if (!usaCyclePattern) {
 
                     // 📅 PRÓXIMA FOLGA DOMINGO
-                    if (user.settings.base_date) {
+                    // Só exibe se sunday_cycle > 1 (se for 1, folga todo domingo — óbvio demais)
+                    const sundayCycle = Number(user.settings.sunday_cycle ?? 3);
+                    if (sundayCycle > 1 && user.settings.base_date) {
                         const hoje = new Date();
                         hoje.setHours(0, 0, 0, 0);
 
@@ -1318,9 +1477,15 @@
                         const base = new Date(by, bm - 1, bd);
                         base.setHours(0, 0, 0, 0);
 
-                        const proxima = new Date(base);
+                        // Recua base_date até o domingo anterior (ponto de ancoragem real)
+                        const anchor = new Date(base);
+                        anchor.setDate(anchor.getDate() - anchor.getDay());
+
+                        // Avança de N em N domingos até encontrar o próximo >= hoje
+                        const step = sundayCycle * 7;
+                        const proxima = new Date(anchor);
                         while (proxima < hoje) {
-                            proxima.setDate(proxima.getDate() + 21);
+                            proxima.setDate(proxima.getDate() + step);
                         }
 
                         const d = String(proxima.getDate()).padStart(2, "0");
@@ -1333,10 +1498,15 @@
                         partes.push(`🌙 Folga Dom: ${d}/${m}/${y} (${label})`);
                     }
 
-                    // 📆 DSR
+                    // 📆 DSR — só exibe se não for domingo (dsr !== 0)
+                    // Se DSR = domingo e sunday_cycle = 1, a info já é óbvia e desnecessária
                     const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
                     const dsr = Number(user.settings.dsr ?? 0);
-                    partes.push(`DSR: ${diasSemana[dsr]}`);
+                    if (dsr !== 0) {
+                        partes.push(`DSR: ${diasSemana[dsr]}`);
+                    }
+
+                    } // fim if (!usaCyclePattern)
                 }
 
                 // 🎂 ANIVERSÁRIO (todas as áreas)
@@ -1429,6 +1599,9 @@
 
                 // chamada após applyAreaPreset pq é ele que exibe o dsrWrapper
                 atualizarSundayCycleVisibility();
+
+                // Se área é "outros" semanal, atualiza visibilidade com base no padrão já salvo
+                if (area === "outros") atualizarCamposSemanaisOutros();
 
                 // 🆕 Seção de 2ª instituição — só exibe para áreas de plantão
                 const secSection = document.getElementById("secondaryScaleSection");
@@ -1968,6 +2141,10 @@
 
                         <label id="labelBaseDate">Informe o último dia trabalhado</label>
                         <input type="date" id="setupBaseDate" />
+                        <div id="folgaSelectWrapper" style="display:none;">
+                            <label>Dias de folga</label>
+                            <select id="folgaSelect"></select>
+                        </div>
                     </div>
 
                     <div class="setup-section" id="secondaryScaleSection" style="display:none;">
