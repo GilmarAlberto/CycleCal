@@ -1,10 +1,10 @@
 # CycleCal — Infraestrutura da Plataforma
 
-Status: 🟢 v1.9.12b  
-Base: v1.9.12b
+Status: 🟢 v2.0.0  
+Base: v2.0.0
 Branch: main
 
-> ⚠️ Infra restante (Fases 12–16) executa após conclusão de v2.x, v3.x e v4.x.
+> ⚠️ Infra restante (Fases 13–17) executa após o produto estar maduro e com usuários reais.
 
 ---
 
@@ -12,13 +12,6 @@ Branch: main
 
 Este documento descreve a evolução da infraestrutura técnica
 da plataforma CycleCal.
-
-Ele suporta todas as linhas de produto:
-
-- v1.x — Core
-- v2.x — Comércio
-- v3.x — Segurança
-- v4.x — Saúde
 
 ---
 
@@ -87,7 +80,7 @@ Ele suporta todas as linhas de produto:
 ## v1.9.6 — Features já entregues
 
 - [x] Folgas destacadas no calendário
-- [x] Troca de turnos
+- [x] Trocas de escala
 - [x] Histórico de trocas
 - [x] Rodapé mais informativo
 
@@ -106,7 +99,7 @@ Ele suporta todas as linhas de produto:
 - [x] v1.9.10 — Estrutura genérica de eventos
 - [x] Modelo com `id`, `type`, `start`, `end`, `label`, `meta`
 - [x] `EVENT_TYPES` e `EVENT_PRIORITY` definidos
-- [x] Funções: `createEvent()`, `isValidEvent()`, `filterByDate()`, `sortByPriority()'
+- [x] Funções: `createEvent()`, `isValidEvent()`, `filterByDate()`, `sortByPriority()`
 
 ---
 
@@ -132,8 +125,6 @@ Ele suporta todas as linhas de produto:
 - ~~Avaliar TWA (Android)~~ — adiado para quando o SaaS estiver no ar
 - ~~Compatibilidade iOS~~ — adiado para quando o SaaS estiver no ar
 
----
-
 ## v1.9.12a — Correção de labels de escala na UI ✅
 
 - [x] Footer exibia `"Escala"` hardcoded para áreas de plantão — substituído por `config.escala`
@@ -155,60 +146,64 @@ Ele suporta todas as linhas de produto:
 
 # 📈 Fase 10 — Evolução ~~(v1.9.13)~~ — descartada
 
-- ~~v1.9.13 — Exportação de dados~~ — descartado (coberto pelo backend na Fase 13)
+- ~~v1.9.13 — Exportação de dados~~ — descartado (coberto pelo backend na Fase 15)
 - ~~Integração com calendários externos~~ — descartado
 
 ---
 
-# 🧪 Fase 11 — Estabilização ~~(v1.9.14)~~ — descartada
+# 🧪 Fase 11 — Comércio ✅
 
-- ~~v1.9.14 — Revisão geral da arquitetura~~ — descartado (testes contínuos cobrem ao longo do desenvolvimento)
-- ~~Testes de sincronização~~ — descartado
-- ~~Testes de segurança~~ — descartado
-- ~~Validação offline-first~~ — descartado
-- ~~Preparação para v2.0~~ — descartado
+- [x] Escala 6x1 — ciclo automático, folga semanal configurável por dia
+- [x] Escala 5x2 — ciclo automático, par de folgas configurável
 
 ---
 
-# 💬 Fase 12 — Produto (v1.9.15 → v1.9.16)
+# 🏷️ Fase 12 — Padronização de Terminologia (v2.0.0) ✅
 
-> Executa após v2.x, v3.x e v4.x concluídos.
+- [x] Removido `scale_type: "turno"` — não refletia o vocabulário real dos setores
+- [x] Padronizado para `"escala"` em todos os arquivos (`areas.js`, `events.js`, `events_model.js`, `index.html`)
+- [x] "Trocas de Turno" renomeado para "Trocas de Escala" na UI
+- [x] Migração automática de schema: `version` 4 → 5 — converte `turno` → `escala` no localStorage e `scale_history`
 
-- [ ] v1.9.15 — Canal de feedback
-- [ ] v1.9.16 — Monetização via Google AdMob (app gratuito)
+---
+
+# 💬 Fase 13 — Produto
+
+- [ ] Canal de feedback
+- [ ] Monetização via Google AdMob (app gratuito)
   - Banner fixo no rodapé
   - Interstitial na entrada do app
   - Interstitial no loading
 
 ---
 
-# 📊 Fase 13 — Métricas (v1.9.17 → v1.9.18)
+# 📊 Fase 14 — Métricas
 
-- [ ] v1.9.17 — Registrar DAU / MAU e métricas de uso
-- [ ] v1.9.18 — Dashboard interno de métricas
+- [ ] Registrar DAU / MAU e métricas de uso
+- [ ] Dashboard interno de métricas
 
 ---
 
-# ☁️ Fase 14 — Backend & Sincronização (v1.9.19 → v1.9.21)
+# ☁️ Fase 15 — Backend & Sincronização
 
 > Stack: **Supabase** (BaaS — free tier)
 > Executa após o produto estar maduro e com usuários reais.
 
-## v1.9.19 — Setup do Supabase
+## Setup do Supabase
 
 - [ ] Criar projeto no Supabase
 - [ ] Definir schema das tabelas (`users`, `scales`, `events`, `vacations`, `shift_swaps`)
 - [ ] Configurar Row Level Security (RLS) — cada usuário acessa só seus dados
 - [ ] Integrar `supabase-js` no CycleCal
 
-## v1.9.20 — Autenticação
+## Autenticação
 
 - [ ] Login com e-mail + senha via Supabase Auth
 - [ ] Login social (Google) — opcional
 - [ ] Salvar `user_id` no perfil local
 - [ ] Tela de login/logout no app
 
-## v1.9.21 — Sincronização e Backup
+## Sincronização e Backup
 
 - [ ] Migrar dados do localStorage/IndexedDB para Supabase na primeira autenticação
 - [ ] Backup automático ao salvar alterações (`upsert`)
@@ -216,19 +211,19 @@ Ele suporta todas as linhas de produto:
 
 ---
 
-# 🔄 Fase 15 — Offline-First (v1.9.22 → v1.9.24)
+# 🔄 Fase 16 — Offline-First
 
-> Requer backend (Fase 14) concluído.
+> Requer backend (Fase 15) concluído.
 
-- [ ] v1.9.22 — Adapter de API remoto (abstrai Supabase do restante do app)
-- [ ] v1.9.23 — Sincronização automática em background
-- [ ] v1.9.24 — Resolução de conflitos (local vs. remoto)
+- [ ] Adapter de API remoto (abstrai Supabase do restante do app)
+- [ ] Sincronização automática em background
+- [ ] Resolução de conflitos (local vs. remoto)
 
 ---
 
-# 🔐 Fase 16 — Segurança (v1.9.25 → v1.9.26)
+# 🔐 Fase 17 — Segurança
 
-> Requer backend (Fase 14) concluído.
+> Requer backend (Fase 15) concluído.
 
-- [ ] v1.9.25 — Controle de acesso à API e rate limiting
-- [ ] v1.9.26 — Autenticação segura e criptografia de dados
+- [ ] Controle de acesso à API e rate limiting
+- [ ] Autenticação segura e criptografia de dados
