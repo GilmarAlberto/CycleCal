@@ -69,7 +69,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "2.0.1",
+                version: "2.0.2",
                 debug: false,
             };
 
@@ -280,7 +280,7 @@
                 } else {
                     // Legado: DSR + domingo a cada N semanas
                     if (dsrField) dsrField.style.display = "";
-                    if (label) { label.textContent = "Informe o último domingo de folga"; label.style.display = ""; }
+                    if (label) { label.textContent = "Informe a próxima folga de domingo"; label.style.display = ""; }
                     const folgaWrapper = document.getElementById("folgaSelectWrapper");
                     if (folgaWrapper) folgaWrapper.style.display = "none";
                     const dateInput = document.getElementById("setupBaseDate");
@@ -323,11 +323,23 @@
                     const scaleTypeLabel = setupScaleType?.previousElementSibling;
                     if (scaleTypeLabel && scaleTypeLabel.tagName === "LABEL") scaleTypeLabel.style.display = "";
                     const patternInput = document.getElementById("setupScalePattern");
-                    // Áreas com cyclePatterns (supermercado=6x1): usa select de folga
+                    // Áreas semanais (supermercado=6x1): mostra DSR + domingo rotativo
+                    // O cyclePatterns não captura DSR fixo nem domingo a cada N semanas,
+                    // então sempre usa a lógica legada para áreas semanais.
                     const presetPattern = window.AREA_PRESETS?.[area]?.scale_pattern || "";
-                    if (presetPattern && window.cyclePatterns?.[presetPattern]) {
+                    const presetType = window.AREA_PRESETS?.[area]?.scale_type || "";
+                    if (presetType === "semanal") {
                         if (patternInput) patternInput.placeholder = `ex: ${presetPattern}`;
-                        atualizarSelectFolga(presetPattern);
+                        // Mostra DSR e domingo rotativo (lógica legada)
+                        const dsrField = document.getElementById("dsrWrapper");
+                        if (dsrField) dsrField.style.display = "";
+                        const folgaWrapper = document.getElementById("folgaSelectWrapper");
+                        if (folgaWrapper) folgaWrapper.style.display = "none";
+                        const dateInput = document.getElementById("setupBaseDate");
+                        if (dateInput) dateInput.style.display = "";
+                        const labelBase = document.getElementById("labelBaseDate");
+                        if (labelBase) { labelBase.textContent = "Informe a próxima folga de domingo"; labelBase.style.display = ""; }
+                        atualizarSundayCycleVisibility();
                     } else {
                         // Áreas de plantão: campo de data normal
                         const folgaWrapper = document.getElementById("folgaSelectWrapper");
@@ -393,7 +405,10 @@
                 const user = window.loadUser();
 
                 if (user.settings.base_date) {
-                    return new Date(user.settings.base_date);
+                    // Evita bug UTC: "YYYY-MM-DD" interpretado como UTC midnight
+                    // desloca o dia em fusos negativos (ex: UTC-3 vira dia anterior).
+                    const [y, m, d] = user.settings.base_date.split("-").map(Number);
+                    return new Date(y, m - 1, d);
                 }
 
                 // fallback padrão atual
@@ -695,20 +710,18 @@
                     user.settings.base_date = baseDate;
 
                     // Para "outros", o tipo vem do select dedicado (outrosScaleType)
-                    // Para demais áreas, vem do campo readonly setupScaleType
+                    // Para demais áreas, vem do preset da área (semanal ou plantao)
                     let scaleTypeRaw;
                     if (user.profile.area === "outros") {
                         scaleTypeRaw = document.getElementById("outrosScaleType")?.value || "plantao";
                     } else {
-                        const scaleTypeDisplayed = document.getElementById("setupScaleType").value;
-                        const SCALE_TYPE_RAW = Object.fromEntries(
-                            Object.entries(SCALE_TYPE_LABELS).map(([k, v]) => [v, k])
-                        );
-                        scaleTypeRaw = SCALE_TYPE_RAW[scaleTypeDisplayed] || scaleTypeDisplayed;
+                        // Usa o scale_type definido no preset da área
+                        // (supermercado = semanal, segurança/hospital = plantao)
+                        scaleTypeRaw = window.AREA_PRESETS?.[user.profile.area]?.scale_type || "plantao";
                     }
                     user.settings.scale_type = scaleTypeRaw;
 
-                    user.settings.scale_pattern = document.getElementById("setupScalePattern").value;
+                    user.settings.scale_pattern = document.getElementById("setupScalePattern").value.trim();
 
                     user.settings.dsr = Number(document.getElementById("setupDSR").value);
                     user.settings.sunday_cycle = Number(document.getElementById("setupSundayCycle").value ?? 3);
@@ -1458,13 +1471,11 @@
                     // Áreas de plantão: infoEscala já mostra "Escala: 24x72 • Hoje: ..."
                     // footerBase não repete essa info
                 } else {
-                    // Áreas semanais: mantém lógica original
-                    // Se o padrão está em cyclePatterns (ex: 6x1, 5x2), a folga é calculada
-                    // pelo ciclo — DSR e Folga Dom são irrelevantes e não devem aparecer.
-                    const patternRodape = user.settings.scale_pattern || "";
-                    const usaCyclePattern = patternRodape && window.cyclePatterns?.[patternRodape];
+                    // Áreas semanais: mostra DSR e folga domingo sempre,
+                    // exceto quando scale_type = "plantao" (ciclo de dias já resolve).
+                    const scaleTypeRodape = user.settings.scale_type || "";
 
-                    if (!usaCyclePattern) {
+                    if (scaleTypeRodape !== "plantao") {
 
                     // 📅 PRÓXIMA FOLGA DOMINGO
                     // Só exibe se sunday_cycle > 1 (se for 1, folga todo domingo — óbvio demais)
@@ -1477,13 +1488,10 @@
                         const base = new Date(by, bm - 1, bd);
                         base.setHours(0, 0, 0, 0);
 
-                        // Recua base_date até o domingo anterior (ponto de ancoragem real)
-                        const anchor = new Date(base);
-                        anchor.setDate(anchor.getDate() - anchor.getDay());
-
-                        // Avança de N em N domingos até encontrar o próximo >= hoje
+                        // base_date agora é a própria próxima folga de domingo informada pelo usuário.
+                        // Avança de N em N semanas até encontrar o próximo >= hoje.
                         const step = sundayCycle * 7;
-                        const proxima = new Date(anchor);
+                        const proxima = new Date(base);
                         while (proxima < hoje) {
                             proxima.setDate(proxima.getDate() + step);
                         }
@@ -1603,6 +1611,15 @@
                 // Se área é "outros" semanal, atualiza visibilidade com base no padrão já salvo
                 if (area === "outros") atualizarCamposSemanaisOutros();
 
+                // Garante DSR e sundayCycle visíveis para áreas semanais (ex: supermercado)
+                const presetTypeCheck = window.AREA_PRESETS?.[area]?.scale_type || "";
+                if (presetTypeCheck === "semanal") {
+                    const dsrEl = document.getElementById("dsrWrapper");
+                    const scEl  = document.getElementById("sundayCycleWrapper");
+                    if (dsrEl) dsrEl.style.display = "";
+                    if (scEl)  scEl.style.display  = "";
+                }
+
                 // 🆕 Seção de 2ª instituição — só exibe para áreas de plantão
                 const secSection = document.getElementById("secondaryScaleSection");
                 const secFields  = document.getElementById("secondaryScaleFields");
@@ -1717,24 +1734,29 @@
                     user.scale_history = [];
                 }
 
-                const ultima = user.scale_history[user.scale_history.length - 1];
+                // "since" = hoje (data em que a nova escala entra em vigor)
+                const hoje = new Date();
+                const since =
+                    hoje.getFullYear() +
+                    "-" +
+                    String(hoje.getMonth() + 1).padStart(2, "0") +
+                    "-" +
+                    String(hoje.getDate()).padStart(2, "0");
+
+                // Remove entradas do mesmo dia (evita acúmulo de saves)
+                user.scale_history = user.scale_history.filter(e => e.since !== since);
+
+                // Verifica se a entrada anterior é idêntica (sem necessidade de nova entrada)
+                const sorted = [...user.scale_history].sort((a, b) => a.since > b.since ? 1 : -1);
+                const anterior = sorted[sorted.length - 1];
 
                 const mudou =
-                    !ultima ||
-                    ultima.pattern !== novoPattern ||
-                    ultima.type !== novoType ||
-                    ultima.base_date !== novaBaseDate;
+                    !anterior ||
+                    anterior.pattern !== novoPattern ||
+                    anterior.type !== novoType ||
+                    anterior.base_date !== novaBaseDate;
 
                 if (mudou) {
-                    // "since" = hoje (data em que a nova escala entra em vigor)
-                    const hoje = new Date();
-                    const since =
-                        hoje.getFullYear() +
-                        "-" +
-                        String(hoje.getMonth() + 1).padStart(2, "0") +
-                        "-" +
-                        String(hoje.getDate()).padStart(2, "0");
-
                     user.scale_history.push({
                         pattern: novoPattern,
                         type: novoType,
@@ -1751,6 +1773,7 @@
 
                 atualizarSaudacao();
                 atualizarFooterBase();
+                atualizarInfoEscala();
                 gerarCalendario(anoAtual, mesAtual);
             }
 

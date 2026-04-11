@@ -71,10 +71,11 @@ export function ehFolga(data, user, baseFolgaDomingo, AREAS_WITHOUT_DSR) {
     }
 
     // --- Semanal com cyclePatterns (ex: 6x1, 5x2) ---
-    // Se o padrão estiver definido em cyclePatterns, usa getDayType() diretamente.
-    // Isso garante cálculo correto para qualquer ciclo com múltiplos dias de folga.
+    // Só usa getDayType() se for explicitamente plantão (scale_type = "plantao").
+    // Escalas semanais (6x1, 5x2) usam a lógica legada de DSR + domingo rotativo,
+    // pois o ciclo de dias não captura o descanso semanal fixo nem o domingo a cada N semanas.
     const pattern = user.settings.scale_pattern || "";
-    if (pattern && cyclePatterns[pattern]) {
+    if (pattern && cyclePatterns[pattern] && scaleType === "plantao") {
         const model = {
             cycle: {
                 pattern,
