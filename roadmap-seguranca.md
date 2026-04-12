@@ -33,120 +33,38 @@ Escalas mais comuns nesse setor:
 
 - 24x72
 - 24x96
-- 12x36
-- escalas variáveis
 
-O foco desta versão é permitir que o usuário visualize:
+O foco desta versão é registrar plantões extras —
+dias trabalhados fora do ciclo regular.
 
-- plantões
-- folgas
-- mudanças de escala
-- plantões extras
+> Funcionalidades já cobertas pelo v1.x e não replicadas aqui:
+> 12x36, 24x72, 24x96, troca de plantão, escalas variáveis por período.
 
 ---
 
-# 🚀 v3.0 – Escala 24x72
+# ~~🚀 v3.0 – Motor de Ciclos Longos~~ ❌ Descartado
 
-Escala muito comum em segurança pública.
-
-Ciclo:
-
-24 horas de trabalho  
-72 horas de folga
-
-Objetivos:
-
-- [ ] Implementar ciclo automático 24x72
-- [ ] Marcar claramente dias de plantão
-- [ ] Destacar dias de folga
-- [ ] Garantir continuidade entre meses
-- [ ] Testar múltiplos anos
+> 24x72 e 24x96 já implementados no v1.x.
+> Não há necessidade de reimplementação nesta linha.
 
 ---
 
-# 🚀 v3.1 – Escala 24x96
-
-Escala comum em alguns batalhões e vigilância.
-
-Ciclo:
-
-24 horas de trabalho  
-96 horas de folga
-
-Objetivos:
-
-- [ ] Implementar ciclo 24x96
-- [ ] Garantir cálculo correto das folgas
-- [ ] Testar continuidade entre meses
-- [ ] Validar funcionamento em múltiplos anos
-
----
-
-# 🚀 v3.2 – Escala 12x36
-
-Escala comum em segurança privada e hospitais.
-
-Ciclo:
-
-12 horas de trabalho  
-36 horas de folga
-
-Objetivos:
-
-- [ ] Implementar ciclo 12x36
-- [ ] Marcar turnos diurnos e noturnos
-- [ ] Garantir continuidade do ciclo
-- [ ] Testar múltiplos meses
-
----
-
-# 🚀 v3.3 – Plantões Extras
+# 🚀 v3.1 – Plantões Extras
 
 Profissionais de segurança frequentemente realizam
-plantões adicionais.
+plantões adicionais fora do ciclo regular — por cobertura
+de colega, reforço em evento ou escala extraordinária.
+
+Diferente da troca de plantão (já implementada no v1.x),
+o plantão extra é um dia de trabalho avulso sem contrapartida:
+o profissional trabalha num dia que seria folga, sem compensação.
 
 Objetivos:
 
-- [ ] Permitir adicionar plantão extra manualmente
-- [ ] Destacar visualmente plantões extras
+- [ ] Permitir adicionar plantão extra manualmente em qualquer data
+- [ ] Destacar visualmente plantões extras no calendário
 - [ ] Registrar histórico de plantões extras
-- [ ] Evitar conflito com folgas do ciclo
-
----
-
-# 🚀 v3.4 – Troca de Plantão
-
-Trocas de plantão são comuns entre colegas.
-
-Objetivos:
-
-- [ ] Permitir registrar troca de plantão
-- [ ] Ajustar automaticamente o calendário
-- [ ] Registrar histórico da troca
-- [ ] Manter consistência do ciclo
-
----
-
-# 🚀 v3.5 – Escalas Variáveis
-
-Algumas unidades mudam escala ao longo do tempo.
-
-Exemplo:
-
-Jan → 24x72  
-Fev → 24x96  
-
-Ou:
-
-até dia 15 → 24x72  
-depois → 24x96
-
-Objetivos:
-
-- [ ] Permitir múltiplas escalas por período
-- [ ] Recalcular calendário automaticamente
-- [ ] Registrar histórico de mudanças de escala
-- [ ] Garantir continuidade do calendário
+- [ ] Evitar conflito visual com folgas do ciclo regular
 
 ---
 
@@ -154,12 +72,10 @@ Objetivos:
 
 Critérios para considerar a linha v3.x funcional:
 
-- [ ] Escala 24x72 funcionando corretamente
-- [ ] Escala 24x96 funcionando corretamente
-- [ ] Escala 12x36 funcionando corretamente
-- [ ] Plantões extras registrados corretamente
-- [ ] Trocas de plantão funcionando
-- [ ] Escalas variáveis funcionando
+- [ ] Plantão extra registrado corretamente em dia de folga do ciclo
+- [ ] Plantão extra destacado visualmente sem sobrescrever o ciclo
+- [ ] Histórico de plantões extras persistido corretamente
+- [ ] Sem conflito visual com troca de plantão existente
 - [ ] Testes completos em mobile
 - [ ] Testes completos em desktop
 - [ ] Funcionamento correto em PWA instalada
@@ -170,8 +86,7 @@ Critérios para considerar a linha v3.x funcional:
 
 Possíveis melhorias futuras para segurança:
 
-- [ ] Estatísticas de plantões realizados
-- [ ] Estatísticas de folgas
-- [ ] Contagem de horas trabalhadas
+- [ ] Estatísticas de plantões extras realizados
+- [ ] Contagem de horas extras trabalhadas no mês
 - [ ] Exportação de escala (PDF)
 - [ ] Compartilhamento de escala
