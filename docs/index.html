@@ -73,7 +73,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "3.1.9",
+                version: "3.1.10",
                 debug: false,
             };
 
@@ -1396,6 +1396,7 @@
                 navigator.serviceWorker.addEventListener("message", (event) => {
                     if (event.data?.type === "SW_UPDATED") {
                         showToast(`✅ CycleCal atualizado para v${event.data.version}`, "success");
+                        setTimeout(() => location.reload(), 1500);
                     }
                 });
             }

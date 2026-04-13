@@ -1,6 +1,6 @@
 # CycleCal
 
-Status: 🔮 v3.x
+Status: ✅ v3.x
 Base: v1.x
 Branch: main
 
@@ -49,7 +49,7 @@ dias trabalhados fora do ciclo regular.
 
 ---
 
-# 🚀 v3.1 – Plantões Extras
+# ✅ v3.1 – Plantões Extras
 
 Profissionais de segurança frequentemente realizam
 plantões adicionais fora do ciclo regular — por cobertura
@@ -61,10 +61,10 @@ o profissional trabalha num dia que seria folga, sem compensação.
 
 Objetivos:
 
-- [ ] Permitir adicionar plantão extra manualmente em qualquer data
-- [ ] Destacar visualmente plantões extras no calendário
-- [ ] Registrar histórico de plantões extras
-- [ ] Evitar conflito visual com folgas do ciclo regular
+- [x] Permitir adicionar plantão extra manualmente em qualquer data
+- [x] Destacar visualmente plantões extras no calendário
+- [x] Registrar histórico de plantões extras
+- [x] Evitar conflito visual com folgas do ciclo regular
 
 ---
 
@@ -72,12 +72,12 @@ Objetivos:
 
 Critérios para considerar a linha v3.x funcional:
 
-- [ ] Plantão extra registrado corretamente em dia de folga do ciclo
-- [ ] Plantão extra destacado visualmente sem sobrescrever o ciclo
-- [ ] Histórico de plantões extras persistido corretamente
-- [ ] Sem conflito visual com troca de plantão existente
-- [ ] Testes completos em mobile
-- [ ] Testes completos em desktop
+- [x] Plantão extra registrado corretamente em dia de folga do ciclo
+- [x] Plantão extra destacado visualmente sem sobrescrever o ciclo
+- [x] Histórico de plantões extras persistido corretamente
+- [x] Sem conflito visual com troca de plantão existente
+- [x] Testes completos em mobile
+- [x] Testes completos em desktop
 - [ ] Funcionamento correto em PWA instalada
 
 ---
