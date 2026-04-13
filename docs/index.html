@@ -62,6 +62,10 @@
 
                 <div class="legend" id="vacationLegend"><span class="legend-box vacation"></span> Férias</div>
 
+                <div class="legend" id="swapLegend" style="display:none"><span style="display:inline-block;width:12px;height:12px;background:#fffbeb;border:2px solid #f59e0b;border-radius:2px;margin-right:4px;vertical-align:middle"></span> Troca de Plantão</div>
+
+                <div class="legend" id="extraLegend" style="display:none"><span style="display:inline-block;width:12px;height:12px;background:#fff3e0;border:2px solid #e65100;border-radius:2px;margin-right:4px;vertical-align:middle"></span> Plantão extra</div>
+
                 <div class="holidays" id="listaFeriados"></div>
             </div>
         </div>
@@ -69,7 +73,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "2.0.3",
+                version: "3.1.9",
                 debug: false,
             };
 
@@ -93,6 +97,7 @@
             let yearBlockStart;
             let vacations = [];
             let shiftSwaps = [];
+            let extraShifts = [];
             let userModifiedScale = false;
             let userModifiedPattern = false;
             let isApplyingPreset = false;
@@ -296,9 +301,13 @@
 
 
             function atualizarSundayCycleVisibility() {
-                const dsrVisible = document.getElementById("dsrWrapper")?.style.display !== "none";
                 const wrapper = document.getElementById("sundayCycleWrapper");
-                if (wrapper) wrapper.style.display = dsrVisible ? "" : "none";
+                if (!wrapper) return;
+                const area = document.getElementById("areaSelect")?.value || "";
+                const presetType = window.AREA_PRESETS?.[area]?.scale_type || "";
+                const isSemanal = presetType === "semanal" ||
+                    (area === "outros" && document.getElementById("outrosScaleType")?.value === "semanal");
+                wrapper.style.display = isSemanal ? "" : "none";
             }
 
             function atualizarLabelBaseDate(area) {
@@ -349,6 +358,7 @@
                         label.style.display = "";
                         label.textContent = "Informe o último dia trabalhado";
                         if (patternInput) patternInput.placeholder = "ex: 12x36";
+                        atualizarSundayCycleVisibility();
                     }
                 }
             }
@@ -481,6 +491,16 @@
                 window._shiftSwaps = shiftSwaps;
             }
 
+            async function carregarExtraShifts() {
+                extraShifts = await window.loadExtraShifts();
+                window._extraShifts = extraShifts;
+            }
+
+            async function salvarExtraShifts() {
+                await window.saveExtraShifts(extraShifts);
+                window._extraShifts = extraShifts;
+            }
+
             async function carregarFerias() {
                 vacations = await window.loadVacations();
             }
@@ -502,6 +522,7 @@
 
                 await carregarFerias();
                 await carregarShiftSwaps();
+                await carregarExtraShifts();
 
                 preencherSetup();
                 verificarPerfil();
@@ -994,6 +1015,22 @@
 
                 vacationLegend.style.display = temFeriasNoMes ? "block" : "none";
 
+                const swapLegend = document.getElementById("swapLegend");
+                if (swapLegend) {
+                    const mesStr = String(mes + 1).padStart(2, "0");
+                    const anoStr = String(ano);
+                    const temSwapNoMes = shiftSwaps.some((s) => s.to.startsWith(`${anoStr}-${mesStr}`));
+                    swapLegend.style.display = temSwapNoMes ? "block" : "none";
+                }
+
+                const extraLegend = document.getElementById("extraLegend");
+                if (extraLegend) {
+                    const mesStr = String(mes + 1).padStart(2, "0");
+                    const anoStr = String(ano);
+                    const temExtraNoMes = extraShifts.some((e) => e.date.startsWith(`${anoStr}-${mesStr}`));
+                    extraLegend.style.display = temExtraNoMes ? "block" : "none";
+                }
+
                 const calendario = document.getElementById("calendario");
                 // Início da microtransição
                 calendario.classList.remove("calendar-transition-active");
@@ -1015,7 +1052,8 @@
                 const diasNoMes = new Date(ano, mes + 1, 0).getDate();
 
                 const ctx = getContext(ano);
-                ctx.shiftSwaps = shiftSwaps;
+                ctx.shiftSwaps   = shiftSwaps;
+                ctx.extraShifts  = extraShifts;
                 const todosFeriados = ctx.todosFeriados;
                 const carnaval = ctx.carnaval;
 
@@ -1070,8 +1108,12 @@
                     // 🆕 Multi-escala — aplica classes de diagonal split
                     if (_secScale) {
                         const dateObj = new Date(ano, mes, dia);
-                        const tipoA = window.isFolga(dateObj) ? "off" : "work";
-                        const tipoB = window.getDayTypeSecondary ? window.getDayTypeSecondary(dateObj) : null;
+                        const topType = top?.type || "";
+                        const isSpecial = topType === "swap" || topType === "extra" || topType === "vacation";
+
+                        if (!isSpecial) {
+                            const tipoA = window.isFolga(dateObj) ? "off" : "work";
+                            const tipoB = window.getDayTypeSecondary ? window.getDayTypeSecondary(dateObj) : null;
 
                         if (tipoA === "work" && tipoB === "work") {
                             el.classList.add("trabalho-ambos");
@@ -1097,6 +1139,7 @@
                             }
                             el.appendChild(badge);
                         }
+                        } // fecha if (!isSpecial)
                     }
 
                     if (layers.some((l) => l.type === "birthday")) {
@@ -1451,10 +1494,21 @@
                     el.innerText = `Feliz Aniversário, ${user.profile.name}! 🎂`;
                 } else {
                     const isFolgaHoje = isFolga(hoje);
-                    const tipoDia = isFolgaHoje ? "folga" : "trabalho";
+                    const hojeStr = hoje.getFullYear() + "-" + String(hoje.getMonth() + 1).padStart(2, "0") + "-" + String(hoje.getDate()).padStart(2, "0");
+
+                    const isSwapHoje = (window._shiftSwaps || []).some((s) => s.to === hojeStr);
+                    const isExtraHoje = (window._extraShifts || []).some((e) => e.date === hojeStr);
+
+                    let tipoDia;
+                    if (isSwapHoje) {
+                        tipoDia = "trabalho"; // folga que virou trabalho por troca
+                    } else if (isExtraHoje) {
+                        tipoDia = "trabalho"; // folga que virou plantão extra
+                    } else {
+                        tipoDia = isFolgaHoje ? "folga" : "trabalho";
+                    }
 
                     const mensagem = config[tipoDia].toLowerCase();
-
                     el.innerText = `Olá ${user.profile.name}, ${mensagem}!`;
                 }
             }
@@ -1791,11 +1845,16 @@
                 }
 
                 const hoje = new Date();
+                const hojeStr = hoje.getFullYear() + "-" + String(hoje.getMonth() + 1).padStart(2, "0") + "-" + String(hoje.getDate()).padStart(2, "0");
                 const isFolgaHoje = isFolga(hoje);
-                const status = isFolgaHoje ? config.folgaLabel : config.escala;
+                const isSwapHoje  = (window._shiftSwaps  || []).some((s) => s.to    === hojeStr);
+                const isExtraHoje = (window._extraShifts || []).some((e) => e.date  === hojeStr);
 
-                // Usa config.escala que já tem o label correto por área
-                // seguranca/hospital → "Plantão", supermercado/outros → "Escala"
+                let status;
+                if (isSwapHoje)       status = config.escala;   // troca: folga virou trabalho
+                else if (isExtraHoje) status = config.escala;   // extra: folga virou trabalho
+                else                  status = isFolgaHoje ? config.folgaLabel : config.escala;
+
                 el.innerText = `${config.escala}: ${user.settings.scale_pattern} • Hoje: ${status}`;
             }
 
@@ -1817,21 +1876,25 @@
             // HISTÓRICO — abrir/fechar modal
             // ==============================
 
-            function abrirHistorico() {
+            async function abrirHistorico() {
                 renderHistoricoEscalas();
-                renderHistoricoFerias();
+                await renderHistoricoFerias();
                 renderHistoricoSwaps();
                 wireSwap();
+                renderHistoricoExtras();
+                wireExtra();
 
-                // Desabilita seção de trocas para áreas do comércio
+                // Oculta seções de trocas e extras para supermercado
                 const _userHist = window.loadUser();
-                const isComercio = _userHist.area === "supermercado";
-                ["swapFrom", "swapTo", "swapNote", "btnConfirmarSwap"].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.disabled = isComercio;
-                });
-                const swapForm = document.getElementById("swapForm");
-                if (swapForm) swapForm.style.opacity = isComercio ? "0.4" : "1";
+                const isComercio = _userHist.profile.area === "supermercado";
+                const swapSection = document.getElementById("swapSection");
+                const extraSection = document.getElementById("extraSection");
+                if (swapSection) swapSection.style.display = isComercio ? "none" : "";
+                if (extraSection) extraSection.style.display = isComercio ? "none" : "";
+
+                // Título dinâmico: Escala para supermercado, Plantões para os demais
+                const plantoesTitle = document.getElementById("historicoPlantoesTitle");
+                if (plantoesTitle) plantoesTitle.textContent = isComercio ? "Escala" : "Plantões";
 
                 document.getElementById("historicoModal").style.display = "flex";
                 document.body.style.overflow = "hidden";
@@ -1840,13 +1903,13 @@
             function fecharHistorico() {
                 document.getElementById("historicoModal").style.display = "none";
                 document.body.style.overflow = "";
+                document.getElementById("historicoPlantoesLista").innerHTML = "";
             }
 
-            function renderHistoricoFerias() {
-                const user = window.loadUser();
+            async function renderHistoricoFerias() {
                 const lista = document.getElementById("historicoFeriasList");
 
-                const vacList = user.vacations || [];
+                const vacList = await window.loadVacations();
 
                 if (vacList.length === 0) {
                     lista.innerHTML =
@@ -1999,6 +2062,95 @@
                 });
             }
 
+            function renderHistoricoExtras() {
+                const lista = document.getElementById("historicoExtraList");
+                if (!lista) return;
+
+                if (extraShifts.length === 0) {
+                    lista.innerHTML =
+                        '<p style="color:var(--text-muted,#888);font-size:0.9em">Nenhum plantão extra registrado.</p>';
+                    return;
+                }
+
+                const sorted = [...extraShifts].sort((a, b) => (a.date > b.date ? -1 : 1));
+
+                lista.innerHTML = sorted
+                    .map((e) => {
+                        const label = e.date.split("-").reverse().join("/");
+                        const nota = e.note
+                            ? `<div style="font-size:0.8em;color:var(--text-muted,#888)">${e.note}</div>`
+                            : "";
+
+                        return `
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border,#e0e0e0)">
+                            <div>
+                                <span style="color:#e65100;font-weight:500">${label} +</span>
+                                ${nota}
+                            </div>
+                            <button class="btn-remover" data-extra-id="${e.id}" type="button">Remover</button>
+                        </div>`;
+                    })
+                    .join("");
+
+                lista.querySelectorAll(".btn-remover[data-extra-id]").forEach((btn) => {
+                    btn.addEventListener("click", async () => {
+                        const id = btn.dataset.extraId;
+                        extraShifts = extraShifts.filter((e) => e.id !== id);
+                        await salvarExtraShifts();
+                        gerarCalendario(anoAtual, mesAtual);
+                        renderHistoricoExtras();
+                    });
+                });
+            }
+
+            function wireExtra() {
+                const btn = document.getElementById("btnConfirmarExtra");
+                if (!btn || btn._extraWired) return;
+                btn._extraWired = true;
+
+                btn.addEventListener("click", async () => {
+                    const date = document.getElementById("extraDate").value;
+                    const note = document.getElementById("extraNote").value.trim();
+
+                    if (!date) {
+                        showToast("Informe a data do plantão extra.", "error");
+                        return;
+                    }
+
+                    // Bloqueia se o dia for de trabalho (não-folga)
+                    const [y, m, d] = date.split("-").map(Number);
+                    const dataObj = new Date(y, m - 1, d);
+                    if (!window.isFolga(dataObj)) {
+                        showToast("Plantão extra só pode ser registrado em dia de folga.", "error");
+                        return;
+                    }
+
+                    const existe = extraShifts.some((e) => e.date === date);
+                    if (existe) {
+                        showToast("Plantão extra já registrado nesta data.", "error");
+                        return;
+                    }
+
+                    extraShifts.push({
+                        id: crypto.randomUUID(),
+                        date,
+                        note,
+                        created_at: new Date().toISOString(),
+                    });
+
+                    await salvarExtraShifts();
+                    gerarCalendario(anoAtual, mesAtual);
+                    renderHistoricoExtras();
+                    atualizarSaudacao();
+                    atualizarInfoEscala();
+
+                    document.getElementById("extraDate").value = "";
+                    document.getElementById("extraNote").value = "";
+
+                    showToast("Plantão extra registrado!", "success");
+                });
+            }
+
             // Wiring do formulário de trocas
             function wireSwap() {
                 const btn = document.getElementById("btnConfirmarSwap");
@@ -2020,6 +2172,20 @@
                         return;
                     }
 
+                    // "from" deve ser dia de trabalho
+                    const [fy, fm, fd] = from.split("-").map(Number);
+                    if (window.isFolga(new Date(fy, fm - 1, fd))) {
+                        showToast("O dia cedido precisa ser um dia de trabalho.", "error");
+                        return;
+                    }
+
+                    // "to" deve ser dia de folga
+                    const [ty, tm, td] = to.split("-").map(Number);
+                    if (!window.isFolga(new Date(ty, tm - 1, td))) {
+                        showToast("O dia recebido precisa ser um dia de folga.", "error");
+                        return;
+                    }
+
                     const existe = shiftSwaps.some((s) => s.from === from && s.to === to);
                     if (existe) {
                         showToast("Troca já registrada.", "error");
@@ -2037,6 +2203,8 @@
                     await salvarShiftSwaps();
                     gerarCalendario(anoAtual, mesAtual);
                     renderHistoricoSwaps();
+                    atualizarSaudacao();
+                    atualizarInfoEscala();
 
                     document.getElementById("swapFrom").value = "";
                     document.getElementById("swapTo").value = "";
@@ -2264,7 +2432,7 @@
 
                     <!-- Histórico de Plantões -->
                     <div class="setup-section">
-                        <h4>Plantões</h4>
+                        <h4 id="historicoPlantoesTitle">Plantões</h4>
                         <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px">
                             <select id="historicoMesSelect" style="flex: 1; min-width: 130px"></select>
                             <select id="historicoAnoSelect" style="width: 90px"></select>
@@ -2274,17 +2442,17 @@
                     </div>
 
                     <!-- Trocas de Escala -->
-                    <div class="setup-section">
+                    <div class="setup-section" id="swapSection">
                         <h4>Trocas de Escala <span style="font-weight:normal;font-size:0.8em;color:var(--text-muted,#888)">(segurança, saúde, outros)</span></h4>
 
                         <div id="swapForm" style="margin-bottom: 12px">
                             <div class="ferias-row">
                                 <div>
-                                    <label>De (data cedida)</label>
+                                    <label>Antes (dia de trabalho)</label>
                                     <input type="date" id="swapFrom" />
                                 </div>
                                 <div>
-                                    <label>Por (data recebida)</label>
+                                    <label>Depois (folga virou trabalho)</label>
                                     <input type="date" id="swapTo" />
                                 </div>
                             </div>
@@ -2300,6 +2468,31 @@
                         </div>
 
                         <div id="historicoSwapList"></div>
+                    </div>
+
+                    <!-- Plantões Extras -->
+                    <div class="setup-section" id="extraSection">
+                        <h4>Plantões Extras <span style="font-weight:normal;font-size:0.8em;color:var(--text-muted,#888)">(segurança, saúde, outros)</span></h4>
+
+                        <div id="extraForm" style="margin-bottom: 12px">
+                            <div class="ferias-row">
+                                <div>
+                                    <label>Data do plantão extra</label>
+                                    <input type="date" id="extraDate" />
+                                </div>
+                            </div>
+                            <input
+                                type="text"
+                                id="extraNote"
+                                placeholder="Observação (opcional)"
+                                style="margin-top: 8px"
+                            />
+                            <div class="ferias-actions">
+                                <button id="btnConfirmarExtra" type="button">Registrar plantão extra</button>
+                            </div>
+                        </div>
+
+                        <div id="historicoExtraList"></div>
                     </div>
                 </div>
 

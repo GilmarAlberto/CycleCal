@@ -156,6 +156,21 @@ button {
     color: #f59e0b;
 }
 
+.day.extra {
+    background: #fff3e0;
+    border: 2px solid #e65100;
+}
+
+.day.extra::after {
+    content: "+";
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #e65100;
+}
+
 .day.holiday {
     background: #ffeaea;
     border: 2px solid #c62828;

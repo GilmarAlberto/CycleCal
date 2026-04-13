@@ -6,7 +6,7 @@ import { getContext } from "./logic/context.js";
 import { ajustarAniversario, formatarData, isValidDate } from "./logic/utils.js";
 import { AREAS, AREA_PRESETS, AREAS_WITHOUT_DSR, normalizeArea, getAreaConfig } from "./logic/areas.js";
 import { getProximaFerias } from "./logic/vacations.js";
-import { initStorage, loadUser, saveUser, clearUser, userExists, loadVacations, saveVacations, loadShiftSwaps, saveShiftSwaps, migrateToIndexedDB } from "./logic/storage.js";
+import { initStorage, loadUser, saveUser, clearUser, userExists, loadVacations, saveVacations, loadShiftSwaps, saveShiftSwaps, loadExtraShifts, saveExtraShifts, migrateToIndexedDB } from "./logic/storage.js";
 import { EVENT_TYPES, EVENT_PRIORITY, createEvent, isValidEvent, getEventPriority, sortByPriority, filterByDate } from "./logic/events_model.js";
 
 // Expõe para o index.html
@@ -32,6 +32,8 @@ window.loadVacations   = loadVacations;
 window.saveVacations   = saveVacations;
 window.loadShiftSwaps  = loadShiftSwaps;
 window.saveShiftSwaps  = saveShiftSwaps;
+window.loadExtraShifts = loadExtraShifts;
+window.saveExtraShifts = saveExtraShifts;
 window.migrateToIndexedDB = migrateToIndexedDB;
 
 // 🧩 Modelo genérico de eventos (v1.9.10)
@@ -66,7 +68,10 @@ window.isFolga = function (data) {
 };
 
 window.getEventos = function (data) {
-    return eventosDoDia(data, getContext());
+    const ctx = getContext();
+    ctx.shiftSwaps  = window._shiftSwaps  || [];
+    ctx.extraShifts = window._extraShifts || [];
+    return eventosDoDia(data, ctx);
 };
 
 // 🆕 Verifica se um dia (Date ou "YYYY-MM-DD") está envolvido em alguma troca

@@ -227,7 +227,7 @@ export function initStorage() {
 // ==============================
 
 const IDB_NAME    = "cyclecal_db";
-const IDB_VERSION = 1;
+const IDB_VERSION = 2;
 
 // ── Abre (ou cria) o banco ────────────────────────────────────────────────────
 function openDB() {
@@ -241,6 +241,9 @@ function openDB() {
             }
             if (!db.objectStoreNames.contains("shift_swaps")) {
                 db.createObjectStore("shift_swaps", { keyPath: "id" });
+            }
+            if (!db.objectStoreNames.contains("extra_shifts")) {
+                db.createObjectStore("extra_shifts", { keyPath: "id" });
             }
         };
 
@@ -297,6 +300,18 @@ export async function loadShiftSwaps() {
 
 export async function saveShiftSwaps(arr) {
     await idbPutAll("shift_swaps", arr);
+}
+
+export async function loadExtraShifts() {
+    try {
+        return await idbGetAll("extra_shifts");
+    } catch {
+        return [];
+    }
+}
+
+export async function saveExtraShifts(arr) {
+    await idbPutAll("extra_shifts", arr);
 }
 
 // ── Migração única do LocalStorage → IndexedDB ────────────────────────────────

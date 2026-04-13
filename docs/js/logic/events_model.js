@@ -27,6 +27,7 @@ export const EVENT_TYPES = {
     CULTURAL: "cultural",   // feriado cultural (ex: carnaval)
     BIRTHDAY: "birthday",   // aniversário do usuário
     SWAP:     "swap",       // troca de escala
+    EXTRA:    "extra",      // plantão extra (segurança/saúde/outros)
 };
 
 // ==============================
@@ -36,7 +37,8 @@ export const EVENT_TYPES = {
 export const EVENT_PRIORITY = {
     [EVENT_TYPES.VACATION]: 50,
     [EVENT_TYPES.FOLGA]:    20,
-    [EVENT_TYPES.SWAP]:     15,
+    [EVENT_TYPES.SWAP]:     25,
+    [EVENT_TYPES.EXTRA]:    22,  // acima de folga pois transforma folga em trabalho
     [EVENT_TYPES.HOLIDAY]:  10,
     [EVENT_TYPES.CULTURAL]:  8,
     [EVENT_TYPES.BIRTHDAY]:  5,
