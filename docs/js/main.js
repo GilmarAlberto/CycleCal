@@ -1,5 +1,5 @@
 import { eventosDoDia, buildLayers, getTopLayer } from "./logic/events.js";
-import { ehFolga, getDayTypeSecondary } from "./logic/folgas.js";
+import { ehFolga, getDayTypeSecondary, getDayType12x36Extra, getDayType6hSemanal } from "./logic/folgas.js";
 import { buildSecondaryModel, cyclePatterns } from "./logic/model.js";
 import { feriadosFixos, gerarFeriadosMoveis, gerarCarnaval } from "./logic/feriados.js";
 import { getContext } from "./logic/context.js";
@@ -61,6 +61,10 @@ window.buildSecondaryModel = function () {
     if (!user) return null;
     return buildSecondaryModel(user);
 };
+
+// 🆕 v4.0 / v4.1 — funções de saúde expostas para debug no DevTools
+window.getDayType12x36Extra = getDayType12x36Extra;
+window.getDayType6hSemanal  = getDayType6hSemanal;
 
 window.isFolga = function (data) {
     const ctx = getContext();

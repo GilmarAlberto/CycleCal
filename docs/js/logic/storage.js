@@ -1,6 +1,6 @@
 // ==============================
 // CycleCal — Camada de Persistência
-// v2.0.0
+// v4.0
 // ==============================
 // Centraliza todos os acessos ao localStorage.
 // O index.html e demais módulos NÃO devem chamar
@@ -9,18 +9,22 @@
 // Chave principal: "cyclecal_user"
 // Estrutura do objeto user:
 // {
-//   version: 4,
+//   version: 6,
 //   updated_at: "",
 //   profile: { user_id, name, area, birthday, created_at },
-//   settings: { base_date, scale_type, scale_pattern, dsr, offset, timezone, inst_color },
+//   settings: {
+//     base_date, scale_type, scale_pattern, dsr, offset, timezone, inst_color,
+//     folga_extra_5plantoes,  // boolean — v4.0: folga extra a cada 5 plantões (12x36)
+//     folga_dia_semana,       // number 0–6 | null — v4.1: dia fixo de folga (6h semanal)
+//   },
 //   scale_history: [],
 //   vacations: [],
 //   shift_swaps: [],
 //   secondary_scale: null | {
-//     institution: string,   // nome livre da instituição
-//     color: string,         // cor hex escolhida pelo usuário
-//     pattern: string,       // cyclePattern (ex: "12x36", "24x72")
-//     base_date: string,     // "YYYY-MM-DD" — data base do ciclo
+//     institution: string,
+//     color: string,
+//     pattern: string,
+//     base_date: string,
 //   },
 // }
 // ==============================
@@ -77,7 +81,7 @@ export function userExists() {
 // ==============================
 export function createDefaultUser() {
     return {
-        version: 3,
+        version: 6,
         updated_at: "",
         profile: {
             user_id: crypto.randomUUID(),
@@ -93,7 +97,9 @@ export function createDefaultUser() {
             dsr: 0,
             offset: 0,
             timezone: getLocalTimezone(),
-            inst_color: "#3b82f6",  // cor da escala principal (padrão azul)
+            inst_color: "#3b82f6",
+            folga_extra_5plantoes: false,  // v4.0: folga extra a cada 5 plantões (12x36)
+            folga_dia_semana: null,        // v4.1: dia fixo de folga 0–6 (6h semanal)
         },
         scale_history: [],
         vacations: [],
@@ -149,6 +155,13 @@ export function migrateUser(user) {
                 entry.type === "turno" ? { ...entry, type: "escala" } : entry
             );
         }
+    }
+
+    // v4.0 — migração v5 → v6: adiciona campos folga_extra_5plantoes e folga_dia_semana
+    if (user.version < 6) {
+        user.version = 6;
+        user.settings.folga_extra_5plantoes = user.settings.folga_extra_5plantoes ?? false;
+        user.settings.folga_dia_semana      = user.settings.folga_dia_semana      ?? null;
     }
 
     // Garante campos ausentes em versões antigas

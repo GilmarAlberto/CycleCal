@@ -1,6 +1,6 @@
 // ==============================
 // CycleCal — Modelo de Dados Centralizado
-// v1.9.12.b
+// v4.0
 // ==============================
 
 // Padrões de ciclo de plantão.
@@ -9,8 +9,12 @@
 // off  = índices de posição onde o dia é de folga
 // Total de dias do ciclo = work.length + off.length
 //
-// ⚠️ Placeholder — regras reais serão definidas ao trabalhar
-//    com as áreas de segurança e saúde (v1.9.x futura).
+// "6h" — turno de 6h com folga semanal fixa (v4.1).
+//   O cyclePattern aqui é apenas um marcador de tipo.
+//   A lógica real usa folga_dia_semana em ehFolga() / getDayType6hSemanal().
+//
+// "12x36" com folga_extra_5plantoes (v4.0) — ciclo irregular tratado em
+//   getDayType12x36Extra() em folgas.js. O cyclePattern base continua 2 dias.
 
 export const cyclePatterns = {
     "12x36": { work: [0],          off: [1]          }, // 12h trabalho / 36h folga  → ciclo de 2 dias
@@ -19,6 +23,7 @@ export const cyclePatterns = {
     "12x60": { work: [0],          off: [1, 2, 3, 4, 5] }, // 12h trabalho / 60h folga → ciclo de 6 dias
     "5x2":   { work: [0,1,2,3,4], off: [5, 6]       }, // 5 dias trabalho / 2 folga → ciclo de 7 dias
     "6x1":   { work: [0,1,2,3,4,5], off: [6]        }, // 6 dias trabalho / 1 folga → ciclo de 7 dias
+    "6h":    { work: [0],          off: []           }, // marcador: lógica real em getDayType6hSemanal()
 };
 
 // ==============================
@@ -96,6 +101,10 @@ export function buildModel(user, date = null) {
             pattern,
             type,
             baseDate,
+            // v4.0 — folga extra a cada 5 plantões (12x36 variante)
+            folgaExtra5: user.settings.folga_extra_5plantoes === true,
+            // v4.1 — turno de 6h com folga semanal fixa (0=dom … 6=sab)
+            folgaDiaSemana: user.settings.folga_dia_semana ?? null,
         },
         profile: {
             area: user.profile.area        || "outros",

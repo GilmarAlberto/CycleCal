@@ -13,6 +13,7 @@ export const AREAS = [
 export const AREA_PRESETS = {
     seguranca:    { scale_type: "plantao", scale_pattern: "24x72" },
     hospital:     { scale_type: "plantao", scale_pattern: "12x36" },
+    hospital_6h:  { scale_type: "semanal", scale_pattern: "6h"    }, // v4.1: turno de 6h
     supermercado: { scale_type: "semanal", scale_pattern: "6x1"   },
     // industria:    { scale_type: "escala",  scale_pattern: "5x1"   },
 };

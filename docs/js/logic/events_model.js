@@ -21,13 +21,14 @@
 // Tipos de evento suportados
 // ==============================
 export const EVENT_TYPES = {
-    FOLGA:    "folga",      // dia de descanso da escala
-    VACATION: "vacation",   // período de férias
-    HOLIDAY:  "holiday",    // feriado nacional/estadual/municipal
-    CULTURAL: "cultural",   // feriado cultural (ex: carnaval)
-    BIRTHDAY: "birthday",   // aniversário do usuário
-    SWAP:     "swap",       // troca de escala
-    EXTRA:    "extra",      // plantão extra (segurança/saúde/outros)
+    FOLGA:     "folga",      // dia de descanso da escala
+    OFF_EXTRA: "off-extra",  // v4.0: folga extra após 5º plantão (12x36 variante)
+    VACATION:  "vacation",   // período de férias
+    HOLIDAY:   "holiday",    // feriado nacional/estadual/municipal
+    CULTURAL:  "cultural",   // feriado cultural (ex: carnaval)
+    BIRTHDAY:  "birthday",   // aniversário do usuário
+    SWAP:      "swap",       // troca de escala
+    EXTRA:     "extra",      // plantão extra (segurança/saúde/outros)
 };
 
 // ==============================
@@ -35,13 +36,14 @@ export const EVENT_TYPES = {
 // (quanto maior, mais relevante visualmente)
 // ==============================
 export const EVENT_PRIORITY = {
-    [EVENT_TYPES.VACATION]: 50,
-    [EVENT_TYPES.FOLGA]:    20,
-    [EVENT_TYPES.SWAP]:     25,
-    [EVENT_TYPES.EXTRA]:    22,  // acima de folga pois transforma folga em trabalho
-    [EVENT_TYPES.HOLIDAY]:  10,
-    [EVENT_TYPES.CULTURAL]:  8,
-    [EVENT_TYPES.BIRTHDAY]:  5,
+    [EVENT_TYPES.VACATION]:  50,
+    [EVENT_TYPES.FOLGA]:     20,
+    [EVENT_TYPES.OFF_EXTRA]: 21, // v4.0: folga extra — destaque visual próprio
+    [EVENT_TYPES.SWAP]:      25,
+    [EVENT_TYPES.EXTRA]:     22, // acima de folga pois transforma folga em trabalho
+    [EVENT_TYPES.HOLIDAY]:   10,
+    [EVENT_TYPES.CULTURAL]:   8,
+    [EVENT_TYPES.BIRTHDAY]:   5,
 };
 
 // ==============================

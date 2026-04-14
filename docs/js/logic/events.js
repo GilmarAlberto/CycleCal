@@ -1,4 +1,4 @@
-import { ehFolga } from "./folgas.js";
+import { ehFolga, getDayType12x36Extra } from "./folgas.js";
 import { ehFeriado } from "./holidays.js";
 import { ehFerias } from "./vacations.js";
 
@@ -7,13 +7,14 @@ import { ehFerias } from "./vacations.js";
 // ==============================
 
 const LAYER_PRIORITY = {
-    vacation: 50,
-    folga:    20,
-    swap:     25,   // troca de escala — acima de folga pois transforma folga em trabalho
-    extra:    22,   // plantão extra — acima de folga pois transforma folga em trabalho
-    holiday:  10,
-    cultural:  8,
-    birthday:  5,
+    vacation:  50,
+    folga:     20,
+    "off-extra": 21, // v4.0: folga extra após 5º plantão — acima de folga, destaque visual próprio
+    swap:      25,   // troca de escala — acima de folga pois transforma folga em trabalho
+    extra:     22,   // plantão extra — acima de folga pois transforma folga em trabalho
+    holiday:   10,
+    cultural:   8,
+    birthday:   5,
 };
 
 // ==============================
@@ -43,7 +44,19 @@ export function getTopLayer(layers) {
 export function eventosDoDia(data, context) {
     const eventos = [];
 
-    if (ehFolga(data, context.user, context.baseFolgaDomingo, context.AREAS_WITHOUT_DSR)) {
+    const user    = context.user;
+    const pattern = user?.settings?.scale_pattern || "";
+
+    // v4.0: 12x36 com folga extra — usa getDayType12x36Extra para distinguir off-extra
+    if (pattern === "12x36" && user?.settings?.folga_extra_5plantoes === true) {
+        const tipo = getDayType12x36Extra(data, user.settings.base_date);
+        if (tipo === "off-extra") {
+            eventos.push("off-extra");
+        } else if (tipo === "off") {
+            eventos.push("folga");
+        }
+        // se "work", não empurra nada — dia de trabalho
+    } else if (ehFolga(data, context.user, context.baseFolgaDomingo, context.AREAS_WITHOUT_DSR)) {
         eventos.push("folga");
     }
 
