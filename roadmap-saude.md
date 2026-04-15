@@ -53,10 +53,10 @@ A cada 5 plantões: folga adicional de 1 dia
 
 Objetivos:
 
-- [ ] Modelar ciclo irregular de folga extra
-- [ ] Implementar contador de plantões no ciclo
-- [ ] Destacar o dia de folga adicional no calendário
-- [ ] Garantir continuidade entre meses
+- [x] Modelar ciclo irregular de folga extra
+- [x] Implementar contador de plantões no ciclo
+- [x] Destacar o dia de folga adicional no calendário
+- [x] Garantir continuidade entre meses
 - [ ] Testar múltiplos anos
 
 ---
@@ -73,10 +73,10 @@ Ciclo:
 
 Objetivos:
 
-- [ ] Implementar ciclo de turno de 6h
-- [ ] Configurar folga semanal fixa
-- [ ] Exibir corretamente no calendário
-- [ ] Garantir continuidade entre meses
+- [x] Implementar ciclo de turno de 6h
+- [x] Configurar folga semanal fixa
+- [x] Exibir corretamente no calendário
+- [x] Garantir continuidade entre meses
 - [ ] Testar múltiplos anos
 
 ---
@@ -85,8 +85,8 @@ Objetivos:
 
 Critérios para considerar a linha v4.x funcional:
 
-- [ ] Escala 12x36 com folga a cada 5 plantões funcionando
-- [ ] Plantão de 6h com folga semanal funcionando
+- [x] Escala 12x36 com folga a cada 5 plantões funcionando
+- [x] Plantão de 6h com folga semanal funcionando
 - [ ] Testes completos em mobile
 - [ ] Testes completos em desktop
 - [ ] Funcionamento correto em PWA instalada

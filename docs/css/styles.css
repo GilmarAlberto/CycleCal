@@ -503,6 +503,50 @@ button {
     margin-top: 10px;
 }
 
+/* v5.0 — Prévia do ciclo NxM */
+#cyclePreview {
+    font-size: 11px;
+    border-radius: 6px;
+    padding: 6px 8px;
+    line-height: 1.6;
+}
+#cyclePreview.preview-ok {
+    background: rgba(52, 211, 153, 0.12);
+    color: #6ee7b7;
+    border: 1px solid rgba(52, 211, 153, 0.25);
+}
+#cyclePreview.preview-err {
+    background: rgba(239, 68, 68, 0.12);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+.preview-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 4px;
+}
+.chip-work {
+    background: rgba(59, 130, 246, 0.3);
+    color: #93c5fd;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+.chip-off {
+    background: rgba(156, 163, 175, 0.2);
+    color: #9ca3af;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+
+
 * {
     box-sizing: border-box;
 }

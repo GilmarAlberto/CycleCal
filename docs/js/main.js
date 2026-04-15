@@ -1,6 +1,6 @@
 import { eventosDoDia, buildLayers, getTopLayer } from "./logic/events.js";
 import { ehFolga, getDayTypeSecondary, getDayType12x36Extra, getDayType6hSemanal } from "./logic/folgas.js";
-import { buildSecondaryModel, cyclePatterns } from "./logic/model.js";
+import { buildSecondaryModel, cyclePatterns, parseCustomPattern, validateCustomPattern } from "./logic/model.js";
 import { feriadosFixos, gerarFeriadosMoveis, gerarCarnaval } from "./logic/feriados.js";
 import { getContext } from "./logic/context.js";
 import { ajustarAniversario, formatarData, isValidDate } from "./logic/utils.js";
@@ -19,7 +19,9 @@ window.isValidDate        = isValidDate;
 window.AREAS_WITHOUT_DSR  = AREAS_WITHOUT_DSR;
 window.AREAS              = AREAS;
 window.AREA_PRESETS       = AREA_PRESETS;
-window.cyclePatterns      = cyclePatterns;
+window.cyclePatterns          = cyclePatterns;
+window.parseCustomPattern     = parseCustomPattern;
+window.validateCustomPattern  = validateCustomPattern;
 window.getProximaFerias   = getProximaFerias;
 
 // 💾 Storage — camada de persistência centralizada

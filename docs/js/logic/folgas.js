@@ -3,7 +3,7 @@
 // v4.0
 // ==============================
 
-import { cyclePatterns, buildSecondaryModel } from "./model.js";
+import { cyclePatterns, buildSecondaryModel, parseCustomPattern } from "./model.js";
 import { toLocalDate } from "./utils.js";
 
 // ==============================
@@ -23,7 +23,7 @@ export function getDayType(date, model) {
 
     if (!pattern || !baseDate) return null;
 
-    const cp = cyclePatterns[pattern];
+    const cp = cyclePatterns[pattern] || parseCustomPattern(pattern);
     if (!cp) return null;
 
     // toLocalDate() garante que strings "YYYY-MM-DD" não sejam
@@ -163,6 +163,22 @@ export function ehFolga(data, user, baseFolgaDomingo, AREAS_WITHOUT_DSR) {
             },
         };
         return getDayType(data, model) === "off";
+    }
+
+    // --- v5.0: NxM livre com scale_type semanal → rota pelo ciclo posicional ---
+    // Padrões livres (ex: 4x2, 3x1) não têm DSR fixo nem domingo rotativo.
+    // A folga é posicional no ciclo, igual ao plantão.
+    if (pattern && scaleType === "semanal" && !cyclePatterns[pattern]) {
+        const cp = parseCustomPattern(pattern);
+        if (cp) {
+            const model = {
+                cycle: {
+                    pattern,
+                    baseDate: user.settings.base_date || "",
+                },
+            };
+            return getDayType(data, model) === "off";
+        }
     }
 
     // --- Semanal legado: DSR fixo + domingo a cada N semanas ---

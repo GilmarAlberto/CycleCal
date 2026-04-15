@@ -73,7 +73,7 @@
         <script>
             const config = {
                 appName: "CycleCal",
-                version: "4.2.1",
+                version: "5.0.0",
                 debug: false,
             };
 
@@ -257,6 +257,48 @@
                 }
             }
 
+            // v5.0 — Exibe prévia visual do ciclo NxM no Setup
+            function atualizarCyclePreview(pattern) {
+                const el = document.getElementById("cyclePreview");
+                if (!el) return;
+
+                if (!pattern) {
+                    el.style.display = "none";
+                    el.className = "";
+                    el.innerHTML = "";
+                    return;
+                }
+
+                const result = window.validateCustomPattern?.(pattern);
+                if (!result) return;
+
+                if (!result.valid) {
+                    el.style.display = "";
+                    el.className = "preview-err";
+                    el.textContent = result.error;
+                    return;
+                }
+
+                // Padrão válido — monta chips T/F
+                const MAX_CHIPS = 30;
+                const { work, rest, cycleLen } = result;
+                const chips = [];
+                for (let i = 0; i < Math.min(work, MAX_CHIPS); i++)
+                    chips.push(`<span class="chip-work">T</span>`);
+                for (let i = 0; i < Math.min(rest, MAX_CHIPS - work); i++)
+                    chips.push(`<span class="chip-off">F</span>`);
+
+                const truncated = cycleLen > MAX_CHIPS
+                    ? `<span style="color:#6b7280;font-size:10px"> +${cycleLen - MAX_CHIPS} dias</span>`
+                    : "";
+
+                el.style.display = "";
+                el.className = "preview-ok";
+                el.innerHTML =
+                    `<span>${work}d trabalho · ${rest}d folga · ciclo de ${cycleLen} dias</span>` +
+                    `<div class="preview-chips">${chips.join("")}${truncated}</div>`;
+            }
+
             function atualizarCamposSemanaisOutros() {
                 const scaleType   = document.getElementById("outrosScaleType")?.value;
                 const patternVal  = (document.getElementById("setupScalePattern")?.value || "").trim();
@@ -278,10 +320,25 @@
 
                 if (patternInput && !patternInput.value) patternInput.placeholder = "ex: 6x1";
 
-                const usaCyclePattern = patternVal && window.cyclePatterns?.[patternVal];
+                const usaCyclePattern = patternVal && (
+                    window.cyclePatterns?.[patternVal] ||
+                    window.validateCustomPattern?.(patternVal)?.valid
+                );
                 if (usaCyclePattern) {
                     if (dsrField) dsrField.style.display = "none";
-                    atualizarSelectFolga(patternVal);
+                    // Padrões livres NxM não têm FOLGA_OPTIONS → mostra data base normal
+                    const temSelectFolga = !!window.FOLGA_OPTIONS?.[patternVal] ||
+                        (patternVal === "5x2" || patternVal === "6x1");
+                    if (temSelectFolga) {
+                        atualizarSelectFolga(patternVal);
+                    } else {
+                        // NxM livre: esconde select de folga, mostra data base
+                        const folgaWrapper = document.getElementById("folgaSelectWrapper");
+                        if (folgaWrapper) folgaWrapper.style.display = "none";
+                        const dateInput = document.getElementById("setupBaseDate");
+                        if (dateInput) dateInput.style.display = "";
+                        if (label) { label.textContent = "Informe o último dia trabalhado"; label.style.display = ""; }
+                    }
                 } else {
                     // Legado: DSR + domingo a cada N semanas
                     if (dsrField) dsrField.style.display = "";
@@ -354,7 +411,14 @@
                 const presetType = window.AREA_PRESETS?.[area]?.scale_type || "";
                 const isSemanal = presetType === "semanal" ||
                     (area === "outros" && document.getElementById("outrosScaleType")?.value === "semanal");
-                wrapper.style.display = isSemanal ? "" : "none";
+
+                // NxM livre em modo semanal não usa domingo rotativo
+                const patternVal = (document.getElementById("setupScalePattern")?.value || "").trim();
+                const isNxMLivre = patternVal &&
+                    !window.cyclePatterns?.[patternVal] &&
+                    window.validateCustomPattern?.(patternVal)?.valid;
+
+                wrapper.style.display = (isSemanal && !isNxMLivre) ? "" : "none";
             }
 
             function atualizarLabelBaseDate(area) {
@@ -637,6 +701,7 @@
                     }
                     if (newArea === "outros") {
                         document.getElementById("setupScalePattern").value = "";
+                        atualizarCyclePreview("");
                     }
 
                     atualizarLabelBaseDate(e.target.value);
@@ -671,6 +736,8 @@
                         : (document.getElementById("setupScaleType")?.value || "");
                     const pattern = document.getElementById("setupScalePattern")?.value.trim();
                     atualizarCamposSemanal(scaleType, pattern);
+                    // v5.0 — prévia do ciclo NxM
+                    atualizarCyclePreview(pattern);
                 });
 
                 document.getElementById("outrosScaleType").addEventListener("change", () => {
@@ -680,6 +747,7 @@
                     patternInput.value = "";
                     patternInput.placeholder = scaleType === "semanal" ? "ex: 6x1" : "ex: 12x36";
                     atualizarCamposSemanal(scaleType, "");
+                    atualizarCyclePreview("");
                 });
 
                 const birthdayInput = document.getElementById("setupBirthday");
@@ -780,6 +848,15 @@
                     if (needsPattern && !scalePatternVal) {
                         showToast("Informe o padrão da escala (ex: 12x36).", "error");
                         return;
+                    }
+
+                    // v5.0 — valida padrão NxM livre (área outros com plantão)
+                    if (needsPattern && scalePatternVal && areaVal === "outros") {
+                        const validation = window.validateCustomPattern?.(scalePatternVal);
+                        if (validation && !validation.valid) {
+                            showToast(validation.error, "error");
+                            return;
+                        }
                     }
 
                     const user = window.loadUser();
@@ -1612,7 +1689,13 @@
 
                     if (scaleTypeRodape !== "plantao") {
 
-                    // 📅 PRÓXIMA FOLGA DOMINGO
+                    // v5.0 — NxM livre com semanal: não usa lógica de domingo rotativo
+                    const patternRodape = user.settings.scale_pattern || "";
+                    const isNxMLivreRodape = patternRodape &&
+                        !window.cyclePatterns?.[patternRodape] &&
+                        window.validateCustomPattern?.(patternRodape)?.valid;
+
+                    if (!isNxMLivreRodape) {
                     // Só exibe se sunday_cycle > 1 (se for 1, folga todo domingo — óbvio demais)
                     const sundayCycle = Number(user.settings.sunday_cycle ?? 3);
                     if (sundayCycle > 1 && user.settings.base_date) {
@@ -1648,6 +1731,8 @@
                     if (dsr !== 0) {
                         partes.push(`DSR: ${diasSemana[dsr]}`);
                     }
+
+                    } // fim if (!isNxMLivreRodape)
 
                     } // fim if (!usaCyclePattern)
                 }
@@ -1745,6 +1830,10 @@
 
                 // Se área é "outros" semanal, atualiza visibilidade com base no padrão já salvo
                 if (area === "outros") atualizarCamposSemanaisOutros();
+
+                // v5.0 — prévia do ciclo ao abrir setup com padrão já salvo
+                const savedPattern = document.getElementById("setupScalePattern")?.value.trim();
+                if (savedPattern) atualizarCyclePreview(savedPattern);
 
                 // Garante DSR e sundayCycle visíveis para áreas semanais (ex: supermercado)
                 const presetTypeCheck = window.AREA_PRESETS?.[area]?.scale_type || "";
@@ -2432,6 +2521,8 @@
                             <div id="patternInputWrapper">
                                 <label>Padrão da escala</label>
                                 <input type="text" id="setupScalePattern" placeholder="ex: 12x36" />
+                                <!-- v5.0: prévia do ciclo NxM -->
+                                <div id="cyclePreview" style="display:none; margin-top:6px;"></div>
                             </div>
                         </div>
 

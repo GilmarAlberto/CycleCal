@@ -2,7 +2,7 @@
 // CycleCal Service Worker
 // ==============================
 
-const VERSION = "4.2.1";
+const VERSION = "5.0.0";
 const CACHE_NAME = `cyclecal-${VERSION}`;
 
 const ASSETS = [
@@ -12,6 +12,7 @@ const ASSETS = [
   "./icon-256.png",
   "./icon-512.png",
   "./js/main.js",
+  "./js/logic/model.js",
   "./js/logic/events.js",
   "./js/logic/folgas.js",
   "./js/logic/holidays.js",

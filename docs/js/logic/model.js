@@ -1,6 +1,6 @@
 // ==============================
 // CycleCal — Modelo de Dados Centralizado
-// v4.0
+// v5.0
 // ==============================
 
 // Padrões de ciclo de plantão.
@@ -25,6 +25,75 @@ export const cyclePatterns = {
     "6x1":   { work: [0,1,2,3,4,5], off: [6]        }, // 6 dias trabalho / 1 folga → ciclo de 7 dias
     "6h":    { work: [0],          off: []           }, // marcador: lógica real em getDayType6hSemanal()
 };
+
+// ==============================
+// parseCustomPattern()
+// Converte uma string NxM em um objeto { work, off } compatível com cyclePatterns.
+//
+// Parâmetros:
+//   pattern — string no formato "NxM" (ex: "4x2", "3x1", "10x4")
+//
+// Retorna: { work: [...], off: [...] } | null se inválido
+//
+// Exemplos:
+//   "4x2" → { work: [0,1,2,3], off: [4,5] }
+//   "3x1" → { work: [0,1,2],   off: [3]   }
+// ==============================
+
+export function parseCustomPattern(pattern) {
+    if (!pattern || typeof pattern !== "string") return null;
+
+    const match = pattern.trim().match(/^(\d+)[xX](\d+)$/);
+    if (!match) return null;
+
+    const work = Number(match[1]);
+    const rest = Number(match[2]);
+
+    if (work < 1 || rest < 1 || work > 365 || rest > 365) return null;
+
+    return {
+        work: Array.from({ length: work }, (_, i) => i),
+        off:  Array.from({ length: rest }, (_, i) => work + i),
+    };
+}
+
+// ==============================
+// validateCustomPattern()
+// Valida uma string NxM e retorna um objeto descritivo do resultado.
+//
+// Parâmetros:
+//   pattern — string digitada pelo usuário
+//
+// Retorna:
+//   { valid: true,  work, rest, cycleLen }  — quando válido
+//   { valid: false, error: "mensagem" }      — quando inválido
+// ==============================
+
+export function validateCustomPattern(pattern) {
+    if (!pattern || !pattern.trim()) {
+        return { valid: false, error: "Informe o padrão da escala." };
+    }
+
+    const trimmed = pattern.trim();
+
+    // Está na tabela fixa? Sempre válido.
+    if (cyclePatterns[trimmed]) {
+        const cp = cyclePatterns[trimmed];
+        return { valid: true, work: cp.work.length, rest: cp.off.length, cycleLen: cp.work.length + cp.off.length, fixed: true };
+    }
+
+    if (!/^\d+[xX]\d+$/.test(trimmed)) {
+        return { valid: false, error: "Use o formato NxM (ex: 4x2, 3x1)." };
+    }
+
+    const [w, r] = trimmed.split(/[xX]/).map(Number);
+
+    if (w < 1) return { valid: false, error: "Dias de trabalho deve ser pelo menos 1." };
+    if (r < 1) return { valid: false, error: "Dias de folga deve ser pelo menos 1." };
+    if (w > 365 || r > 365) return { valid: false, error: "Valor muito alto (máx. 365)." };
+
+    return { valid: true, work: w, rest: r, cycleLen: w + r, fixed: false };
+}
 
 // ==============================
 // getScaleForDate()
