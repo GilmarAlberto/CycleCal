@@ -767,6 +767,7 @@
                         return;
                     }
 
+                    const areaVal = document.getElementById("areaSelect").value || "outros";
                     const scalePatternVal = areaVal === "hospital"
                         ? (document.getElementById("hospitalScaleSelect")?.value || "12x36")
                         : document.getElementById("setupScalePattern").value.trim();
@@ -775,7 +776,6 @@
                         if (area === "outros") return document.getElementById("outrosScaleType")?.value || "plantao";
                         return "plantao"; // áreas fixas sempre são plantão
                     })();
-                    const areaVal = document.getElementById("areaSelect").value || "outros";
                     const needsPattern = AREAS_WITHOUT_DSR.includes(areaVal) || scaleTypeVal === "plantao";
                     if (needsPattern && !scalePatternVal) {
                         showToast("Informe o padrão da escala (ex: 12x36).", "error");
